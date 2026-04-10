@@ -1,20 +1,23 @@
-using System.Collections;
+ï»¿using UnityEngine;
 using System.Collections.Generic;
-using UnityEngine;
 
-// ÀÌ ÄÚµå°¡ ÀÖÀ¸¸é À¯´ÏÆ¼ ¿ìÅ¬¸¯ ¸Ş´º¿¡¼­ ÀÌ µ¥ÀÌÅÍ¸¦ ºØ¾î»§Ã³·³ Âï¾î³¾ ¼ö ÀÖ½À´Ï´Ù.
 [CreateAssetMenu(fileName = "New Document", menuName = "TruthArchive/Document Data")]
 public class DocumentData : ScriptableObject
 {
-    [Header("¹®¼­ ±âº» Á¤º¸")]
-    public int documentID;          // ¹®¼­ °íÀ¯ ¹øÈ£ (¿¹: 101)
-    public string documentTitle;    // ¹®¼­ Á¦¸ñ (¿¹: "ÀÌ¼ÛÀÚ ¸í´Ü", "»ç¼³ ´º½º ±â»ç")
+    [Header("ë¬¸ì„œ ê¸°ë³¸ ì •ë³´")]
+    public int documentID;
+    public string documentTitle;
 
-    [Header("¹®¼­ ³»¿ë")]
-    [TextArea(5, 10)] // ¿¡µğÅÍ¿¡¼­ ±ÛÀ» ±æ°Ô ¾µ ¼ö ÀÖµµ·Ï Ä­À» ³ĞÇôÁİ´Ï´Ù.
-    public string mainText;         // ¹®¼­ÀÇ º»¹® ³»¿ë
+    [Header("ë¬¸ì„œ ë‚´ìš©")]
+    [TextArea(5, 10)]
+    public string mainText;
 
-    [Header("°Ë¿­ ¹× ÆÇº° ½Ã½ºÅÛ")]
-    public bool isFakeInfo;         // ÇãÀ§/Á¶ÀÛµÈ Á¤º¸ÀÎ°¡? (True¸é ¹İ·ÁÇØ¾ß ÇÔ)
-    public string requiredKeyword;  // ½ÂÀÎ/¹İ·Á¸¦ °áÁ¤Áş´Â ÇÙ½É Å°¿öµå (¿¹: "½ÇÁ¾", "ÀÌ¼Û")
+    [Header("ê²€ì—´(ë§ˆìŠ¤í‚¹) ì‹œìŠ¤í…œ")]
+    public bool needsCensorship;
+    public List<string> targetCensorKeywords;
+
+    // ğŸŒŸ ì¶”ê°€ëœ ë¶€ë¶„: ì´ ë¬¸ì„œ(í•´ë‹¹ ì¼ì°¨)ë¥¼ ì²˜ë¦¬í•  ë•Œ ë³¼ ê°€ì´ë“œë¼ì¸ ë‚´ìš©
+    [Header("ì—…ë¬´ ì§€ì¹¨ (ê°€ì´ë“œë¼ì¸)")]
+    [TextArea(3, 5)]
+    public string guidelineText;
 }
