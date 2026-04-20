@@ -267,6 +267,7 @@ GameObject:
   - component: {fileID: 232688117}
   - component: {fileID: 232688119}
   - component: {fileID: 232688118}
+  - component: {fileID: 232688120}
   m_Layer: 5
   m_Name: Panel_Guideline
   m_TagString: Untagged
@@ -332,6 +333,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 232688116}
   m_CullTransparentMesh: 1
+--- !u!225 &232688120
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 232688116}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &407892606
 GameObject:
   m_ObjectHideFlags: 0
@@ -415,7 +428,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1647569612}
+      - m_Target: {fileID: 1647569616}
         m_TargetAssemblyTypeName: DocumentViewer, Assembly-CSharp
         m_MethodName: OnClickApproveButton
         m_Mode: 1
@@ -886,6 +899,59 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 622496008}
   m_CullTransparentMesh: 1
+--- !u!1 &638579392
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 638579394}
+  - component: {fileID: 638579393}
+  m_Layer: 0
+  m_Name: NightMapUI
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &638579393
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 638579392}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1672459df5abdeb42ad432d6e9e61de5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mapPanelCG: {fileID: 0}
+  buttonContainer: {fileID: 0}
+  locationButtonPrefab: {fileID: 0}
+  selectedLocation: {fileID: 11400000, guid: c9e81a1b406f2b94aa8a2e59d42a34cd, type: 2}
+  onLocationSelected: {fileID: 11400000, guid: 77ca012ed37b55642ae04520352b83a9, type: 2}
+  panelFadeInDuration: 0.35
+  panelFadeOutDuration: 0.25
+  buttonStaggerDelay: 0.08
+  buttonRiseDistance: 28
+--- !u!4 &638579394
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 638579392}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.40108445, y: -0.27453625, z: 11.83791}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &829507173
 GameObject:
   m_ObjectHideFlags: 0
@@ -969,9 +1035,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1740964517}
+      - m_Target: {fileID: 1740964516}
         m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
-        m_MethodName: GoToNextPhase
+        m_MethodName: 
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1054,7 +1120,7 @@ MonoBehaviour:
   m_BlockingObjects: 0
   m_BlockingMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 55
 --- !u!114 &941425134
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1257,6 +1323,60 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1062749909}
   m_CullTransparentMesh: 1
+--- !u!1 &1149522108
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1149522110}
+  - component: {fileID: 1149522109}
+  m_Layer: 0
+  m_Name: NightPhaseManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1149522109
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1149522108}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0e071a10f06a6b34585c8f823db3cdfa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  dayCameraOrUICamera: {fileID: 519420031}
+  nightTopDownCamera: {fileID: 0}
+  playerCharacter: {fileID: 0}
+  playerController: {fileID: 0}
+  locationMaps: []
+  selectedLocation: {fileID: 11400000, guid: c9e81a1b406f2b94aa8a2e59d42a34cd, type: 2}
+  onLocationSelected: {fileID: 11400000, guid: 77ca012ed37b55642ae04520352b83a9, type: 2}
+  onPhaseTransitionRequest: {fileID: 11400000, guid: 2463a46d94a0aec4d86920d31da75035, type: 2}
+  playerSpawnDuration: 0.4
+  cameraTransitionDuration: 0.5
+--- !u!4 &1149522110
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1149522108}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.40108445, y: -0.27453625, z: 11.83791}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1271994385
 GameObject:
   m_ObjectHideFlags: 0
@@ -1536,7 +1656,8 @@ GameObject:
   - component: {fileID: 1647569611}
   - component: {fileID: 1647569614}
   - component: {fileID: 1647569613}
-  - component: {fileID: 1647569612}
+  - component: {fileID: 1647569615}
+  - component: {fileID: 1647569616}
   m_Layer: 5
   m_Name: Panel_Document
   m_TagString: Untagged
@@ -1567,21 +1688,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: -1421.89, y: -341.34}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1647569612
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1647569610}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3615c4a295041474ea0b15b23f55618b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  titleText: {fileID: 142556517}
-  contentText: {fileID: 1062749911}
-  currentDocument: {fileID: 11400000, guid: 414e033ad3f37ed449af6cb379e2c247, type: 2}
 --- !u!114 &1647569613
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1620,6 +1726,34 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1647569610}
   m_CullTransparentMesh: 1
+--- !u!225 &1647569615
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1647569610}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
+--- !u!114 &1647569616
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1647569610}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 106334b12a56f7e479201514cdb61b1e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  titleText: {fileID: 142556517}
+  contentText: {fileID: 1062749911}
+  onApproveClicked: {fileID: 11400000, guid: cd3bed9ffc7a2ee4b8dcbf4708b3a0f9, type: 2}
+  currentDocument: {fileID: 0}
 --- !u!1 &1740964516
 GameObject:
   m_ObjectHideFlags: 0
@@ -1630,6 +1764,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1740964518}
   - component: {fileID: 1740964517}
+  - component: {fileID: 1740964519}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -1652,14 +1787,11 @@ MonoBehaviour:
   currentPhase: 0
   currentDay: 1
   documentPanel: {fileID: 1647569610}
-  documentViewer: {fileID: 1647569612}
+  documentViewer: {fileID: 0}
   guidelineButton: {fileID: 1972916307}
   guidelinePanel: {fileID: 232688116}
   guidelineTextUI: {fileID: 1898420477}
-  dailyDocuments:
-  - {fileID: 11400000, guid: 414e033ad3f37ed449af6cb379e2c247, type: 2}
-  - {fileID: 11400000, guid: a982d5b549ee5734e8f136d5921eff79, type: 2}
-  - {fileID: 11400000, guid: 5b18184447241f241b4609f4650f361c, type: 2}
+  dailyDataList: []
 --- !u!4 &1740964518
 Transform:
   m_ObjectHideFlags: 0
@@ -1675,6 +1807,34 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1740964519
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1740964516}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b5feed499bd27d8498abbb36db0c06bc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  currentPhase: 0
+  currentDay: 1
+  soapCurrentDay: {fileID: 11400000, guid: f07a17e242ea6944c954d05c944a29bd, type: 2}
+  onApproveClicked: {fileID: 11400000, guid: cd3bed9ffc7a2ee4b8dcbf4708b3a0f9, type: 2}
+  onLocationSelected: {fileID: 11400000, guid: 77ca012ed37b55642ae04520352b83a9, type: 2}
+  documentPanelCG: {fileID: 1647569615}
+  guidelinePanelCG: {fileID: 232688120}
+  guidelineButton: {fileID: 1972916307}
+  guidelineTextUI: {fileID: 1898420477}
+  documentViewer: {fileID: 1647569616}
+  morningNewsPanelCG: {fileID: 0}
+  officialNewsTitleUI: {fileID: 0}
+  officialNewsContentUI: {fileID: 0}
+  nightMapUI: {fileID: 638579393}
+  dailyDataList: []
+  panelFadeDuration: 0.35
 --- !u!1 &1898420475
 GameObject:
   m_ObjectHideFlags: 0
@@ -1892,7 +2052,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1740964517}
+      - m_Target: {fileID: 1740964519}
         m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
         m_MethodName: OnClickGuidelineToggle
         m_Mode: 1
@@ -1951,3 +2111,5 @@ SceneRoots:
   - {fileID: 1740964518}
   - {fileID: 941425136}
   - {fileID: 514997245}
+  - {fileID: 638579394}
+  - {fileID: 1149522110}

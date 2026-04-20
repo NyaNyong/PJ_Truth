@@ -1,153 +1,176 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using TMPro;
 using UnityEngine.EventSystems;
+using Sirenix.OdinInspector;
+using Obvious.Soap;
 
 public class DocumentViewer : MonoBehaviour, IPointerClickHandler
 {
-    [Header("연결할 UI 텍스트")]
-    public TextMeshProUGUI titleText;
-    public TextMeshProUGUI contentText;
+    // ─────────────────────────────────────────
+    // UI 연결
+    // ─────────────────────────────────────────
+    [BoxGroup("UI 연결")]
+    [SerializeField] private TextMeshProUGUI titleText;
 
-    [Header("현재 표시할 문서 데이터")]
-    public DocumentData currentDocument;
+    [BoxGroup("UI 연결")]
+    [SerializeField] private TextMeshProUGUI contentText;
+
+    // ─────────────────────────────────────────
+    // SOAP 연결
+    // ─────────────────────────────────────────
+    [BoxGroup("SOAP 연결")]
+    [Tooltip("승인 버튼 클릭 시 Raise → GameManager.GoToNextPhase 호출됨")]
+    [SerializeField] private ScriptableEventNoParam onApproveClicked;
+
+    // ─────────────────────────────────────────
+    // 내부 상태
+    // ─────────────────────────────────────────
+    [ReadOnly]
+    [BoxGroup("현재 문서 (런타임 확인용)")]
+    [SerializeField] private DocumentData currentDocument;
 
     private bool isAllMaskedCorrectly = false;
     private HashSet<int> maskedWordIndices = new HashSet<int>();
 
+    // ─────────────────────────────────────────
+    // 문서 표시
+    // ─────────────────────────────────────────
     public void ShowDocument(DocumentData docData)
     {
         currentDocument = docData;
         titleText.text = docData.documentTitle;
 
-        // 🌟 1. 마커로 칠했던 위치 기록과 정답 판정을 싹 지웁니다.
         maskedWordIndices.Clear();
         isAllMaskedCorrectly = false;
 
-        // 🌟 2. 텍스트를 원본 내용으로 깨끗하게 덮어씁니다.
         contentText.text = docData.mainText;
         contentText.ForceMeshUpdate();
     }
 
+    // ─────────────────────────────────────────
+    // 클릭 처리 (단어 마스킹)
+    // ─────────────────────────────────────────
     public void OnPointerClick(PointerEventData eventData)
     {
+        if (currentDocument == null) return;
+
         Camera uiCamera = Camera.main;
-        int wordIndex = TMP_TextUtilities.FindIntersectingWord(contentText, eventData.position, uiCamera);
+        int wordIndex = TMP_TextUtilities.FindIntersectingWord(
+            contentText, eventData.position, uiCamera);
 
-        if (wordIndex != -1)
+        if (wordIndex == -1) return;
+
+        string clickedWord = contentText.textInfo.wordInfo[wordIndex].GetWord();
+        bool isTargetWord = IsTargetKeyword(clickedWord);
+
+        if (maskedWordIndices.Contains(wordIndex))
         {
-            string clickedWord = contentText.textInfo.wordInfo[wordIndex].GetWord();
-            bool isTargetWord = false;
-
-            if (currentDocument.needsCensorship)
-            {
-                foreach (string target in currentDocument.targetCensorKeywords)
-                {
-                    if (clickedWord.Contains(target))
-                    {
-                        isTargetWord = true;
-                        break;
-                    }
-                }
-            }
-
-            if (maskedWordIndices.Contains(wordIndex))
-            {
-                maskedWordIndices.Remove(wordIndex);
-                if (isTargetWord) Debug.Log($"⚠️ [경고] 검열 단어 노출됨: {clickedWord}");
-                else Debug.Log($"[안내] 일반 단어 지움: {clickedWord}");
-            }
-            else
-            {
-                maskedWordIndices.Add(wordIndex);
-                if (isTargetWord) Debug.Log($"🎯 [적중] 검열 단어 가림: {clickedWord}");
-                else Debug.Log($"[안내] 일반 단어 칠함: {clickedWord}");
-            }
-
-            UpdateTextDisplay();
-            CheckAnswer();
+            maskedWordIndices.Remove(wordIndex);
+            Debug.Log(isTargetWord
+                ? $"⚠️ [경고] 검열 단어 노출됨: {clickedWord}"
+                : $"[안내] 일반 단어 지움: {clickedWord}");
         }
+        else
+        {
+            maskedWordIndices.Add(wordIndex);
+            Debug.Log(isTargetWord
+                ? $"🎯 [적중] 검열 단어 가림: {clickedWord}"
+                : $"[안내] 일반 단어 칠함: {clickedWord}");
+        }
+
+        UpdateTextDisplay();
+        CheckAnswer();
     }
 
+    // ─────────────────────────────────────────
+    // 텍스트 렌더링 갱신
+    // ─────────────────────────────────────────
     private void UpdateTextDisplay()
     {
+        // 원본 텍스트로 리셋 후 마스킹 태그 삽입
         contentText.text = currentDocument.mainText;
         contentText.ForceMeshUpdate();
 
         string newText = currentDocument.mainText;
+
+        // 뒤에서부터 삽입해야 인덱스가 밀리지 않음
         List<int> sortedIndices = maskedWordIndices.ToList();
         sortedIndices.Sort();
         sortedIndices.Reverse();
 
         foreach (int index in sortedIndices)
         {
-            if (index < contentText.textInfo.wordCount)
-            {
-                TMP_WordInfo wInfo = contentText.textInfo.wordInfo[index];
-                int startChar = wInfo.firstCharacterIndex;
-                int endChar = wInfo.lastCharacterIndex;
+            if (index >= contentText.textInfo.wordCount) continue;
 
-                newText = newText.Insert(endChar + 1, "</color></mark>");
-                newText = newText.Insert(startChar, "<mark=#000000><color=#000000>");
-            }
+            TMP_WordInfo wInfo = contentText.textInfo.wordInfo[index];
+            int startChar = wInfo.firstCharacterIndex;
+            int endChar   = wInfo.lastCharacterIndex;
+
+            newText = newText.Insert(endChar + 1, "</color></mark>");
+            newText = newText.Insert(startChar,   "<mark=#000000><color=#000000>");
         }
+
         contentText.text = newText;
     }
 
+    // ─────────────────────────────────────────
+    // 정답 채점
+    // ─────────────────────────────────────────
     private void CheckAnswer()
     {
-        if (currentDocument.needsCensorship == false) return;
+        if (!currentDocument.needsCensorship)
+        {
+            isAllMaskedCorrectly = false;
+            return;
+        }
 
-        List<string> currentlyMaskedWords = new List<string>();
+        // 현재 마스킹된 단어 목록 수집
+        List<string> maskedWords = new List<string>();
         foreach (int index in maskedWordIndices)
         {
             if (index < contentText.textInfo.wordCount)
-            {
-                currentlyMaskedWords.Add(contentText.textInfo.wordInfo[index].GetWord());
-            }
+                maskedWords.Add(contentText.textInfo.wordInfo[index].GetWord());
         }
 
-        bool allTargetsFound = true;
-
-        foreach (string target in currentDocument.targetCensorKeywords)
-        {
-            bool isThisTargetMasked = false;
-            foreach (string maskedWord in currentlyMaskedWords)
-            {
-                if (maskedWord.Contains(target))
-                {
-                    isThisTargetMasked = true;
-                    break;
-                }
-            }
-
-            if (isThisTargetMasked == false)
-            {
-                allTargetsFound = false;
-                break;
-            }
-        }
-
-        isAllMaskedCorrectly = allTargetsFound;
+        // 모든 타겟 키워드가 마스킹되었는지 확인
+        isAllMaskedCorrectly = currentDocument.targetCensorKeywords.All(target =>
+            maskedWords.Any(masked => masked.Contains(target)));
     }
 
+    // ─────────────────────────────────────────
+    // 승인 버튼
+    // ─────────────────────────────────────────
     public void OnClickApproveButton()
     {
-        Debug.Log("서류 승인 버튼 클릭됨! 채점을 시작합니다...");
+        Debug.Log("📋 서류 승인 버튼 클릭 — 채점 시작");
 
-        if (currentDocument.needsCensorship == true)
+        if (currentDocument.needsCensorship)
         {
-            if (isAllMaskedCorrectly == true) Debug.Log("✅ [채점/정답] 모든 위험한 정보를 완벽히 가리고 승인했습니다!");
-            else Debug.Log("❌ [채점/오답] 가려야 할 정보가 남아있는 채로 승인되었습니다!");
+            Debug.Log(isAllMaskedCorrectly
+                ? "✅ [정답] 모든 위험 정보를 완벽히 가리고 승인했습니다!"
+                : "❌ [오답] 가려야 할 정보가 남아있는 채로 승인되었습니다!");
         }
         else
         {
-            if (maskedWordIndices.Count == 0) Debug.Log("✅ [채점/정답] 정상적인 문서를 훼손 없이 승인했습니다!");
-            else Debug.Log("❌ [채점/오답] 멀쩡한 정보를 임의로 훼손(조작)했습니다!");
+            Debug.Log(maskedWordIndices.Count == 0
+                ? "✅ [정답] 정상 문서를 훼손 없이 승인했습니다!"
+                : "❌ [오답] 멀쩡한 정보를 임의로 훼손했습니다!");
         }
 
-        // 승인 후 서류를 자동으로 치우고 다음 시간으로 넘깁니다.
-        FindObjectOfType<GameManager>().GoToNextPhase();
+        // FindObjectOfType 대신 SOAP 이벤트로 신호 발행
+        onApproveClicked?.Raise();
+    }
+
+    // ─────────────────────────────────────────
+    // 유틸리티
+    // ─────────────────────────────────────────
+    private bool IsTargetKeyword(string word)
+    {
+        if (!currentDocument.needsCensorship) return false;
+
+        return currentDocument.targetCensorKeywords
+            .Any(target => word.Contains(target));
     }
 }

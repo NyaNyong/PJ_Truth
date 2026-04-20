@@ -1,9 +1,21 @@
 fileFormatVersion: 2
-guid: 2c3d644ac7673ea4ca08a74e7137bf8e
+guid: b5feed499bd27d8498abbb36db0c06bc
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - soapCurrentDay: {instanceID: 0}
+  - onApproveClicked: {instanceID: 0}
+  - onLocationSelected: {instanceID: 0}
+  - documentPanelCG: {instanceID: 0}
+  - guidelinePanelCG: {instanceID: 0}
+  - guidelineButton: {instanceID: 0}
+  - guidelineTextUI: {instanceID: 0}
+  - documentViewer: {instanceID: 0}
+  - morningNewsPanelCG: {instanceID: 0}
+  - officialNewsTitleUI: {instanceID: 0}
+  - officialNewsContentUI: {instanceID: 0}
+  - nightMapUI: {instanceID: 0}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 
