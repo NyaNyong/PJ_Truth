@@ -4,22 +4,26 @@ using System.Collections.Generic;
 [CreateAssetMenu(fileName = "New Daily Data", menuName = "TruthArchive/Daily Data")]
 public class DailyData : ScriptableObject
 {
-    [Header("±âº» Á¤º¸")]
-    public int dayNumber; // ¸çÄ¥ Â÷(½ºÅ×ÀÌÁö)ÀÎ°¡?
+    [Header("ê¸°ë³¸ ì •ë³´")]
+    public int dayNumber;
 
-    [Header("¾ÆÄ§ ÆäÀÌÁî (´º½º º¸µµ)")]
+    [Header("ì•„ì¹¨ í˜ì´ì¦ˆ - ë‰´ìŠ¤")]
     public string officialNewsTitle;
     [TextArea(5, 10)] public string officialNewsContent;
 
-    public bool hasPrivateNews; // ¿À´Ã »ç¼³ ´º½º°¡ µîÀåÇÏ´Â°¡?
+    public bool hasPrivateNews;
     public string privateNewsTitle;
     [TextArea(5, 10)] public string privateNewsContent;
 
-    [Header("³· ÆäÀÌÁî (°Ë¿­ ¾÷¹«)")]
-    [Tooltip("¿À´Ã Ã³¸®ÇØ¾ß ÇÒ »ç°Ç ÀÏÁö(¼­·ù) µ¥ÀÌÅÍ")]
-    public DocumentData documentToProcess; // (¸¸¾à ÇÏ·ç¿¡ ¼­·ù°¡ ¿©·¯ °³¶ó¸é List<DocumentData>·Î º¯°æ °¡´É)
+    [Header("ë‚® í˜ì´ì¦ˆ - ê²€ì—´ ì„œë¥˜")]
+    [Tooltip("ì˜¤ëŠ˜ ì²˜ë¦¬í•  ì„œë¥˜")]
+    public DocumentData documentToProcess;
 
-    [Header("¹ã ÆäÀÌÁî (ÀÌµ¿ °¡´É Àå¼Ò)")]
-    [Tooltip("¿À´Ã ¹ã Áöµµ(Map)¿¡ Ç¥½ÃµÉ Àå¼Ò ÀÌ¸§µé")]
+    [Header("ë°¤ í˜ì´ì¦ˆ - í•­ìƒ ì—´ë¦° ì¥ì†Œ")]
+    [Tooltip("ì¡°ê±´ ì—†ì´ í•­ìƒ ì§€ë„ì— í‘œì‹œë˜ëŠ” ì¥ì†Œ")]
     public List<string> availableLocations;
+
+    [Header("ë°¤ í˜ì´ì¦ˆ - ì¡°ê±´ë¶€ ì¥ì†Œ")]
+    [Tooltip("ì¡°ê±´ì„ ì¶©ì¡±í•´ì•¼ë§Œ ì§€ë„ì— í‘œì‹œë˜ëŠ” ì¥ì†Œ")]
+    public List<ConditionalLocation> conditionalLocations;
 }
