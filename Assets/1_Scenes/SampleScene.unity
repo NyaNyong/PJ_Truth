@@ -903,7 +903,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   npcName: ???
   dialogueLines:
-  - dadadaddad
+  - "\uB09C \uB204\uAD6C \uC5EC\uAE34 \uC5B4\uB514"
   repeatLines: []
   grantClueIDOnFinish: 
   setFlagOnFinish: 
@@ -2699,11 +2699,6 @@ MonoBehaviour:
     mapBoundary: {fileID: 946646061}
     spawnPoint: {fileID: 26602239}
     mapButtonPosition: {x: 0, y: 50}
-  - locationName: "\uC784\uC2DC\uC784\uC2DC"
-    mapRoot: {fileID: 946646059}
-    mapBoundary: {fileID: 946646061}
-    spawnPoint: {fileID: 26602239}
-    mapButtonPosition: {x: 120, y: -80}
   selectedLocation: {fileID: 11400000, guid: c9e81a1b406f2b94aa8a2e59d42a34cd, type: 2}
   onLocationSelected: {fileID: 11400000, guid: 77ca012ed37b55642ae04520352b83a9, type: 2}
   onPhaseTransitionRequest: {fileID: 11400000, guid: 2463a46d94a0aec4d86920d31da75035, type: 2}
@@ -3554,7 +3549,7 @@ MonoBehaviour:
   clueID: clue_001
   clueTitle: "\uB2E8\uC11C"
   clueDescriptionLines:
-  - asd
+  - "\uB2E8\uC11C\uC785\uB2C8\uB2E4"
   hideOnCollect: 1
   canReexamine: 0
 --- !u!61 &1508247290

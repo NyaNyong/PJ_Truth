@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Day_001
   m_EditorClassIdentifier: 
   dayNumber: 1
-  officialNewsTitle: fasfad
-  officialNewsContent: dsda
+  officialNewsTitle: "\uB274\uC2A4 \uC81C\uBAA9"
+  officialNewsContent: "\uB274\uC2A4 \uB0B4\uC6A9"
   hasPrivateNews: 0
   privateNewsTitle: 
   privateNewsContent: 
