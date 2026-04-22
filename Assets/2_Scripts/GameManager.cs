@@ -6,11 +6,11 @@ using Obvious.Soap;
 
 public class GameManager : MonoBehaviour
 {
-    public enum GamePhase { Morning, Day, Night }
+    public enum GamePhase { Morning, Day, Night, Whiteboard }
 
     [Header("게임 진행 상태")]
     public GamePhase currentPhase;
-    public int currentDay = 1;
+    public int       currentDay = 1;
 
     [Header("SOAP Variables")]
     [SerializeField] private IntVariable soapCurrentDay;
@@ -20,22 +20,23 @@ public class GameManager : MonoBehaviour
     [SerializeField] private ScriptableEventNoParam onLocationSelected;
 
     [Header("UI - 아침 페이즈")]
-    [SerializeField] private CanvasGroup morningNewsPanelCG;
+    [SerializeField] private CanvasGroup     morningNewsPanelCG;
     [SerializeField] private TextMeshProUGUI officialNewsTitleUI;
     [SerializeField] private TextMeshProUGUI officialNewsContentUI;
 
     [Header("UI - 낮 페이즈")]
-    [SerializeField] private CanvasGroup documentPanelCG;
-    [SerializeField] private CanvasGroup guidelinePanelCG;
-    [SerializeField] private GameObject guidelineButton;
+    [SerializeField] private CanvasGroup     documentPanelCG;
+    [SerializeField] private CanvasGroup     guidelinePanelCG;
+    [SerializeField] private GameObject      guidelineButton;
     [SerializeField] private TextMeshProUGUI guidelineTextUI;
-    [SerializeField] private DocumentViewer documentViewer;
+    [SerializeField] private DocumentViewer  documentViewer;
 
     [Header("UI - 밤 페이즈")]
     [SerializeField] private NightMapUI nightMapUI;
 
     [Header("매니저 연결")]
-    [SerializeField] private NightPhaseManager nightPhaseManager;
+    [SerializeField] private NightPhaseManager  nightPhaseManager;
+    [SerializeField] private WhiteboardManager  whiteboardManager;
 
     [Header("스테이지 데이터")]
     [SerializeField] private List<DailyData> dailyDataList;
@@ -65,19 +66,18 @@ public class GameManager : MonoBehaviour
 
     private void InitializePanels()
     {
-        SetCanvasGroupHidden(documentPanelCG);
-        SetCanvasGroupHidden(guidelinePanelCG);
-        SetCanvasGroupHidden(morningNewsPanelCG);
+        HideCanvasGroup(documentPanelCG);
+        HideCanvasGroup(guidelinePanelCG);
+        HideCanvasGroup(morningNewsPanelCG);
         if (guidelineButton != null) guidelineButton.SetActive(false);
     }
 
-    private void SetCanvasGroupHidden(CanvasGroup cg)
+    private void HideCanvasGroup(CanvasGroup cg)
     {
         if (cg == null) return;
-        cg.alpha = 0f;
-        cg.interactable = false;
+        cg.alpha          = 0f;
+        cg.interactable   = false;
         cg.blocksRaycasts = false;
-        cg.gameObject.SetActive(false);
     }
 
     public void StartDay(int day)
@@ -92,31 +92,31 @@ public class GameManager : MonoBehaviour
     {
         currentPhase = newPhase;
         LoadTodaysData();
-        HideAllPanelsImmediate();
+        HideAllPanels();
         ActivatePhase(newPhase);
     }
 
-    private void HideAllPanelsImmediate()
+    private void HideAllPanels()
     {
         HidePanelImmediate(documentPanelCG);
         HidePanelImmediate(guidelinePanelCG);
         HidePanelImmediate(morningNewsPanelCG);
         if (guidelineButton != null) guidelineButton.SetActive(false);
+        documentViewer?.HideDocument();
     }
 
     private void HidePanelImmediate(CanvasGroup cg)
     {
         if (cg == null) return;
         cg.DOKill();
-        cg.alpha = 0f;
-        cg.interactable = false;
+        cg.alpha          = 0f;
+        cg.interactable   = false;
         cg.blocksRaycasts = false;
-        cg.gameObject.SetActive(false);
     }
 
     private void LoadTodaysData()
     {
-        int index = currentDay - 1;
+        int index  = currentDay - 1;
         todaysData = (index >= 0 && index < dailyDataList.Count) ? dailyDataList[index] : null;
     }
 
@@ -124,29 +124,36 @@ public class GameManager : MonoBehaviour
     {
         switch (phase)
         {
-            case GamePhase.Morning: ActivateMorningPhase(); break;
-            case GamePhase.Day:     ActivateDayPhase();     break;
-            case GamePhase.Night:   ActivateNightPhase();   break;
+            case GamePhase.Morning:     ActivateMorningPhase();     break;
+            case GamePhase.Day:         ActivateDayPhase();         break;
+            case GamePhase.Night:       ActivateNightPhase();       break;
+            case GamePhase.Whiteboard:  ActivateWhiteboardPhase();  break;
         }
     }
 
+    // ── 아침 ──────────────────────────────────
     private void ActivateMorningPhase()
     {
-        Debug.Log($"☀️ [아침] Stage {currentDay} 뉴스");
-        if (todaysData == null || morningNewsPanelCG == null) return;
+        Debug.Log($"[아침] Stage {currentDay}");
+        if (morningNewsPanelCG == null || todaysData == null) return;
         if (officialNewsTitleUI   != null) officialNewsTitleUI.text   = todaysData.officialNewsTitle;
         if (officialNewsContentUI != null) officialNewsContentUI.text = todaysData.officialNewsContent;
         ShowPanel(morningNewsPanelCG);
     }
 
-    public void OnClickMorningNewsConfirm() => GoToNextPhase();
+    public void OnClickMorningNewsConfirm()
+    {
+        Debug.Log("[GameManager] 아침 확인 클릭");
+        GoToNextPhase();
+    }
 
+    // ── 낮 ───────────────────────────────────
     private void ActivateDayPhase()
     {
-        Debug.Log($"💼 [낮] Stage {currentDay} 업무 시작");
+        Debug.Log($"[낮] Stage {currentDay}");
         if (todaysData == null || todaysData.documentToProcess == null)
         {
-            Debug.LogWarning("todaysData 또는 documentToProcess가 null입니다.");
+            Debug.LogWarning("documentToProcess null");
             return;
         }
         documentViewer?.ShowDocument(todaysData.documentToProcess);
@@ -158,7 +165,7 @@ public class GameManager : MonoBehaviour
     public void OnClickGuidelineToggle()
     {
         if (guidelinePanelCG == null) return;
-        bool isVisible = guidelinePanelCG.gameObject.activeSelf && guidelinePanelCG.alpha > 0.5f;
+        bool isVisible = guidelinePanelCG.alpha > 0.5f;
         if (isVisible)
         {
             guidelinePanelCG.DOFade(0f, panelFadeDuration).SetEase(Ease.OutQuad)
@@ -166,47 +173,67 @@ public class GameManager : MonoBehaviour
                 {
                     guidelinePanelCG.interactable   = false;
                     guidelinePanelCG.blocksRaycasts = false;
-                    guidelinePanelCG.gameObject.SetActive(false);
                 });
         }
         else ShowPanel(guidelinePanelCG);
     }
 
+    // ── 밤 ───────────────────────────────────
     private void ActivateNightPhase()
     {
-        Debug.Log("🌙 [밤] 지도 UI 오픈");
-        if (nightMapUI == null || nightPhaseManager == null)
-        {
-            Debug.LogWarning("NightMapUI 또는 NightPhaseManager 미연결");
-            return;
-        }
-        if (todaysData == null) { Debug.LogWarning("todaysData null"); return; }
+        Debug.Log("[밤] 지도 UI 오픈");
+        if (nightMapUI == null || nightPhaseManager == null || todaysData == null) return;
 
-        // 1. 오늘 열린 장소 이름 목록 가져오기
         List<string> locationNames = LocationUnlockManager.Instance != null
             ? LocationUnlockManager.Instance.GetAvailableLocations(todaysData, currentDay)
             : todaysData.availableLocations;
 
-        // 2. 이름 목록 → 위치 정보 포함 목록으로 변환 (NightPhaseManager가 위치 정보 보유)
-        List<LocationButtonInfo> buttonInfoList = nightPhaseManager.BuildButtonInfoList(locationNames);
-
-        // 3. 지도 UI 표시
-        nightMapUI.ShowMap(buttonInfoList);
+        nightMapUI.ShowMap(nightPhaseManager.BuildButtonInfoList(locationNames));
     }
 
-    private void OnLocationSelectedHandler() => Debug.Log("장소 선택 완료");
+    private void OnLocationSelectedHandler() { }
 
+    // ── 화이트보드 ───────────────────────────
+    private void ActivateWhiteboardPhase()
+    {
+        Debug.Log("[화이트보드] 오픈");
+        if (whiteboardManager != null)
+        {
+            whiteboardManager.OpenBoard();
+        }
+        else
+        {
+            // 화이트보드 없으면 바로 다음 날
+            Debug.LogWarning("WhiteboardManager 미연결 — 다음 날로 건너뜁니다");
+            StartDay(currentDay + 1);
+        }
+    }
+
+    // ── 페이즈 전환 ───────────────────────────
     public void GoToNextPhase()
     {
+        Debug.Log($"[GameManager] GoToNextPhase — 현재: {currentPhase}");
         switch (currentPhase)
         {
-            case GamePhase.Morning: ChangePhase(GamePhase.Day);   break;
-            case GamePhase.Day:     ChangePhase(GamePhase.Night);  break;
+            case GamePhase.Morning:
+                ChangePhase(GamePhase.Day);
+                break;
+
+            case GamePhase.Day:
+                ChangePhase(GamePhase.Night);
+                break;
+
             case GamePhase.Night:
+                // 밤 탐색 종료 → 화이트보드
                 if (nightPhaseManager != null)
-                    nightPhaseManager.DeactivateNightView(() => StartDay(currentDay + 1));
+                    nightPhaseManager.DeactivateNightView(() => ChangePhase(GamePhase.Whiteboard));
                 else
-                    StartDay(currentDay + 1);
+                    ChangePhase(GamePhase.Whiteboard);
+                break;
+
+            case GamePhase.Whiteboard:
+                // 화이트보드 닫기 → 다음 날
+                StartDay(currentDay + 1);
                 break;
         }
     }
@@ -215,9 +242,8 @@ public class GameManager : MonoBehaviour
     {
         if (cg == null) return;
         float d = duration < 0f ? panelFadeDuration : duration;
-        cg.gameObject.SetActive(true);
-        cg.alpha = 0f;
-        cg.interactable = false;
+        cg.alpha          = 0f;
+        cg.interactable   = false;
         cg.blocksRaycasts = false;
         cg.DOFade(1f, d).SetEase(Ease.InQuad).OnComplete(() =>
         {

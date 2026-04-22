@@ -2,22 +2,23 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using DG.Tweening;
-using System.Collections;
 using System.Collections.Generic;
 using Obvious.Soap;
 
+/// <summary>
+/// 밤 페이즈 지도 UI.
+/// ★ SetActive 완전 제거 — CanvasGroup만으로 show/hide 제어.
+///    Panel_NightMap은 항상 활성화 상태. alpha + blocksRaycasts로 가시성 제어.
+/// </summary>
 public class NightMapUI : MonoBehaviour
 {
     [Header("UI 연결")]
-    [SerializeField] private CanvasGroup mapPanelCG;
-
-    [Tooltip("버튼들이 놓일 부모. VerticalLayoutGroup 없이 자유 배치로 사용합니다.")]
+    [SerializeField] private CanvasGroup   mapPanelCG;
     [SerializeField] private RectTransform buttonContainer;
-
-    [SerializeField] private GameObject locationButtonPrefab;
+    [SerializeField] private GameObject    locationButtonPrefab;
 
     [Header("SOAP 연결")]
-    [SerializeField] private StringVariable selectedLocation;
+    [SerializeField] private StringVariable         selectedLocation;
     [SerializeField] private ScriptableEventNoParam onLocationSelected;
 
     [Header("DOTween 설정")]
@@ -30,84 +31,86 @@ public class NightMapUI : MonoBehaviour
 
     private void Awake()
     {
+        // ★ SetActive(false) 제거 — CanvasGroup으로만 숨김
         if (mapPanelCG != null)
         {
             mapPanelCG.alpha          = 0f;
             mapPanelCG.interactable   = false;
             mapPanelCG.blocksRaycasts = false;
-            mapPanelCG.gameObject.SetActive(false);
         }
     }
 
-    /// <summary>위치 정보가 포함된 버튼 목록으로 지도를 표시합니다.</summary>
     public void ShowMap(List<LocationButtonInfo> buttonInfoList)
     {
+        if (mapPanelCG == null)
+        {
+            Debug.LogError("[NightMapUI] mapPanelCG 미연결!");
+            return;
+        }
+        if (buttonContainer == null)
+        {
+            Debug.LogError("[NightMapUI] buttonContainer 미연결!");
+            return;
+        }
+        if (locationButtonPrefab == null)
+        {
+            Debug.LogError("[NightMapUI] locationButtonPrefab 미연결!");
+            return;
+        }
         if (buttonInfoList == null || buttonInfoList.Count == 0)
         {
-            Debug.LogWarning("[NightMapUI] 표시할 장소가 없습니다.");
+            Debug.LogWarning("[NightMapUI] 장소 목록 비어있음");
             return;
         }
 
+        Debug.Log($"[NightMapUI] ShowMap — 장소 {buttonInfoList.Count}개");
+
         ClearButtons();
-        mapPanelCG.gameObject.SetActive(true);
+
+        // ★ SetActive 없이 CanvasGroup으로만 표시
+        mapPanelCG.DOKill();
         mapPanelCG.alpha          = 0f;
         mapPanelCG.interactable   = false;
         mapPanelCG.blocksRaycasts = false;
 
-        StartCoroutine(SpawnAndAnimateButtons(buttonInfoList));
-    }
+        SpawnButtons(buttonInfoList);
 
-    private IEnumerator SpawnAndAnimateButtons(List<LocationButtonInfo> buttonInfoList)
-    {
-        var spawned = new List<(RectTransform rt, CanvasGroup cg)>();
-
-        foreach (var info in buttonInfoList)
-        {
-            GameObject btnObj = Instantiate(locationButtonPrefab, buttonContainer);
-            spawnedButtons.Add(btnObj);
-
-            // 텍스트 설정
-            var label = btnObj.GetComponentInChildren<TextMeshProUGUI>();
-            if (label != null) label.text = info.locationName;
-
-            // ★ 지정된 위치로 배치
-            var rt = btnObj.GetComponent<RectTransform>();
-            rt.anchoredPosition = info.buttonPosition;
-
-            // 초기 투명 처리
-            var cg = btnObj.GetComponent<CanvasGroup>();
-            if (cg == null) cg = btnObj.AddComponent<CanvasGroup>();
-            cg.alpha = 0f;
-
-            // 클릭 이벤트
-            string captured = info.locationName;
-            btnObj.GetComponent<Button>()?.onClick.AddListener(() => OnLocationButtonClicked(captured));
-
-            spawned.Add((rt, cg));
-        }
-
-        // 한 프레임 대기 후 애니메이션
-        yield return null;
-
-        // 패널 페이드 인
-        mapPanelCG.DOFade(1f, panelFadeInDuration).SetEase(Ease.OutQuad)
+        mapPanelCG.DOFade(1f, panelFadeInDuration)
+                  .SetEase(Ease.OutQuad)
                   .OnComplete(() =>
                   {
                       mapPanelCG.interactable   = true;
                       mapPanelCG.blocksRaycasts = true;
+                      Debug.Log("[NightMapUI] 지도 표시 완료");
                   });
+    }
 
-        // 각 버튼 순차 등장
-        for (int i = 0; i < spawned.Count; i++)
+    private void SpawnButtons(List<LocationButtonInfo> buttonInfoList)
+    {
+        for (int i = 0; i < buttonInfoList.Count; i++)
         {
-            var (rt, cg) = spawned[i];
-            Vector2 targetPos = rt.anchoredPosition;
-            rt.anchoredPosition = targetPos + Vector2.down * buttonRiseDistance;
+            LocationButtonInfo info   = buttonInfoList[i];
+            GameObject         btnObj = Instantiate(locationButtonPrefab, buttonContainer);
+            spawnedButtons.Add(btnObj);
 
+            var label = btnObj.GetComponentInChildren<TextMeshProUGUI>();
+            if (label != null) label.text = info.locationName;
+
+            var rt = btnObj.GetComponent<RectTransform>();
+            rt.anchoredPosition = info.buttonPosition + Vector2.down * buttonRiseDistance;
+
+            var cg = btnObj.GetComponent<CanvasGroup>();
+            if (cg == null) cg = btnObj.AddComponent<CanvasGroup>();
+            cg.alpha = 0f;
+
+            Vector2 targetPos = info.buttonPosition;
             DOTween.Sequence()
                    .SetDelay(i * buttonStaggerDelay)
                    .Append(rt.DOAnchorPos(targetPos, 0.35f).SetEase(Ease.OutBack))
                    .Join(cg.DOFade(1f, 0.25f));
+
+            string captured = info.locationName;
+            btnObj.GetComponent<Button>()?.onClick.AddListener(() => OnLocationButtonClicked(captured));
         }
     }
 
@@ -120,12 +123,13 @@ public class NightMapUI : MonoBehaviour
 
     private void HideMap(TweenCallback onComplete = null)
     {
+        mapPanelCG.DOKill();
         mapPanelCG.interactable   = false;
         mapPanelCG.blocksRaycasts = false;
-        mapPanelCG.DOFade(0f, panelFadeOutDuration).SetEase(Ease.InQuad)
+        mapPanelCG.DOFade(0f, panelFadeOutDuration)
+                  .SetEase(Ease.InQuad)
                   .OnComplete(() =>
                   {
-                      mapPanelCG.gameObject.SetActive(false);
                       ClearButtons();
                       onComplete?.Invoke();
                   });
