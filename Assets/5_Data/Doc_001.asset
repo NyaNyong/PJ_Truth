@@ -15,7 +15,7 @@ MonoBehaviour:
   documentID: 1
   documentTitle: Example
   mainText: "\uC608\uC2DC \uC790\uB8CC - \uACF5\uC6D0\uC5D0 \uD604\uC7AC \uBC94\uC8C4\uC790\uAC00
-    \uB098\uD0C0\uB098 \uBB34\uC7A5\uD558\uC5EC \uC2DC\uBBFC\uB4E4\uC744 \uC704\uD611\uD558\uB294
+    \uB098\uD0C0\uB098 \uBB34\uC7A5\uD558\uC5EC ##SLOT0## \uB4E4\uC744 \uC704\uD611\uD558\uB294
     \uC911"
   guidelineText: "\uC218\uC815\uC0AC\uD56D \uC5C6\uC74C"
   needsCensorship: 1
@@ -25,6 +25,10 @@ MonoBehaviour:
   needsTypewriter: 1
   typewriterSlots:
   - slotIndex: 0
-    wordOptions: []
-    correctWord: "\uB0E5\uB0E5\uC774"
+    originalWord: "\uC2DC\uBBFC"
+    wordOptions:
+    - "\uACBD\uCC30"
+    - "\uAC15\uC544\uC9C0"
+    - "\uACE0\uC591\uC774"
+    correctWord: "\uACBD\uCC30"
     insertedWord: 

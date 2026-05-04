@@ -16,36 +16,30 @@ public class DocumentData : ScriptableObject
     [TextArea(3, 5)]
     public string guidelineText;
 
-    // ─── 블랙 마커 ───────────────────────────
     [Header("블랙 마커 검열")]
     public bool         needsCensorship;
     public List<string> targetCensorKeywords;
 
-    // ─── 타자기 ───────────────────────────────
     [Header("타자기 시스템")]
-    [Tooltip("타자기 시스템을 사용하는 문서인지 여부")]
-    public bool needsTypewriter;
-
-    [Tooltip("타자기로 삽입할 슬롯 목록. 순서대로 문서 내 [SLOT] 태그와 매핑됩니다.")]
+    public bool                     needsTypewriter;
     public List<TypewriterSlotData> typewriterSlots;
 }
 
-// ─────────────────────────────────────────────────
-// 타자기 슬롯 하나의 데이터
-// 문서 mainText에 [SLOT_0], [SLOT_1] ... 형태로 표시됩니다
-// ─────────────────────────────────────────────────
 [System.Serializable]
 public class TypewriterSlotData
 {
-    [Tooltip("슬롯 식별 번호 (0부터 시작)")]
+    [Tooltip("슬롯 번호 (0부터 시작). mainText에서 ##SLOT0## 형태로 사용")]
     public int slotIndex;
+
+    [Tooltip("문서에 원래 있던 단어 — 타자기로 덮어쓰기 전 기본 표시값")]
+    public string originalWord;
 
     [Tooltip("플레이어가 선택할 수 있는 단어 카드 목록")]
     public List<string> wordOptions;
 
-    [Tooltip("정답 단어 (wordOptions 중 하나와 일치해야 함)")]
+    [Tooltip("정답 단어 (wordOptions 중 하나)")]
     public string correctWord;
 
     [HideInInspector]
-    public string insertedWord = ""; // 런타임에 채워집니다
+    public string insertedWord = "";
 }

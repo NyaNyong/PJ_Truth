@@ -4,134 +4,186 @@ using TMPro;
 using DG.Tweening;
 using System.Collections.Generic;
 
+/// <summary>
+/// 타자기 시스템 (단순화 버전).
+/// 타자기 버튼 클릭 → 하단에 단어 카드 팝업
+/// 단어 카드를 문서의 [빈칸N] 위에 드래그&드랍 → 슬롯에 삽입
+/// </summary>
 public class TypewriterSystem : MonoBehaviour
 {
     [Header("UI 연결")]
-    [SerializeField] private CanvasGroup typewriterPanelCG;
+    [SerializeField] private CanvasGroup   typewriterPanelCG;
     [SerializeField] private RectTransform wordCardContainer;
-    [SerializeField] private GameObject wordCardPrefab;
-    [SerializeField] private TextMeshProUGUI selectedWordPreviewText;
-    [SerializeField] private Button insertButton;
+    [SerializeField] private GameObject    wordCardPrefab;
+
+    [Header("드래그 연출")]
+    [SerializeField] private Canvas        rootCanvas; // 드래그 고스트가 올라갈 최상위 Canvas
 
     [Header("DOTween 설정")]
-    [SerializeField] private float fadeDuration = 0.3f;
-    [SerializeField] private float cardStagger  = 0.06f;
+    [SerializeField] private float slideDuration = 0.25f;
+    [SerializeField] private float cardStagger   = 0.05f;
 
-    // ★ IsOpen 프로퍼티 — DocumentViewer가 타자기 열림 여부 체크
+    [Header("패널 위치")]
+    [SerializeField] private float hiddenY  = -250f;
+    [SerializeField] private float visibleY = 0f;
+
+    // ─────────────────────────────────────────
     public bool IsOpen { get; private set; } = false;
 
+    // DocumentViewer가 구독: (slotIndex, word)
+    public System.Action<int, string> OnWordDropped;
+
     private DocumentData     currentDocument;
-    private int              activeSlotIndex = -1;
-    private string           selectedWord    = "";
-    private List<GameObject> spawnedCards    = new List<GameObject>();
+    private List<GameObject> spawnedCards = new List<GameObject>();
+    private RectTransform    panelRT;
 
-    public System.Action<int, string> OnWordInserted;
-
+    // ─────────────────────────────────────────
     private void Awake()
     {
+        panelRT = typewriterPanelCG?.GetComponent<RectTransform>();
         HideImmediate();
-        if (insertButton != null)
-            insertButton.onClick.AddListener(OnClickInsert);
     }
 
+    // ─────────────────────────────────────────
     public void Initialize(DocumentData doc)
     {
         currentDocument = doc;
     }
 
-    public void OpenForSlot(int slotIndex)
+    /// <summary>타자기 버튼 클릭 → 패널 토글 (DocumentViewer가 호출)</summary>
+    public void OpenPanel()
     {
         if (currentDocument == null) return;
-        if (slotIndex < 0 || slotIndex >= currentDocument.typewriterSlots.Count) return;
+        if (currentDocument.typewriterSlots == null ||
+            currentDocument.typewriterSlots.Count == 0) return;
 
-        activeSlotIndex = slotIndex;
-        selectedWord    = currentDocument.typewriterSlots[slotIndex].insertedWord ?? "";
-
-        RefreshPreviewText();
-        SpawnWordCards(currentDocument.typewriterSlots[slotIndex].wordOptions);
+        IsOpen = true;
+        SpawnAllWordCards();
         ShowPanel();
     }
 
     public void Close()
     {
+        if (!IsOpen) return;
+        IsOpen = false;
         HidePanel();
-        activeSlotIndex = -1;
-        selectedWord    = "";
     }
 
-    private void SpawnWordCards(List<string> words)
+    // ─────────────────────────────────────────
+    // 모든 슬롯의 단어 카드를 한 번에 생성
+    // ─────────────────────────────────────────
+    private void SpawnAllWordCards()
     {
         ClearCards();
 
-        for (int i = 0; i < words.Count; i++)
+        // ── 1단계: 카드 전부 생성 (투명 상태) ──────────
+        for (int si = 0; si < currentDocument.typewriterSlots.Count; si++)
         {
-            string     word = words[i];
-            GameObject obj  = Instantiate(wordCardPrefab, wordCardContainer);
-            spawnedCards.Add(obj);
+            var slot = currentDocument.typewriterSlots[si];
+            if (slot.wordOptions == null) continue;
 
-            var label = obj.GetComponentInChildren<TextMeshProUGUI>();
-            if (label != null) label.text = word;
+            foreach (string word in slot.wordOptions)
+            {
+                int    capturedSlot = si;
+                string capturedWord = word;
 
-            HighlightCard(obj, word == selectedWord);
+                GameObject obj = Instantiate(wordCardPrefab, wordCardContainer);
+                spawnedCards.Add(obj);
 
-            var btn = obj.GetComponent<Button>();
-            if (btn != null) btn.onClick.AddListener(() => OnCardClicked(word, obj));
+                var label = obj.GetComponentInChildren<TextMeshProUGUI>();
+                if (label != null) label.text = word;
 
-            var cg2 = obj.GetComponent<CanvasGroup>();
-            if (cg2 == null) cg2 = obj.AddComponent<CanvasGroup>();
-            cg2.alpha = 0f;
-            DOTween.Sequence().SetDelay(i * cardStagger).Append(cg2.DOFade(1f, 0.25f));
+                bool alreadyUsed = slot.insertedWord == word;
+                var  img         = obj.GetComponent<Image>();
+                if (img != null)
+                    img.color = alreadyUsed ? new Color(0.7f, 0.7f, 0.7f) : Color.white;
+
+                var card = obj.GetComponent<WordCard>();
+                if (card == null) card = obj.AddComponent<WordCard>();
+                card.Setup(capturedSlot, capturedWord, this, rootCanvas);
+
+                // 처음엔 투명 + 약간 아래에 배치
+                var cg = obj.GetComponent<CanvasGroup>();
+                if (cg == null) cg = obj.AddComponent<CanvasGroup>();
+                cg.alpha = 0f;
+            }
+        }
+
+        // ── 2단계: Layout Group 강제 계산 ───────────────
+        UnityEngine.UI.LayoutRebuilder.ForceRebuildLayoutImmediate(wordCardContainer);
+
+        // ── 3단계: 계산된 위치에서 애니메이션 ───────────
+        for (int i = 0; i < spawnedCards.Count; i++)
+        {
+            var obj = spawnedCards[i];
+            if (obj == null) continue;
+
+            var rt  = obj.GetComponent<RectTransform>();
+            var cg  = obj.GetComponent<CanvasGroup>();
+            if (rt == null || cg == null) continue;
+
+            // Layout Group이 계산한 최종 위치 저장
+            Vector2 finalPos = rt.anchoredPosition;
+
+            // 시작 위치: 최종 위치에서 아래로 15px
+            rt.anchoredPosition = finalPos + Vector2.down * 15f;
+
+            DOTween.Sequence()
+                   .SetDelay(i * cardStagger)
+                   .Append(rt.DOAnchorPos(finalPos, 0.25f).SetEase(Ease.OutBack))
+                   .Join(cg.DOFade(1f, 0.2f));
         }
     }
 
-    private void OnCardClicked(string word, GameObject cardObj)
+    /// <summary>WordCard가 드랍 완료 후 호출</summary>
+    public void NotifyWordDropped(int slotIndex, string word)
     {
-        selectedWord = word;
-        RefreshPreviewText();
-        foreach (var card in spawnedCards) HighlightCard(card, false);
-        HighlightCard(cardObj, true);
-        Debug.Log($"⌨️ 단어 선택: {word}");
+        if (currentDocument == null) return;
+        if (slotIndex < 0 || slotIndex >= currentDocument.typewriterSlots.Count) return;
+
+        currentDocument.typewriterSlots[slotIndex].insertedWord = word;
+        Debug.Log($"[TypewriterSystem] 슬롯 {slotIndex} ← '{word}'");
+
+        OnWordDropped?.Invoke(slotIndex, word);
+
+        // 카드 색상 갱신 (사용된 카드 회색 처리)
+        RefreshCardColors();
     }
 
-    private void OnClickInsert()
+    private void RefreshCardColors()
     {
-        if (string.IsNullOrEmpty(selectedWord))
+        foreach (var obj in spawnedCards)
         {
-            Debug.LogWarning("[TypewriterSystem] 삽입할 단어가 선택되지 않았습니다.");
-            return;
+            if (obj == null) continue;
+            var card = obj.GetComponent<WordCard>();
+            var img  = obj.GetComponent<Image>();
+            if (card == null || img == null) continue;
+
+            var slot = currentDocument.typewriterSlots[card.SlotIndex];
+            bool used = slot.insertedWord == card.Word;
+            img.DOColor(used ? new Color(0.7f, 0.7f, 0.7f) : Color.white, 0.2f);
         }
-        if (activeSlotIndex < 0 || activeSlotIndex >= currentDocument.typewriterSlots.Count) return;
-
-        currentDocument.typewriterSlots[activeSlotIndex].insertedWord = selectedWord;
-        Debug.Log($"⌨️ 슬롯 {activeSlotIndex}에 '{selectedWord}' 삽입");
-        OnWordInserted?.Invoke(activeSlotIndex, selectedWord);
-        Close();
     }
 
-    private void RefreshPreviewText()
-    {
-        if (selectedWordPreviewText == null) return;
-        selectedWordPreviewText.text = string.IsNullOrEmpty(selectedWord)
-            ? "단어를 선택하세요"
-            : $"선택: {selectedWord}";
-    }
-
-    private void HighlightCard(GameObject card, bool highlight)
-    {
-        if (card == null) return;
-        var img = card.GetComponent<Image>();
-        if (img == null) return;
-        img.color = highlight ? new Color(0.9f, 0.85f, 0.5f) : Color.white;
-    }
-
+    // ─────────────────────────────────────────
+    // 패널 슬라이드
+    // ─────────────────────────────────────────
     private void ShowPanel()
     {
-        IsOpen = true;
+        if (panelRT != null)
+            panelRT.anchoredPosition = new Vector2(
+                panelRT.anchoredPosition.x, hiddenY);
+
         typewriterPanelCG.gameObject.SetActive(true);
         typewriterPanelCG.alpha          = 0f;
         typewriterPanelCG.interactable   = false;
         typewriterPanelCG.blocksRaycasts = false;
-        typewriterPanelCG.DOFade(1f, fadeDuration).OnComplete(() =>
+
+        var seq = DOTween.Sequence();
+        if (panelRT != null)
+            seq.Join(panelRT.DOAnchorPosY(visibleY, slideDuration).SetEase(Ease.OutCubic));
+        seq.Join(typewriterPanelCG.DOFade(1f, slideDuration));
+        seq.OnComplete(() =>
         {
             typewriterPanelCG.interactable   = true;
             typewriterPanelCG.blocksRaycasts = true;
@@ -140,10 +192,14 @@ public class TypewriterSystem : MonoBehaviour
 
     private void HidePanel()
     {
-        IsOpen = false;
         typewriterPanelCG.interactable   = false;
         typewriterPanelCG.blocksRaycasts = false;
-        typewriterPanelCG.DOFade(0f, fadeDuration).OnComplete(() =>
+
+        var seq = DOTween.Sequence();
+        if (panelRT != null)
+            seq.Join(panelRT.DOAnchorPosY(hiddenY, slideDuration * 0.8f).SetEase(Ease.InCubic));
+        seq.Join(typewriterPanelCG.DOFade(0f, slideDuration * 0.6f));
+        seq.OnComplete(() =>
         {
             typewriterPanelCG.gameObject.SetActive(false);
             ClearCards();
@@ -152,8 +208,8 @@ public class TypewriterSystem : MonoBehaviour
 
     private void HideImmediate()
     {
-        IsOpen = false;
         if (typewriterPanelCG == null) return;
+        IsOpen = false;
         typewriterPanelCG.alpha          = 0f;
         typewriterPanelCG.interactable   = false;
         typewriterPanelCG.blocksRaycasts = false;
