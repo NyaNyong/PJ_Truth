@@ -6407,9 +6407,9 @@ RectTransform:
   m_Children:
   - {fileID: 142556516}
   - {fileID: 1062749910}
-  - {fileID: 407892607}
   - {fileID: 1972916308}
   - {fileID: 950565983}
+  - {fileID: 407892607}
   - {fileID: 373446096}
   m_Father: {fileID: 941425136}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

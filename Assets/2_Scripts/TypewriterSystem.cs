@@ -109,29 +109,18 @@ public class TypewriterSystem : MonoBehaviour
             }
         }
 
-        // ── 2단계: Layout Group 강제 계산 ───────────────
+        // ── 2단계: Layout Group 강제 계산 후 비활성화 ──
         UnityEngine.UI.LayoutRebuilder.ForceRebuildLayoutImmediate(wordCardContainer);
+
+       
 
         // ── 3단계: 계산된 위치에서 애니메이션 ───────────
         for (int i = 0; i < spawnedCards.Count; i++)
         {
-            var obj = spawnedCards[i];
-            if (obj == null) continue;
+            var cg = spawnedCards[i]?.GetComponent<CanvasGroup>();
+            if (cg == null) continue;
 
-            var rt  = obj.GetComponent<RectTransform>();
-            var cg  = obj.GetComponent<CanvasGroup>();
-            if (rt == null || cg == null) continue;
-
-            // Layout Group이 계산한 최종 위치 저장
-            Vector2 finalPos = rt.anchoredPosition;
-
-            // 시작 위치: 최종 위치에서 아래로 15px
-            rt.anchoredPosition = finalPos + Vector2.down * 15f;
-
-            DOTween.Sequence()
-                   .SetDelay(i * cardStagger)
-                   .Append(rt.DOAnchorPos(finalPos, 0.25f).SetEase(Ease.OutBack))
-                   .Join(cg.DOFade(1f, 0.2f));
+            cg.DOFade(1f, 0.2f).SetDelay(i * cardStagger);
         }
     }
 
