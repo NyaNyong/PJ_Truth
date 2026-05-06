@@ -53,4 +53,9 @@ public class NightCameraController : MonoBehaviour
         // followSpeed가 높으면 사실상 즉각 이동 (포켓몬 스타일)
         transform.position = Vector3.Lerp(transform.position, desiredPos, followSpeed * Time.deltaTime);
     }
+
+    public void SetBoundary(MapBoundary boundary)
+    {
+        mapBoundary = boundary;
+    }
 }

@@ -17,76 +17,74 @@ public class NightPhaseManager : MonoBehaviour
     [Header("퇴근 버튼")]
     [SerializeField] private GameObject goHomeButton;
 
+    [Header("탐색 완료 알림 UI")]
+    [SerializeField] private CanvasGroup explorationCompleteBannerCG;
+    [SerializeField] private float bannerFadeDuration = 0.35f;
+    [SerializeField] private float bannerHoldDuration = 2f;
+
     [Header("장소-맵 매핑")]
     [SerializeField] private List<LocationMapEntry> locationMaps;
 
     [System.Serializable]
     public class LocationMapEntry
     {
-        [Tooltip("DailyData의 장소 이름과 정확히 일치해야 합니다")]
         public string locationName;
-
         public GameObject mapRoot;
         public MapBoundary mapBoundary;
         public Transform spawnPoint;
-
-        [Tooltip("지도 UI에서 이 장소 버튼이 표시될 위치 (ButtonContainer 기준 앵커 좌표)")]
         public Vector2 mapButtonPosition;
+        public List<string> requiredClueIDs = new List<string>();
     }
 
     [Header("SOAP 연결")]
     [SerializeField] private StringVariable selectedLocation;
     [SerializeField] private ScriptableEventNoParam onLocationSelected;
-    [SerializeField] private ScriptableEventNoParam onPhaseTransitionRequest;
+    [SerializeField] private ScriptableEventNoParam onClueCollected;
 
     [Header("DOTween 설정")]
     [SerializeField] private float playerSpawnDuration = 0.4f;
+
+    private LocationMapEntry activeEntry = null;
+    private bool explorationComplete = false;
+
+    public bool IsExplorationComplete => explorationComplete;
+    public bool HasRequiredClues =>
+        activeEntry != null && activeEntry.requiredClueIDs != null && activeEntry.requiredClueIDs.Count > 0;
 
     private void Awake()
     {
         nightTopDownCamera.gameObject.SetActive(false);
         playerCharacter.SetActive(false);
         if (goHomeButton != null) goHomeButton.SetActive(false);
-
         foreach (var entry in locationMaps)
             if (entry.mapRoot != null) entry.mapRoot.SetActive(false);
+        HideBannerImmediate();
     }
 
     private void OnEnable()
     {
-        if (onLocationSelected != null)
-            onLocationSelected.OnRaised += OnLocationSelectedHandler;
-        if (onPhaseTransitionRequest != null)
-            onPhaseTransitionRequest.OnRaised += () => DeactivateNightView(null);
+        if (onLocationSelected != null) onLocationSelected.OnRaised += OnLocationSelectedHandler;
+        if (onClueCollected != null) onClueCollected.OnRaised += OnClueCollectedHandler;
     }
 
     private void OnDisable()
     {
-        if (onLocationSelected != null)
-            onLocationSelected.OnRaised -= OnLocationSelectedHandler;
-        if (onPhaseTransitionRequest != null)
-            onPhaseTransitionRequest.OnRaised -= () => DeactivateNightView(null);
+        if (onLocationSelected != null) onLocationSelected.OnRaised -= OnLocationSelectedHandler;
+        if (onClueCollected != null) onClueCollected.OnRaised -= OnClueCollectedHandler;
     }
 
-    /// <summary>
-    /// 장소 이름 목록을 받아 버튼 위치 정보를 포함한 LocationButtonInfo 리스트로 변환합니다.
-    /// GameManager가 이 메서드를 호출해 NightMapUI에 전달할 데이터를 만듭니다.
-    /// </summary>
     public List<LocationButtonInfo> BuildButtonInfoList(List<string> locationNames)
     {
         var result = new List<LocationButtonInfo>();
-
         foreach (string name in locationNames)
         {
             var entry = locationMaps.Find(e => e.locationName == name);
             result.Add(new LocationButtonInfo
             {
-                locationName   = name,
-                // 매핑 테이블에 없는 장소는 화면 중앙 근처에 순서대로 배치
+                locationName = name,
                 buttonPosition = entry != null ? entry.mapButtonPosition : Vector2.zero
             });
         }
-
         return result;
     }
 
@@ -97,31 +95,50 @@ public class NightPhaseManager : MonoBehaviour
         ActivateNightView(loc);
     }
 
+    private void OnClueCollectedHandler()
+    {
+        if (explorationComplete) return;
+        CheckExplorationComplete();
+    }
+
+    private void CheckExplorationComplete()
+    {
+        if (activeEntry == null) return;
+        if (activeEntry.requiredClueIDs == null || activeEntry.requiredClueIDs.Count == 0) return;
+        if (GameFlags.Instance == null) return;
+
+        foreach (string clueID in activeEntry.requiredClueIDs)
+            if (!GameFlags.Instance.HasClue(clueID)) return;
+
+        explorationComplete = true;
+        Debug.Log($"✅ [{activeEntry.locationName}] 탐색 완료!");
+        ShowCompleteBanner();
+    }
+
     private void ActivateNightView(string locationName)
     {
         Debug.Log($"🌙 탑다운 뷰 활성화 → {locationName}");
+        explorationComplete = false;
+        activeEntry = null;
 
-        LocationMapEntry targetEntry = null;
         foreach (var entry in locationMaps)
         {
             bool isTarget = entry.locationName == locationName;
             if (entry.mapRoot != null) entry.mapRoot.SetActive(isTarget);
-            if (isTarget) targetEntry = entry;
+            if (isTarget) activeEntry = entry;
         }
 
         if (dayCameraOrUICamera != null) dayCameraOrUICamera.gameObject.SetActive(false);
         nightTopDownCamera.gameObject.SetActive(true);
 
-        if (nightCameraController != null && targetEntry?.mapBoundary != null)
-        {
-            var field = typeof(NightCameraController).GetField("mapBoundary",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            field?.SetValue(nightCameraController, targetEntry.mapBoundary);
-        }
+        if (nightCameraController != null)
+            nightCameraController.SetBoundary(activeEntry?.mapBoundary);
+        playerController.SetMapBoundary(activeEntry?.mapBoundary);
 
-        Vector3 spawnPos = targetEntry?.spawnPoint != null
-            ? targetEntry.spawnPoint.position
-            : Vector3.zero;
+        if (!HasRequiredClues) explorationComplete = true;
+
+        Vector3 spawnPos = activeEntry?.spawnPoint != null
+            ? activeEntry.spawnPoint.position : Vector3.zero;
 
         playerCharacter.transform.position = spawnPos;
         playerCharacter.SetActive(true);
@@ -139,6 +156,7 @@ public class NightPhaseManager : MonoBehaviour
     {
         if (goHomeButton != null) goHomeButton.SetActive(false);
         playerController.EnableControl(false);
+        HideBannerImmediate();
 
         playerCharacter.transform.DOScale(Vector3.zero, 0.25f)
             .SetEase(Ease.InBack)
@@ -149,7 +167,33 @@ public class NightPhaseManager : MonoBehaviour
                 if (dayCameraOrUICamera != null) dayCameraOrUICamera.gameObject.SetActive(true);
                 foreach (var entry in locationMaps)
                     if (entry.mapRoot != null) entry.mapRoot.SetActive(false);
+                activeEntry = null;
+                explorationComplete = false;
                 onComplete?.Invoke();
             });
+    }
+
+    private void ShowCompleteBanner()
+    {
+        if (explorationCompleteBannerCG == null) return;
+        explorationCompleteBannerCG.gameObject.SetActive(true);
+        explorationCompleteBannerCG.DOKill();
+        explorationCompleteBannerCG.alpha = 0f;
+        explorationCompleteBannerCG.blocksRaycasts = false;
+
+        DOTween.Sequence()
+            .Append(explorationCompleteBannerCG.DOFade(1f, bannerFadeDuration))
+            .AppendInterval(bannerHoldDuration)
+            .Append(explorationCompleteBannerCG.DOFade(0f, bannerFadeDuration))
+            .OnComplete(() => explorationCompleteBannerCG.gameObject.SetActive(false));
+    }
+
+    private void HideBannerImmediate()
+    {
+        if (explorationCompleteBannerCG == null) return;
+        explorationCompleteBannerCG.DOKill();
+        explorationCompleteBannerCG.alpha = 0f;
+        explorationCompleteBannerCG.blocksRaycasts = false;
+        explorationCompleteBannerCG.gameObject.SetActive(false);
     }
 }

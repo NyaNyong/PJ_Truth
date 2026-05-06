@@ -18,6 +18,7 @@ public class GameManager : MonoBehaviour
     [Header("SOAP Events")]
     [SerializeField] private ScriptableEventNoParam onApproveClicked;
     [SerializeField] private ScriptableEventNoParam onLocationSelected;
+    [SerializeField] private ScriptableEventNoParam onPhaseTransitionRequest; // ★ 추가
 
     [Header("UI - 아침 페이즈")]
     [SerializeField] private CanvasGroup     morningNewsPanelCG;
@@ -48,14 +49,16 @@ public class GameManager : MonoBehaviour
 
     private void OnEnable()
     {
-        if (onApproveClicked  != null) onApproveClicked.OnRaised  += GoToNextPhase;
+        if (onApproveClicked != null) onApproveClicked.OnRaised += GoToNextPhase;
         if (onLocationSelected != null) onLocationSelected.OnRaised += OnLocationSelectedHandler;
+        if (onPhaseTransitionRequest != null) onPhaseTransitionRequest.OnRaised += GoToNextPhase; // ★
     }
 
     private void OnDisable()
     {
-        if (onApproveClicked  != null) onApproveClicked.OnRaised  -= GoToNextPhase;
+        if (onApproveClicked != null) onApproveClicked.OnRaised -= GoToNextPhase;
         if (onLocationSelected != null) onLocationSelected.OnRaised -= OnLocationSelectedHandler;
+        if (onPhaseTransitionRequest != null) onPhaseTransitionRequest.OnRaised -= GoToNextPhase; // ★
     }
 
     private void Start()
@@ -84,6 +87,11 @@ public class GameManager : MonoBehaviour
     {
         currentDay = day;
         if (soapCurrentDay != null) soapCurrentDay.Value = day;
+
+        LoadTodaysData();
+        GameTextLoader.Instance?.LoadDay(day);
+        GameTextLoader.Instance?.InjectIntoDaily(todaysData);
+
         Debug.Log($"===== [ Stage {currentDay} 시작 ] =====");
         ChangePhase(GamePhase.Morning);
     }
@@ -153,9 +161,12 @@ public class GameManager : MonoBehaviour
         Debug.Log($"[낮] Stage {currentDay}");
         if (todaysData == null || todaysData.documentToProcess == null)
         {
-            Debug.LogWarning("documentToProcess null");
-            return;
+            Debug.LogWarning("documentToProcess null"); return;
         }
+
+        // ★ 문서 텍스트 주입
+        GameTextLoader.Instance?.InjectIntoDocument(todaysData.documentToProcess);
+
         documentViewer?.ShowDocument(todaysData.documentToProcess);
         if (guidelineTextUI != null) guidelineTextUI.text = todaysData.documentToProcess.guidelineText;
         ShowPanel(documentPanelCG);

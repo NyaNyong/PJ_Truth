@@ -1,65 +1,80 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-/// <summary>
-/// 움직이지 않는 NPC. 플레이어가 E키를 누르면 대화를 시작합니다.
-/// </summary>
 public class NPCInteractable : MonoBehaviour, IInteractable
 {
     [Header("NPC 정보")]
     [SerializeField] private string npcName = "???";
 
-    [Header("첫 대화")]
+    [Header("JSON 연동")]
+    [Tooltip("day_XX.json 의 npcs[].id 와 일치해야 합니다. 비워두면 Inspector 값 사용")]
+    [SerializeField] private string npcID = "";
+
+    [Header("Inspector 폴백 대사 (JSON 미사용 시)")]
     [SerializeField] private List<string> dialogueLines = new List<string>();
 
-    [Header("반복 대화 (두 번째 이후)")]
+    [Header("반복 대화 (두 번째 이후, 폴백)")]
     [Tooltip("비어있으면 첫 대화를 반복합니다")]
     [SerializeField] private List<string> repeatLines = new List<string>();
 
     [Header("단서/플래그 연동 (선택)")]
-    [Tooltip("첫 대화 완료 후 획득할 단서 ID. 빈 칸이면 없음.")]
+    [Tooltip("첫 대화 완료 후 획득할 단서 ID")]
     [SerializeField] private string grantClueIDOnFinish = "";
-
-    [Tooltip("첫 대화 완료 후 세울 플래그 ID. 빈 칸이면 없음.")]
+    [Tooltip("첫 대화 완료 후 세울 플래그 ID")]
     [SerializeField] private string setFlagOnFinish = "";
 
-    private bool          hasSpoken    = false;
+    private bool hasSpoken = false;
     private PlayerController cachedPlayer = null;
 
     public void Interact(PlayerController player)
     {
         if (DialogueUI.Instance == null)
         {
-            Debug.LogWarning("[NPCInteractable] DialogueUI가 씬에 없습니다.");
-            return;
+            Debug.LogWarning("[NPCInteractable] DialogueUI가 씬에 없습니다."); return;
         }
-
-        // 이미 대화창이 열려있으면 무시 (중복 실행 방지)
         if (DialogueUI.Instance.IsOpen()) return;
 
         cachedPlayer = player;
 
-        List<string> linesToShow = (hasSpoken && repeatLines.Count > 0)
-            ? repeatLines
-            : dialogueLines;
+        // JSON 우선, 없으면 Inspector 폴백
+        var (resolvedName, firstLines, resolvedRepeat, jsonClueID, jsonFlag) = ResolveTextData();
 
-        DialogueUI.Instance.StartDialogue(npcName, linesToShow, OnDialogueFinished);
+        List<string> linesToShow = (hasSpoken && resolvedRepeat.Count > 0)
+            ? resolvedRepeat : firstLines;
+
+        DialogueUI.Instance.StartDialogue(resolvedName, linesToShow,
+            () => OnDialogueFinished(jsonClueID, jsonFlag));
     }
 
-    private void OnDialogueFinished()
+    private void OnDialogueFinished(string clueID, string flagID)
     {
-        // ★ 대화 종료 시 쿨다운 시작 — E키 즉시 재입력 방지
         cachedPlayer?.NotifyInteractionEnded();
 
         if (!hasSpoken)
         {
-            if (!string.IsNullOrEmpty(grantClueIDOnFinish) && GameFlags.Instance != null)
-                GameFlags.Instance.AddClue(grantClueIDOnFinish);
+            string finalClue = !string.IsNullOrEmpty(clueID) ? clueID : grantClueIDOnFinish;
+            string finalFlag = !string.IsNullOrEmpty(flagID) ? flagID : setFlagOnFinish;
 
-            if (!string.IsNullOrEmpty(setFlagOnFinish) && GameFlags.Instance != null)
-                GameFlags.Instance.SetFlag(setFlagOnFinish);
+            if (!string.IsNullOrEmpty(finalClue) && GameFlags.Instance != null)
+                GameFlags.Instance.AddClue(finalClue);
+            if (!string.IsNullOrEmpty(finalFlag) && GameFlags.Instance != null)
+                GameFlags.Instance.SetFlag(finalFlag);
         }
 
         hasSpoken = true;
+    }
+
+    // JSON 데이터 우선 조회, 없으면 Inspector 값 반환
+    private (string name, List<string> first, List<string> repeat, string clueID, string flag)
+        ResolveTextData()
+    {
+        if (!string.IsNullOrEmpty(npcID) && GameTextLoader.Instance != null)
+        {
+            var data = GameTextLoader.Instance.GetNpc(npcID);
+            if (data != null)
+                return (data.npcName, data.firstLines, data.repeatLines,
+                        data.grantClueID, data.setFlag);
+        }
+        return (npcName, dialogueLines, repeatLines, "", "");
     }
 }
