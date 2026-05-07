@@ -1,53 +1,69 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 using TMPro;
 using DG.Tweening;
 using System.Collections.Generic;
-using Obvious.Soap;
 
 public class WhiteboardManager : MonoBehaviour
 {
     public static WhiteboardManager Instance { get; private set; }
 
     [Header("UI 연결")]
-    [SerializeField] private CanvasGroup   whiteboardPanelCG;
+    [SerializeField] private CanvasGroup whiteboardPanelCG;
     [SerializeField] private RectTransform cardContainer;
-    [SerializeField] private GameObject    cardPrefab;
+    [SerializeField] private GameObject cardPrefab;
 
     [Header("실 연결")]
-    [SerializeField] private GameObject    stringPrefab;
+    [SerializeField] private GameObject stringPrefab;
     [SerializeField] private RectTransform stringContainer;
 
+    [Header("프리뷰 실 (드래그 중 표시)")]
+    [Tooltip("드래그 중 표시할 임시 실 — Image 컴포넌트가 붙은 UI 오브젝트")]
+    [SerializeField] private RectTransform previewLineRT;
+    [SerializeField] private float previewLineWidth = 2f;
+    [SerializeField] private Color previewLineColor = new Color(0.8f, 0.1f, 0.1f, 0.5f);
+
     [Header("해금 텍스트")]
-    [SerializeField] private CanvasGroup     revealPanelCG;
+    [SerializeField] private CanvasGroup revealPanelCG;
     [SerializeField] private TextMeshProUGUI revealText;
 
     [Header("닫기 버튼")]
     [SerializeField] private Button closeButton;
 
-    [Header("SOAP 연결")]
+    [Header("레퍼런스")]
     [SerializeField] private GameManager gameManager;
 
     [Header("DOTween 설정")]
     [SerializeField] private float fadeDuration = 0.35f;
-    [SerializeField] private float cardStagger  = 0.07f;
+    [SerializeField] private float cardStagger = 0.07f;
 
-    private List<ClueCardData>        pendingCards       = new List<ClueCardData>();
-    private List<CorrectConnection>   correctConnections = new List<CorrectConnection>();
-    private List<ClueCard>            spawnedCards       = new List<ClueCard>();
-    private List<RedStringRenderer>   spawnedStrings     = new List<RedStringRenderer>();
-    private ClueCard                  selectedCard       = null;
-    private bool                      isOpen             = false;
+    private List<ClueCardData> pendingCards = new List<ClueCardData>();
+    private List<CorrectConnection> correctConnections = new List<CorrectConnection>();
+    private List<ClueCard> spawnedCards = new List<ClueCard>();
+    private List<RedStringRenderer> spawnedStrings = new List<RedStringRenderer>();
 
+    private ClueCard dragSource = null;
+    private bool isOpen = false;
+
+    // ── 초기화 ───────────────────────────────
     private void Awake()
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
         HideImmediate();
         if (closeButton != null) closeButton.onClick.AddListener(CloseBoard);
+
+        // 프리뷰 실 초기 숨김
+        if (previewLineRT != null)
+        {
+            var img = previewLineRT.GetComponent<Image>();
+            if (img != null) img.color = previewLineColor;
+            previewLineRT.gameObject.SetActive(false);
+        }
     }
 
-    // ─────────────────────────────────────────
+    // ── 외부에서 데이터 추가 ─────────────────
     public void AddCard(ClueCardData cardData)
     {
         if (!pendingCards.Exists(c => c.cardID == cardData.cardID))
@@ -58,10 +74,47 @@ public class WhiteboardManager : MonoBehaviour
     {
         correctConnections.Add(new CorrectConnection
         {
-            cardIDA = cardIDA, cardIDB = cardIDB, revealMessage = revealMessage
+            cardIDA = cardIDA,
+            cardIDB = cardIDB,
+            revealMessage = revealMessage
         });
     }
 
+    // ── JSON 로드 ────────────────────────────
+    public void LoadFromJson()
+    {
+        pendingCards.Clear();
+        correctConnections.Clear();
+
+        var data = GameTextLoader.Instance?.GetWhiteboard();
+        if (data == null) { Debug.LogWarning("[WhiteboardManager] JSON 화이트보드 데이터 없음"); return; }
+
+        var validCards = data.cards.FindAll(c =>
+            string.IsNullOrEmpty(c.requiredClueID) ||
+            (GameFlags.Instance != null && GameFlags.Instance.HasClue(c.requiredClueID)));
+
+        var positions = GeneratePositions(validCards.Count);
+
+        for (int i = 0; i < validCards.Count; i++)
+        {
+            var c = validCards[i];
+            AddCard(new ClueCardData
+            {
+                cardID = c.cardID,
+                cardTitle = c.title,
+                cardContent = c.content,
+                boardPosition = positions[i]
+            });
+        }
+
+        if (data.correctConnections != null)
+            foreach (var conn in data.correctConnections)
+                AddCorrectConnection(conn.fromCardID, conn.toCardID, conn.revealText);
+
+        Debug.Log($"[WhiteboardManager] 카드 {validCards.Count}개 로드 완료");
+    }
+
+    // ── 열기 / 닫기 ──────────────────────────
     public void OpenBoard()
     {
         isOpen = true;
@@ -77,23 +130,30 @@ public class WhiteboardManager : MonoBehaviour
 
     public bool IsOpen() => isOpen;
 
-    // ─────────────────────────────────────────
+    // ── 카드 스폰 ────────────────────────────
     private void SpawnCards()
     {
         foreach (var c in spawnedCards) if (c != null) Destroy(c.gameObject);
         spawnedCards.Clear();
 
+        // ★ 레이아웃 강제 갱신 후 스폰
+        Canvas.ForceUpdateCanvases();
+
         for (int i = 0; i < pendingCards.Count; i++)
         {
             ClueCardData data = pendingCards[i];
-            GameObject   obj  = Instantiate(cardPrefab, cardContainer);
-            ClueCard     card = obj.GetComponent<ClueCard>();
+            GameObject obj = Instantiate(cardPrefab, cardContainer);
+            ClueCard card = obj.GetComponent<ClueCard>();
             if (card == null) continue;
 
             card.Initialize(data, this);
             spawnedCards.Add(card);
 
+            // ★ pivot·anchor를 중앙으로 고정
             var rt = obj.GetComponent<RectTransform>();
+            rt.anchorMin = new Vector2(0.5f, 0.5f);
+            rt.anchorMax = new Vector2(0.5f, 0.5f);
+            rt.pivot = new Vector2(0.5f, 0.5f);
             rt.anchoredPosition = data.boardPosition;
 
             obj.transform.localScale = Vector3.zero;
@@ -103,32 +163,88 @@ public class WhiteboardManager : MonoBehaviour
         }
     }
 
-    // ─────────────────────────────────────────
-    public void OnCardClicked(ClueCard card)
+    private List<Vector2> GeneratePositions(int count)
     {
-        if (selectedCard == null)
+        var positions = new List<Vector2>();
+        if (count == 0) return positions;
+
+        Canvas.ForceUpdateCanvases();
+        float w = cardContainer.rect.width;
+        float h = cardContainer.rect.height;
+        if (w <= 0) w = 800f;
+        if (h <= 0) h = 600f;
+
+        int cols = Mathf.CeilToInt(Mathf.Sqrt(count));
+        int rows = Mathf.CeilToInt((float)count / cols);
+
+        // ★ 최소 간격 보장
+        float spacingX = Mathf.Max(w / (cols + 1), 220f);
+        float spacingY = Mathf.Max(h / (rows + 1), 170f);
+
+        for (int i = 0; i < count; i++)
         {
-            selectedCard = card;
-            card.SetHighlight(true);
-            Debug.Log($"🔴 실 연결 시작: {card.CardID}");
+            int col = i % cols;
+            int row = i / cols;
+
+            float x = -w * 0.5f + spacingX * (col + 1) + Random.Range(-20f, 20f);
+            float y = h * 0.5f - spacingY * (row + 1) + Random.Range(-15f, 15f);
+            positions.Add(new Vector2(x, y));
         }
-        else
-        {
-            if (selectedCard == card)
-            {
-                selectedCard.SetHighlight(false);
-                selectedCard = null;
-                return;
-            }
-            ConnectCards(selectedCard, card);
-            selectedCard.SetHighlight(false);
-            selectedCard = null;
-        }
+        return positions;
     }
 
+    // ── 드래그 연결 처리 ─────────────────────
+    public void StartConnectionDrag(ClueCard source)
+    {
+        dragSource = source;
+        if (previewLineRT != null) previewLineRT.gameObject.SetActive(true);
+    }
+
+    public void UpdateConnectionDrag(PointerEventData eventData)
+    {
+        if (dragSource == null || previewLineRT == null) return;
+        UpdatePreviewLine(dragSource.GetWorldCenter(),
+                          new Vector3(eventData.position.x, eventData.position.y, 0f));
+    }
+
+    public void EndConnectionDrag(ClueCard source, PointerEventData eventData)
+    {
+        if (previewLineRT != null) previewLineRT.gameObject.SetActive(false);
+
+        if (dragSource == null) return;
+
+        // 드롭 위치에서 카드 레이캐스트
+        var results = new List<RaycastResult>();
+        EventSystem.current.RaycastAll(eventData, results);
+
+        foreach (var result in results)
+        {
+            var targetCard = result.gameObject.GetComponentInParent<ClueCard>();
+            if (targetCard != null && targetCard != source)
+            {
+                ConnectCards(source, targetCard);
+                break;
+            }
+        }
+
+        dragSource = null;
+    }
+
+    private void UpdatePreviewLine(Vector3 from, Vector3 to)
+    {
+        previewLineRT.position = (from + to) * 0.5f;
+
+        float dist = Vector3.Distance(from, to);
+        previewLineRT.sizeDelta = new Vector2(dist, previewLineWidth);
+
+        Vector3 dir = to - from;
+        float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+        previewLineRT.rotation = Quaternion.Euler(0f, 0f, angle);
+    }
+
+    // ── 실 연결 / 해제 ───────────────────────
     private void ConnectCards(ClueCard cardA, ClueCard cardB)
     {
-        // 이미 연결된 쌍이면 해제
         RedStringRenderer existing = spawnedStrings.Find(s =>
             (s.CardA == cardA && s.CardB == cardB) ||
             (s.CardA == cardB && s.CardB == cardA));
@@ -141,8 +257,8 @@ public class WhiteboardManager : MonoBehaviour
             return;
         }
 
-        GameObject        obj = Instantiate(stringPrefab, stringContainer);
-        RedStringRenderer rsr = obj.GetComponent<RedStringRenderer>();
+        var obj = Instantiate(stringPrefab, stringContainer);
+        var rsr = obj.GetComponent<RedStringRenderer>();
         rsr.Setup(cardA, cardB);
         spawnedStrings.Add(rsr);
         Debug.Log($"🔴 실 연결: {cardA.CardID} ↔ {cardB.CardID}");
@@ -175,28 +291,27 @@ public class WhiteboardManager : MonoBehaviour
         revealPanelCG.alpha = 0f;
         revealPanelCG.DOFade(1f, 0.5f);
 
-        // ★ Bug Fix: [^1] 대신 Count-1 사용
         if (spawnedStrings.Count > 0)
             spawnedStrings[spawnedStrings.Count - 1].PlayCorrectAnimation();
     }
 
-    // ─────────────────────────────────────────
+    // ── 패널 표시 ────────────────────────────
     private void ShowPanel()
     {
         whiteboardPanelCG.gameObject.SetActive(true);
-        whiteboardPanelCG.alpha          = 0f;
-        whiteboardPanelCG.interactable   = false;
+        whiteboardPanelCG.alpha = 0f;
+        whiteboardPanelCG.interactable = false;
         whiteboardPanelCG.blocksRaycasts = false;
         whiteboardPanelCG.DOFade(1f, fadeDuration).OnComplete(() =>
         {
-            whiteboardPanelCG.interactable   = true;
+            whiteboardPanelCG.interactable = true;
             whiteboardPanelCG.blocksRaycasts = true;
         });
     }
 
     private void HidePanel()
     {
-        whiteboardPanelCG.interactable   = false;
+        whiteboardPanelCG.interactable = false;
         whiteboardPanelCG.blocksRaycasts = false;
         whiteboardPanelCG.DOFade(0f, fadeDuration).OnComplete(() =>
         {
@@ -208,8 +323,8 @@ public class WhiteboardManager : MonoBehaviour
     private void HideImmediate()
     {
         if (whiteboardPanelCG == null) return;
-        whiteboardPanelCG.alpha          = 0f;
-        whiteboardPanelCG.interactable   = false;
+        whiteboardPanelCG.alpha = 0f;
+        whiteboardPanelCG.interactable = false;
         whiteboardPanelCG.blocksRaycasts = false;
         whiteboardPanelCG.gameObject.SetActive(false);
     }
@@ -218,10 +333,10 @@ public class WhiteboardManager : MonoBehaviour
 [System.Serializable]
 public class ClueCardData
 {
-    public string  cardID;
-    public string  cardTitle;
+    public string cardID;
+    public string cardTitle;
     [TextArea(2, 3)]
-    public string  cardContent;
+    public string cardContent;
     public Vector2 boardPosition;
 }
 

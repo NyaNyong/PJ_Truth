@@ -59,6 +59,7 @@ public class NightPhaseManager : MonoBehaviour
         foreach (var entry in locationMaps)
             if (entry.mapRoot != null) entry.mapRoot.SetActive(false);
         HideBannerImmediate();
+        playerOriginalScale = playerCharacter.transform.localScale; // ★ 원본 스케일 저장
     }
 
     private void OnEnable()
@@ -115,6 +116,7 @@ public class NightPhaseManager : MonoBehaviour
         ShowCompleteBanner();
     }
 
+    private Vector3 playerOriginalScale;
     private void ActivateNightView(string locationName)
     {
         Debug.Log($"🌙 탑다운 뷰 활성화 → {locationName}");
@@ -142,8 +144,9 @@ public class NightPhaseManager : MonoBehaviour
 
         playerCharacter.transform.position = spawnPos;
         playerCharacter.SetActive(true);
+        // ActivateNightView() 안의 DOScale 부분 교체
         playerCharacter.transform.localScale = Vector3.zero;
-        playerCharacter.transform.DOScale(Vector3.one, playerSpawnDuration)
+        playerCharacter.transform.DOScale(playerOriginalScale, playerSpawnDuration) // ★ Vector3.one → playerOriginalScale
             .SetEase(Ease.OutBack)
             .OnComplete(() =>
             {
@@ -158,7 +161,7 @@ public class NightPhaseManager : MonoBehaviour
         playerController.EnableControl(false);
         HideBannerImmediate();
 
-        playerCharacter.transform.DOScale(Vector3.zero, 0.25f)
+        playerCharacter.transform.DOScale(Vector3.zero, 0.25f) // 이건 0으로 줄이는 거라 그대로 OK
             .SetEase(Ease.InBack)
             .OnComplete(() =>
             {

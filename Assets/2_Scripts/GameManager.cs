@@ -207,9 +207,11 @@ public class GameManager : MonoBehaviour
     // ── 화이트보드 ───────────────────────────
     private void ActivateWhiteboardPhase()
     {
+
         Debug.Log("[화이트보드] 오픈");
         if (whiteboardManager != null)
         {
+            whiteboardManager.LoadFromJson(); // ★ 추가
             whiteboardManager.OpenBoard();
         }
         else

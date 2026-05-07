@@ -24,6 +24,9 @@ public class PlayerController : MonoBehaviour
     [Tooltip("대화 종료 후 E키 재입력 방지 시간 (초)")]
     [SerializeField] private float interactionCooldown = 0.4f;
 
+    [Header("방향 스프라이트")]
+    [SerializeField] private DirectionalSpriteRenderer directionalSprite;
+
     private Rigidbody2D rb;
     private Animator animator;
     private Vector2 moveInput;
@@ -86,6 +89,7 @@ public class PlayerController : MonoBehaviour
             Input.GetAxisRaw("Vertical")
         ).normalized;
 
+        directionalSprite?.UpdateDirection(moveInput); // ★ 추가
         UpdateAnimator();
     }
 
