@@ -18,11 +18,15 @@ public class WhiteboardManager : MonoBehaviour
     [SerializeField] private GameObject stringPrefab;
     [SerializeField] private RectTransform stringContainer;
 
-    [Header("프리뷰 실 (드래그 중 표시)")]
-    [Tooltip("드래그 중 표시할 임시 실 — Image 컴포넌트가 붙은 UI 오브젝트")]
+    [Header("프리뷰 실")]
     [SerializeField] private RectTransform previewLineRT;
     [SerializeField] private float previewLineWidth = 2f;
     [SerializeField] private Color previewLineColor = new Color(0.8f, 0.1f, 0.1f, 0.5f);
+
+    [Header("커튼 (닫기 연출)")]
+    [Tooltip("WhiteBoard2.png가 붙은 CanvasGroup — Panel_Whiteboard 최하단 자식")]
+    [SerializeField] private CanvasGroup curtainCG;
+    [SerializeField] private float curtainFadeDuration = 0.6f;
 
     [Header("해금 텍스트")]
     [SerializeField] private CanvasGroup revealPanelCG;
@@ -45,6 +49,7 @@ public class WhiteboardManager : MonoBehaviour
 
     private ClueCard dragSource = null;
     private bool isOpen = false;
+    private bool isCurtainDown = false; // ★ 커튼 단계 추적
 
     // ── 초기화 ───────────────────────────────
     private void Awake()
@@ -54,7 +59,6 @@ public class WhiteboardManager : MonoBehaviour
         HideImmediate();
         if (closeButton != null) closeButton.onClick.AddListener(CloseBoard);
 
-        // 프리뷰 실 초기 숨김
         if (previewLineRT != null)
         {
             var img = previewLineRT.GetComponent<Image>();
@@ -63,7 +67,7 @@ public class WhiteboardManager : MonoBehaviour
         }
     }
 
-    // ── 외부에서 데이터 추가 ─────────────────
+    // ── 데이터 추가 ──────────────────────────
     public void AddCard(ClueCardData cardData)
     {
         if (!pendingCards.Exists(c => c.cardID == cardData.cardID))
@@ -94,7 +98,6 @@ public class WhiteboardManager : MonoBehaviour
             (GameFlags.Instance != null && GameFlags.Instance.HasClue(c.requiredClueID)));
 
         var positions = GeneratePositions(validCards.Count);
-
         for (int i = 0; i < validCards.Count; i++)
         {
             var c = validCards[i];
@@ -118,14 +121,29 @@ public class WhiteboardManager : MonoBehaviour
     public void OpenBoard()
     {
         isOpen = true;
+        isCurtainDown = false;
+        ResetCurtain(); // ★ 보드 열 때 항상 커튼 초기화
         SpawnCards();
         ShowPanel();
     }
 
+    /// <summary>
+    /// 1클릭: 커튼 내리기 / 2클릭: 다음 페이즈로
+    /// </summary>
     public void CloseBoard()
     {
-        isOpen = false;
-        HidePanel();
+        if (!isCurtainDown)
+        {
+            // ★ 1단계: 커튼 페이드인
+            isCurtainDown = true;
+            ShowCurtain();
+        }
+        else
+        {
+            // ★ 2단계: 다음 페이즈 전환
+            isOpen = false;
+            HidePanel();
+        }
     }
 
     public bool IsOpen() => isOpen;
@@ -136,7 +154,6 @@ public class WhiteboardManager : MonoBehaviour
         foreach (var c in spawnedCards) if (c != null) Destroy(c.gameObject);
         spawnedCards.Clear();
 
-        // ★ 레이아웃 강제 갱신 후 스폰
         Canvas.ForceUpdateCanvases();
 
         for (int i = 0; i < pendingCards.Count; i++)
@@ -149,7 +166,6 @@ public class WhiteboardManager : MonoBehaviour
             card.Initialize(data, this);
             spawnedCards.Add(card);
 
-            // ★ pivot·anchor를 중앙으로 고정
             var rt = obj.GetComponent<RectTransform>();
             rt.anchorMin = new Vector2(0.5f, 0.5f);
             rt.anchorMax = new Vector2(0.5f, 0.5f);
@@ -171,13 +187,13 @@ public class WhiteboardManager : MonoBehaviour
         Canvas.ForceUpdateCanvases();
         float w = cardContainer.rect.width;
         float h = cardContainer.rect.height;
-        if (w <= 0) w = 800f;
-        if (h <= 0) h = 600f;
+        Debug.Log($"[Whiteboard] 컨테이너 크기: {w} x {h}"); // ★ 임시
+        if (w <= 0) w = 1920f;
+        if (h <= 0) h = 1080f;
 
         int cols = Mathf.CeilToInt(Mathf.Sqrt(count));
         int rows = Mathf.CeilToInt((float)count / cols);
 
-        // ★ 최소 간격 보장
         float spacingX = Mathf.Max(w / (cols + 1), 220f);
         float spacingY = Mathf.Max(h / (rows + 1), 170f);
 
@@ -193,7 +209,7 @@ public class WhiteboardManager : MonoBehaviour
         return positions;
     }
 
-    // ── 드래그 연결 처리 ─────────────────────
+    // ── 드래그 연결 ──────────────────────────
     public void StartConnectionDrag(ClueCard source)
     {
         dragSource = source;
@@ -210,10 +226,8 @@ public class WhiteboardManager : MonoBehaviour
     public void EndConnectionDrag(ClueCard source, PointerEventData eventData)
     {
         if (previewLineRT != null) previewLineRT.gameObject.SetActive(false);
-
         if (dragSource == null) return;
 
-        // 드롭 위치에서 카드 레이캐스트
         var results = new List<RaycastResult>();
         EventSystem.current.RaycastAll(eventData, results);
 
@@ -226,23 +240,19 @@ public class WhiteboardManager : MonoBehaviour
                 break;
             }
         }
-
         dragSource = null;
     }
 
     private void UpdatePreviewLine(Vector3 from, Vector3 to)
     {
         previewLineRT.position = (from + to) * 0.5f;
-
         float dist = Vector3.Distance(from, to);
         previewLineRT.sizeDelta = new Vector2(dist, previewLineWidth);
-
         Vector3 dir = to - from;
-        float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
-        previewLineRT.rotation = Quaternion.Euler(0f, 0f, angle);
+        previewLineRT.rotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg);
     }
 
-    // ── 실 연결 / 해제 ───────────────────────
+    // ── 실 연결 ──────────────────────────────
     private void ConnectCards(ClueCard cardA, ClueCard cardB)
     {
         RedStringRenderer existing = spawnedStrings.Find(s =>
@@ -253,7 +263,6 @@ public class WhiteboardManager : MonoBehaviour
         {
             spawnedStrings.Remove(existing);
             Destroy(existing.gameObject);
-            Debug.Log($"실 연결 해제: {cardA.CardID} ↔ {cardB.CardID}");
             return;
         }
 
@@ -261,7 +270,6 @@ public class WhiteboardManager : MonoBehaviour
         var rsr = obj.GetComponent<RedStringRenderer>();
         rsr.Setup(cardA, cardB);
         spawnedStrings.Add(rsr);
-        Debug.Log($"🔴 실 연결: {cardA.CardID} ↔ {cardB.CardID}");
 
         CheckCorrectConnection(cardA.CardID, cardB.CardID);
     }
@@ -283,9 +291,7 @@ public class WhiteboardManager : MonoBehaviour
 
     private void RevealTruth(string message)
     {
-        Debug.Log($"💡 진실 해금: {message}");
         if (revealPanelCG == null || revealText == null) return;
-
         revealText.text = message;
         revealPanelCG.gameObject.SetActive(true);
         revealPanelCG.alpha = 0f;
@@ -293,6 +299,15 @@ public class WhiteboardManager : MonoBehaviour
 
         if (spawnedStrings.Count > 0)
             spawnedStrings[spawnedStrings.Count - 1].PlayCorrectAnimation();
+    }
+
+    // ── 커튼 연출 ────────────────────────────
+    private void ShowCurtain()
+    {
+        if (curtainCG == null) return;
+        curtainCG.DOKill();
+        curtainCG.alpha = 0f;
+        curtainCG.DOFade(1f, curtainFadeDuration).SetEase(Ease.OutQuad);
     }
 
     // ── 패널 표시 ────────────────────────────
@@ -316,17 +331,40 @@ public class WhiteboardManager : MonoBehaviour
         whiteboardPanelCG.DOFade(0f, fadeDuration).OnComplete(() =>
         {
             whiteboardPanelCG.gameObject.SetActive(false);
+            ResetBoard();
             gameManager?.GoToNextPhase();
         });
     }
 
+    private void ResetCurtain()
+    {
+        if (curtainCG == null) return;
+        curtainCG.DOKill();
+        curtainCG.alpha = 0f;
+        curtainCG.blocksRaycasts = false;
+        curtainCG.interactable = false;
+    }
+
     private void HideImmediate()
     {
-        if (whiteboardPanelCG == null) return;
-        whiteboardPanelCG.alpha = 0f;
-        whiteboardPanelCG.interactable = false;
-        whiteboardPanelCG.blocksRaycasts = false;
-        whiteboardPanelCG.gameObject.SetActive(false);
+        if (whiteboardPanelCG != null)
+        {
+            whiteboardPanelCG.alpha = 0f;
+            whiteboardPanelCG.interactable = false;
+            whiteboardPanelCG.blocksRaycasts = false;
+            whiteboardPanelCG.gameObject.SetActive(false);
+        }
+        ResetCurtain(); // ★ SetActive 대신 alpha 초기화
+    }
+
+    private void ResetBoard()
+    {
+        foreach (var c in spawnedCards) if (c != null) Destroy(c.gameObject);
+        foreach (var s in spawnedStrings) if (s != null) Destroy(s.gameObject);
+        spawnedCards.Clear();
+        spawnedStrings.Clear();
+        isCurtainDown = false;
+        ResetCurtain(); // ★
     }
 }
 

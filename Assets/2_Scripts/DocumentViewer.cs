@@ -72,6 +72,7 @@ public class DocumentViewer : MonoBehaviour
                 slot.insertedWord = "";
             typewriterSystem.Initialize(docData);
             typewriterSystem.OnWordDropped = OnWordDropped;
+            typewriterSystem.OnClosed = () => SetTool(ToolMode.None); // ★ 추가
         }
 
         typewriterSystem?.Close();
@@ -346,6 +347,37 @@ public class DocumentViewer : MonoBehaviour
         currentTool      = ToolMode.None;
         typewriterSystem?.Close();
         onApproveClicked?.Raise();
+    }
+
+    /// <summary>GameManager가 결과창 표시 전 호출 — 검열/타자기 점수 반환</summary>
+    public (float censorScore, float typewriterScore) CalculateScore()
+    {
+        float censor = 50f, typewriter = 50f;
+
+        // 검열 점수 (50점)
+        if (currentDocument != null && currentDocument.needsCensorship &&
+            currentDocument.targetCensorKeywords != null &&
+            currentDocument.targetCensorKeywords.Count > 0)
+        {
+            int total = currentDocument.targetCensorKeywords.Count;
+            int correct = 0;
+            foreach (var kw in currentDocument.targetCensorKeywords)
+                if (maskedKeywords.Any(m => m.Contains(kw))) correct++;
+            censor = ((float)correct / total) * 50f;
+        }
+
+        // 타자기 점수 (50점)
+        if (currentDocument != null && currentDocument.needsTypewriter &&
+            currentDocument.typewriterSlots != null &&
+            currentDocument.typewriterSlots.Count > 0)
+        {
+            int total = currentDocument.typewriterSlots.Count;
+            int correct = currentDocument.typewriterSlots
+                            .Count(s => s.insertedWord == s.correctWord);
+            typewriter = ((float)correct / total) * 50f;
+        }
+
+        return (censor, typewriter);
     }
 
     // ─────────────────────────────────────────

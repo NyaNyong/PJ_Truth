@@ -78,7 +78,7 @@
   ],
 
   "_note_locations": "맵ID는 NightPhaseManager의 locationName과 정확히 일치해야 함",
-  "availableLocations": ["임시"],
+  "availableLocations": ["ㅁㅁ거리"],
   "conditionalLocations": [
     {
       "_note": "condition 충족 시 지도에 추가로 표시되는 장소",
@@ -92,7 +92,7 @@
 
   "locations": [
     {
-      "locationID": "임시",
+      "locationID": "ㅁㅁ거리",
       "_note": "이 맵에 배치된 NPC와 단서 목록",
 
       "npcs": [

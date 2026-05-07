@@ -27,6 +27,12 @@ public class TypewriterSystem : MonoBehaviour
     [SerializeField] private float hiddenY  = -250f;
     [SerializeField] private float visibleY = 0f;
 
+    [Header("닫기 버튼")]
+    [SerializeField] private Button closeButton;
+
+    // DocumentViewer가 구독: 닫기 버튼 클릭 시 호출
+    public System.Action OnClosed;
+
     // ─────────────────────────────────────────
     public bool IsOpen { get; private set; } = false;
 
@@ -42,6 +48,8 @@ public class TypewriterSystem : MonoBehaviour
     {
         panelRT = typewriterPanelCG?.GetComponent<RectTransform>();
         HideImmediate();
+        if (closeButton != null)
+            closeButton.onClick.AddListener(OnClickClose);
     }
 
     // ─────────────────────────────────────────
@@ -66,7 +74,14 @@ public class TypewriterSystem : MonoBehaviour
     {
         if (!IsOpen) return;
         IsOpen = false;
+        OnClosed?.Invoke(); // ★ 추가
         HidePanel();
+    }
+
+    private void OnClickClose()
+    {
+        if (!IsOpen) return;
+        Close();
     }
 
     // ─────────────────────────────────────────
