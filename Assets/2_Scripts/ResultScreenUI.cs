@@ -27,13 +27,6 @@ public class ResultScreenUI : MonoBehaviour
     [Header("버튼")]
     [SerializeField] private Button nextPhaseButton;
 
-    [Header("등급별 색상")]
-    [SerializeField] private Color colorS = new Color(1f, 0.84f, 0f);
-    [SerializeField] private Color colorA = new Color(0.8f, 0.8f, 0.8f);
-    [SerializeField] private Color colorB = new Color(0.6f, 0.4f, 0.2f);
-    [SerializeField] private Color colorC = Color.white;
-    [SerializeField] private Color colorF = new Color(0.5f, 0.5f, 0.5f);
-
     [Header("DOTween 설정")]
     [SerializeField] private float fadeDuration = 0.35f;
     [SerializeField] private float cardPopDuration = 0.35f;
@@ -70,7 +63,7 @@ public class ResultScreenUI : MonoBehaviour
         if (gradeText != null)
         {
             gradeText.text = score.grade.ToString();
-            gradeText.color = GradeColor(score.grade);
+            gradeText.color = Color.black; // ★ 고정
         }
 
         float deltaRatio = score.totalScore / 500f;
@@ -159,12 +152,4 @@ public class ResultScreenUI : MonoBehaviour
     private void OnClickNext() => Hide(() => onNextAction?.Invoke());
 
     // ── 등급 색상 ────────────────────────────
-    private Color GradeColor(Grade g) => g switch
-    {
-        Grade.S => colorS,
-        Grade.A => colorA,
-        Grade.B => colorB,
-        Grade.C => colorC,
-        _ => colorF
-    };
 }

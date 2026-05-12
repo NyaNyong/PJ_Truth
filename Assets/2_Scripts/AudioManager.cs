@@ -8,21 +8,48 @@ public class AudioManager : MonoBehaviour
     [Header("BGM AudioSource")]
     [SerializeField] private AudioSource bgmSource;
 
-    [Header("BGM Å¬¸³")]
+    [Header("BGM í´ë¦½")]
     [SerializeField] private AudioClip bgmMainMenu;
     [SerializeField] private AudioClip bgmDayPhase;
     [SerializeField] private AudioClip bgmNightPhase;
     [SerializeField] private AudioClip bgmWhiteboard;
 
-    [Header("ÆäÀÌµå ¼³Á¤")]
+    [Header("í˜ì´ë“œ ì„¤ì •")]
     [SerializeField] private float fadeDuration = 1f;
     [SerializeField][Range(0f, 1f)] private float bgmVolume = 0.7f;
 
-    private void Start()
-    {
-        // ¡Ú °ÔÀÓ ½ÃÀÛ ½Ã ±âº»À¸·Î ¸ŞÀÎ¸Ş´º BGM Àç»ı
-        PlayMainMenu();
-    }
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    [Header("SFX AudioSource")]
+    [SerializeField] private AudioSource sfxSource;
+    [SerializeField][Range(0f, 1f)] private float sfxVolume = 1f;
+
+    [Header("SFX í´ë¦½ - ë‚® í˜ì´ì¦ˆ")]
+    [Tooltip("1. ë‚® í˜ì´ì¦ˆ ë‹¤ìŒë²„íŠ¼ ë“± ê¸°ë³¸ ìƒí˜¸ì‘ìš©")]
+    [SerializeField] private AudioClip sfxDayInteraction;
+    [Tooltip("2. ìŠ¹ì¸ ë„ì¥")]
+    [SerializeField] private AudioClip sfxApproveStamp;
+    [Tooltip("3. ë¸”ë™ë§ˆì»¤ í™œì„±/ë¹„í™œì„±")]
+    [SerializeField] private AudioClip sfxMarkerToggle;
+    [Tooltip("4. ë¸”ë™ë§ˆì»¤ ê¸‹ê¸°")]
+    [SerializeField] private AudioClip sfxMarkerDraw;
+    [Tooltip("5. ì‚¬ê±´ì¼ì§€(ê°€ì´ë“œë¼ì¸) íŒì—…/ë‹«ê¸°")]
+    [SerializeField] private AudioClip sfxCasebookToggle;
+    [Tooltip("6. íƒ€ìê¸° í™œì„±í™”")]
+    [SerializeField] private AudioClip sfxTypewriterOpen;
+    [Tooltip("7. íƒ€ìê¸° ë¹„í™œì„±í™”")]
+    [SerializeField] private AudioClip sfxTypewriterClose;
+
+    [Header("SFX í´ë¦½ - ë°¤ í˜ì´ì¦ˆ")]
+    [Tooltip("8. ê±·ê¸° ë°œì†Œë¦¬")]
+    [SerializeField] private AudioClip sfxFootstep;
+
+    [Header("SFX í´ë¦½ - ëŒ€í™”ì°½")]
+    [Tooltip("9. ëŒ€í™”ì°½ ë‹¤ìŒì¤„ ë„˜ê¸°ê¸°")]
+    [SerializeField] private AudioClip sfxDialogueNext;
+    [Tooltip("10. ëŒ€í™”ì°½ ì¢…ë£Œ")]
+    [SerializeField] private AudioClip sfxDialogueClose;
+
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     private void Awake()
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
@@ -30,28 +57,50 @@ public class AudioManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
 
         if (bgmSource == null) bgmSource = gameObject.AddComponent<AudioSource>();
-        bgmSource.loop = true;
+        bgmSource.loop   = true;
         bgmSource.volume = 0f;
+
+        if (sfxSource == null)
+        {
+            sfxSource        = gameObject.AddComponent<AudioSource>();
+            sfxSource.loop   = false;
+            sfxSource.volume = sfxVolume;
+        }
     }
 
-    // ¦¡¦¡ ¿ÜºÎ È£Ãâ ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
-    public void PlayMainMenu() => PlayBGM(bgmMainMenu);
-    public void PlayDayPhase() => PlayBGM(bgmDayPhase);
-    public void PlayNightPhase() => PlayBGM(bgmNightPhase);
-    public void PlayWhiteboard() => PlayBGM(bgmWhiteboard);
+    private void Start()
+    {
+        PlayMainMenu();
+    }
 
-    // ¦¡¦¡ Å©·Î½ºÆäÀÌµå ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // â”€â”€ BGM ì™¸ë¶€ í˜¸ì¶œ â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    public void PlayMainMenu()  => PlayBGM(bgmMainMenu);
+    public void PlayDayPhase()  => PlayBGM(bgmDayPhase);
+    public void PlayNightPhase()=> PlayBGM(bgmNightPhase);
+    public void PlayWhiteboard()=> PlayBGM(bgmWhiteboard);
+
+    // â”€â”€ SFX ì™¸ë¶€ í˜¸ì¶œ â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    public void PlaySfxDayInteraction() => PlaySFX(sfxDayInteraction);
+    public void PlaySfxApproveStamp()   => PlaySFX(sfxApproveStamp);
+    public void PlaySfxMarkerToggle()   => PlaySFX(sfxMarkerToggle);
+    public void PlaySfxMarkerDraw()     => PlaySFX(sfxMarkerDraw);
+    public void PlaySfxCasebookToggle() => PlaySFX(sfxCasebookToggle);
+    public void PlaySfxTypewriterOpen() => PlaySFX(sfxTypewriterOpen);
+    public void PlaySfxTypewriterClose()=> PlaySFX(sfxTypewriterClose);
+    public void PlaySfxFootstep()       => PlaySFX(sfxFootstep);
+    public void PlaySfxDialogueNext()   => PlaySFX(sfxDialogueNext);
+    public void PlaySfxDialogueClose()  => PlaySFX(sfxDialogueClose);
+
+    // â”€â”€ BGM í¬ë¡œìŠ¤í˜ì´ë“œ â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     private void PlayBGM(AudioClip clip)
     {
-        Debug.Log($"[AudioManager] PlayBGM ¿äÃ»: {clip?.name ?? "NULL"}");
         if (clip == null) return;
-        if (bgmSource.clip == clip && bgmSource.isPlaying) return; // ÀÌ¹Ì Àç»ı Áß
+        if (bgmSource.clip == clip && bgmSource.isPlaying) return;
 
         bgmSource.DOKill();
 
         if (bgmSource.isPlaying)
         {
-            // ÆäÀÌµå¾Æ¿ô ÈÄ ±³Ã¼
             bgmSource.DOFade(0f, fadeDuration * 0.5f).OnComplete(() =>
             {
                 SwapClip(clip);
@@ -60,7 +109,6 @@ public class AudioManager : MonoBehaviour
         }
         else
         {
-            // ¹Ù·Î ÆäÀÌµåÀÎ
             SwapClip(clip);
             bgmSource.DOFade(bgmVolume, fadeDuration);
         }
@@ -70,5 +118,12 @@ public class AudioManager : MonoBehaviour
     {
         bgmSource.clip = clip;
         bgmSource.Play();
+    }
+
+    // â”€â”€ SFX ë‹¨ë°œ ì¬ìƒ â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    private void PlaySFX(AudioClip clip)
+    {
+        if (clip == null) return;
+        sfxSource.PlayOneShot(clip, sfxVolume);
     }
 }

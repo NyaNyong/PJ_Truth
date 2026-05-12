@@ -85,13 +85,12 @@ public class DialogueUI : MonoBehaviour
     private void AdvanceLine()
     {
         currentLineIndex++;
-
         if (currentLineIndex >= currentLines.Count)
         {
             CloseDialogue();
             return;
         }
-
+        AudioManager.Instance?.PlaySfxDialogueNext(); // ★ SFX (다음줄로 넘길 때만)
         ShowLine(currentLines[currentLineIndex]);
     }
 
@@ -141,8 +140,9 @@ public class DialogueUI : MonoBehaviour
 
     private void CloseDialogue()
     {
+        AudioManager.Instance?.PlaySfxDialogueClose(); // ★ SFX
         DOTween.Kill("dialogue_type");
-        dialoguePanelCG.interactable   = false;
+        dialoguePanelCG.interactable = false;
         dialoguePanelCG.blocksRaycasts = false;
         dialoguePanelCG.DOFade(0f, fadeOutDuration)
             .OnComplete(() =>

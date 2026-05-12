@@ -40,13 +40,13 @@
           "_note": "slotIndex: mainText의 ##SLOT0## 번호와 일치",
           "slotIndex":   0,
           "originalWord": "시민",
-          "wordOptions":  ["경찰", "강아지", "고양이"],
+          "wordOptions":  ["경찰", "고양이"],
           "correctWord":  "경찰"
         },
         {
           "slotIndex":   1,
           "originalWord": "사안",
-          "wordOptions":  ["문제", "사건", "일"],
+          "wordOptions":  ["문제", "일"],
           "correctWord":  "문제"
         }
       ]

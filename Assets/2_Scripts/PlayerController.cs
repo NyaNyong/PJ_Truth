@@ -27,6 +27,10 @@ public class PlayerController : MonoBehaviour
     [Header("방향 스프라이트")]
     [SerializeField] private DirectionalSpriteRenderer directionalSprite;
 
+    [Header("걷기 효과음")]
+    [SerializeField] private float footstepInterval = 0.4f;
+    private float _footstepTimer = 0f;
+
     private Rigidbody2D rb;
     private Animator animator;
     private Vector2 moveInput;
@@ -89,8 +93,23 @@ public class PlayerController : MonoBehaviour
             Input.GetAxisRaw("Vertical")
         ).normalized;
 
-        directionalSprite?.UpdateDirection(moveInput); // ★ 추가
+        directionalSprite?.UpdateDirection(moveInput);
         UpdateAnimator();
+
+        // ★ 발소리 SFX
+        if (moveInput.sqrMagnitude > 0.01f)
+        {
+            _footstepTimer -= Time.deltaTime;
+            if (_footstepTimer <= 0f)
+            {
+                AudioManager.Instance?.PlaySfxFootstep();
+                _footstepTimer = footstepInterval;
+            }
+        }
+        else
+        {
+            _footstepTimer = 0f; // 멈추면 즉시 리셋 (재개 시 바로 첫 발소리)
+        }
     }
 
     private void UpdateAnimator()

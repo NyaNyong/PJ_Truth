@@ -63,15 +63,15 @@ public class GameManager : MonoBehaviour
     // ── 이벤트 ───────────────────────────────
     private void OnEnable()
     {
-        if (onApproveClicked != null) onApproveClicked.OnRaised += GoToNextPhase;
-        if (onLocationSelected != null) onLocationSelected.OnRaised += OnLocationSelectedHandler;
+        if (onApproveClicked != null)        onApproveClicked.OnRaised        += GoToNextPhase;
+        if (onLocationSelected != null)      onLocationSelected.OnRaised      += OnLocationSelectedHandler;
         if (onPhaseTransitionRequest != null) onPhaseTransitionRequest.OnRaised += GoToNextPhase;
     }
 
     private void OnDisable()
     {
-        if (onApproveClicked != null) onApproveClicked.OnRaised -= GoToNextPhase;
-        if (onLocationSelected != null) onLocationSelected.OnRaised -= OnLocationSelectedHandler;
+        if (onApproveClicked != null)        onApproveClicked.OnRaised        -= GoToNextPhase;
+        if (onLocationSelected != null)      onLocationSelected.OnRaised      -= OnLocationSelectedHandler;
         if (onPhaseTransitionRequest != null) onPhaseTransitionRequest.OnRaised -= GoToNextPhase;
     }
 
@@ -79,9 +79,6 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         InitializePanels();
-
-        // ★ idCardUI가 Inspector에 연결돼 있으면 IDCard 흐름 대기
-        // 없으면 바로 시작 (테스트용)
         if (idCardUI == null)
             StartDay(1);
     }
@@ -100,11 +97,10 @@ public class GameManager : MonoBehaviour
     // ── 날짜 시작 ────────────────────────────
     public void StartDay(int day)
     {
-        Debug.Log($"[GameManager] StartDay({day}) 호출 — idCardUI: {(idCardUI != null ? "연결됨" : "NULL")}");
+        Debug.Log($"[GameManager] StartDay({day}) 호출");
         currentDay = day;
         if (soapCurrentDay != null) soapCurrentDay.Value = day;
 
-        // ★ JSON 로드 → DailyData 텍스트 주입
         LoadTodaysData();
         GameTextLoader.Instance?.LoadDay(day);
         GameTextLoader.Instance?.InjectIntoDaily(todaysData);
@@ -162,9 +158,9 @@ public class GameManager : MonoBehaviour
     {
         switch (phase)
         {
-            case GamePhase.Morning: ActivateMorningPhase(); break;
-            case GamePhase.Day: ActivateDayPhase(); break;
-            case GamePhase.Night: ActivateNightPhase(); break;
+            case GamePhase.Morning:    ActivateMorningPhase();    break;
+            case GamePhase.Day:        ActivateDayPhase();        break;
+            case GamePhase.Night:      ActivateNightPhase();      break;
             case GamePhase.Whiteboard: ActivateWhiteboardPhase(); break;
         }
     }
@@ -178,11 +174,9 @@ public class GameManager : MonoBehaviour
 
         if (dayPhaseBG != null) dayPhaseBG.SetActive(true);
 
-        // ★ 텍스트 미리 세팅 (패널은 버튼 클릭 후 열림)
-        if (officialNewsTitleUI != null) officialNewsTitleUI.text = todaysData.officialNewsTitle;
+        if (officialNewsTitleUI != null)   officialNewsTitleUI.text   = todaysData.officialNewsTitle;
         if (officialNewsContentUI != null) officialNewsContentUI.text = todaysData.officialNewsContent;
 
-        // ★ 뉴스 버튼 팝업
         if (morningNewsButton != null)
         {
             morningNewsButton.SetActive(true);
@@ -196,6 +190,8 @@ public class GameManager : MonoBehaviour
     /// <summary>뉴스 버튼 클릭 → Panel_Morning 표시</summary>
     public void OnClickMorningNewsButton()
     {
+        AudioManager.Instance?.PlaySfxDayInteraction(); // ★ SFX
+
         if (morningNewsButton != null)
         {
             morningNewsButton.transform
@@ -212,6 +208,7 @@ public class GameManager : MonoBehaviour
 
     public void OnClickMorningNewsConfirm()
     {
+        AudioManager.Instance?.PlaySfxDayInteraction(); // ★ SFX
         Debug.Log("[GameManager] 아침 확인 클릭");
         GoToNextPhase();
     }
@@ -219,7 +216,7 @@ public class GameManager : MonoBehaviour
     // ── 낮 ───────────────────────────────────
     private void ActivateDayPhase()
     {
-        AudioManager.Instance?.PlayDayPhase(); // Morning과 동일 BGM — 이미 재생 중이면 무시됨
+        AudioManager.Instance?.PlayDayPhase();
         Debug.Log($"[낮] Stage {currentDay}");
         if (todaysData == null || todaysData.documentToProcess == null)
         {
@@ -228,7 +225,6 @@ public class GameManager : MonoBehaviour
 
         if (dayPhaseBG != null) dayPhaseBG.SetActive(true);
 
-        // ★ 문서 텍스트 JSON 주입
         GameTextLoader.Instance?.InjectIntoDocument(todaysData.documentToProcess);
 
         documentViewer?.ShowDocument(todaysData.documentToProcess);
@@ -239,6 +235,7 @@ public class GameManager : MonoBehaviour
 
     public void OnClickGuidelineToggle()
     {
+        AudioManager.Instance?.PlaySfxCasebookToggle(); // ★ SFX
         if (guidelinePanelCG == null) return;
         bool isVisible = guidelinePanelCG.alpha > 0.5f;
         if (isVisible)
@@ -276,7 +273,6 @@ public class GameManager : MonoBehaviour
         Debug.Log("[화이트보드] 오픈");
         if (whiteboardManager != null)
         {
-            // ★ JSON 화이트보드 데이터 로드
             whiteboardManager.LoadFromJson();
             whiteboardManager.OpenBoard();
         }
@@ -298,7 +294,7 @@ public class GameManager : MonoBehaviour
                 break;
 
             case GamePhase.Day:
-                ShowApprovalStamp(() => ShowResultScreen()); // ★ Night 대신 결과창으로
+                ShowApprovalStamp(() => ShowResultScreen());
                 break;
 
             case GamePhase.Night:
@@ -321,6 +317,8 @@ public class GameManager : MonoBehaviour
         {
             onComplete?.Invoke(); return;
         }
+
+        AudioManager.Instance?.PlaySfxApproveStamp(); // ★ SFX
 
         stampCG.DOKill();
         stampRT.DOKill();
@@ -353,9 +351,9 @@ public class GameManager : MonoBehaviour
         }
 
         var (censor, typewriter) = documentViewer.CalculateScore();
-        var score = ScoringSystem.Instance.CalculateAndRecord(censor, typewriter, currentDay);
+        var score        = ScoringSystem.Instance.CalculateAndRecord(censor, typewriter, currentDay);
         float kpiProgress = ScoringSystem.Instance.KPIProgress;
-        int totalDocs = ScoringSystem.Instance.TotalProcessedDocuments;
+        int totalDocs    = ScoringSystem.Instance.TotalProcessedDocuments;
 
         if (resultScreenUI != null)
             resultScreenUI.Show(score, kpiProgress, totalDocs, () => ChangePhase(GamePhase.Night));

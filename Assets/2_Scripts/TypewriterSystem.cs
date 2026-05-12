@@ -65,6 +65,7 @@ public class TypewriterSystem : MonoBehaviour
         if (currentDocument.typewriterSlots == null ||
             currentDocument.typewriterSlots.Count == 0) return;
 
+        AudioManager.Instance?.PlaySfxTypewriterOpen(); // ★ SFX
         IsOpen = true;
         SpawnAllWordCards();
         ShowPanel();
@@ -73,8 +74,9 @@ public class TypewriterSystem : MonoBehaviour
     public void Close()
     {
         if (!IsOpen) return;
+        AudioManager.Instance?.PlaySfxTypewriterClose(); // ★ SFX
         IsOpen = false;
-        OnClosed?.Invoke(); // ★ 추가
+        OnClosed?.Invoke();
         HidePanel();
     }
 
