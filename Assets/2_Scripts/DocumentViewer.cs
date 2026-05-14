@@ -53,9 +53,13 @@ public class DocumentViewer : MonoBehaviour
     private readonly List<RectTransform> _overlayPool    = new List<RectTransform>();
     private readonly List<RectTransform> _activeOverlays = new List<RectTransform>();
 
-    private static readonly Regex slotSourceRegex      = new Regex(@"##SLOT(\d+)##");
+    // ★ [SLOT_N] 형식으로 수정 (기존 ##SLOTN## → [SLOT_N])
+    private static readonly Regex slotSourceRegex = new Regex(@"\[SLOT_(\d+)\]");
     private static readonly Regex slotPlaceholderRegex = new Regex(@"\x02(\d+)\x03");
-    private static readonly Regex slotContainsRegex    = new Regex(@"SLOT(\d+)");
+    private static readonly Regex slotContainsRegex = new Regex(@"SLOT(\d+)");
+
+    // ★ 변경: 클릭한 특정 위치의 단어만 검열하도록 (단어텍스트 → 단어별 발생 인덱스 셋)
+    private Dictionary<string, HashSet<int>> maskedOccurrences = new Dictionary<string, HashSet<int>>();
 
     // 자식 인덱스 상수
     private const int CHILD_FRONT  = 0;
@@ -79,7 +83,7 @@ public class DocumentViewer : MonoBehaviour
         isDocumentActive = true;
         currentTool      = ToolMode.None;
 
-        maskedKeywords.Clear();
+        maskedOccurrences.Clear(); // ★ 기존 maskedKeywords.Clear() 교체
         isAllMaskedCorrectly = false;
         ClearAllOverlays();
 
@@ -170,35 +174,57 @@ public class DocumentViewer : MonoBehaviour
         if (!RectTransformUtility.RectangleContainsScreenPoint(
                 contentText.rectTransform, screenPos, null)) return;
 
+        // 감지용 텍스트로 일시 교체
         contentText.text = BuildDetectionText();
         contentText.ForceMeshUpdate();
 
         int wordIndex = GetWordIndexAt(screenPos);
-        string word   = wordIndex >= 0
-            ? contentText.textInfo.wordInfo[wordIndex].GetWord()
-            : "";
+        if (wordIndex < 0) { RenderDocument(); return; }
+
+        string word = contentText.textInfo.wordInfo[wordIndex].GetWord();
+        int firstCharIdx = contentText.textInfo.wordInfo[wordIndex].firstCharacterIndex;
+        string detText = contentText.text;
 
         RenderDocument();
 
         if (string.IsNullOrWhiteSpace(word)) return;
-        if (slotContainsRegex.IsMatch(word))  return;
-        if (IsInsertedWord(word))             return;
+        if (slotContainsRegex.IsMatch(word)) return;
+        if (IsInsertedWord(word)) return;
 
-        bool isTarget = IsTargetKeyword(word);
-        if (maskedKeywords.Contains(word))
+        // ★ 클릭된 단어가 문서 내 몇 번째 발생인지 계산
+        int occurrenceIdx = CountWordOccurrencesBefore(detText, word, firstCharIdx);
+
+        if (!maskedOccurrences.ContainsKey(word))
+            maskedOccurrences[word] = new HashSet<int>();
+
+        if (maskedOccurrences[word].Contains(occurrenceIdx))
         {
-            maskedKeywords.Remove(word);
-            Debug.Log(isTarget ? $"검열 단어 노출: {word}" : $"마커 제거: {word}");
+            maskedOccurrences[word].Remove(occurrenceIdx);
+            Debug.Log($"마커 제거: '{word}'[{occurrenceIdx}]");
         }
         else
         {
-            maskedKeywords.Add(word);
-            AudioManager.Instance?.PlaySfxMarkerDraw(); // ★ SFX (긋기만, 제거는 무음)
-            Debug.Log(isTarget ? $"[검열] 가림: {word}" : $"마커 칠함: {word}");
+            maskedOccurrences[word].Add(occurrenceIdx);
+            AudioManager.Instance?.PlaySfxMarkerDraw();
+            Debug.Log($"마커 칠함: '{word}'[{occurrenceIdx}]");
         }
 
         RenderDocument();
         CheckAnswer();
+    }
+
+    // ★ 신규 헬퍼: beforeCharIdx 이전에 word가 몇 번 등장하는지
+    private int CountWordOccurrencesBefore(string text, string word, int beforeCharIdx)
+    {
+        int count = 0, searchFrom = 0;
+        while (searchFrom < beforeCharIdx)
+        {
+            int found = text.IndexOf(word, searchFrom, System.StringComparison.Ordinal);
+            if (found < 0 || found >= beforeCharIdx) break;
+            count++;
+            searchFrom = found + word.Length;
+        }
+        return count;
     }
 
     // ─────────────────────────────────────────
@@ -268,13 +294,35 @@ public class DocumentViewer : MonoBehaviour
             return $"\x02{idx}\x03";
         });
 
-        foreach (string kw in maskedKeywords)
+        // ★ 기존 foreach(string kw in maskedKeywords) 블록 전체를 아래로 교체
+        foreach (var kvp in maskedOccurrences)
         {
-            if (string.IsNullOrEmpty(kw)) continue;
+            string kw = kvp.Key;
+            var occSet = kvp.Value;
+            if (occSet == null || occSet.Count == 0) continue;
+
+            // 발생 위치를 역순으로 수집 후 교체 (인덱스 보존)
+            var ranges = new List<(int start, int len)>();
+            int pos = 0, occ = 0;
+            while (true)
+            {
+                int idx = text.IndexOf(kw, pos, System.StringComparison.Ordinal);
+                if (idx < 0) break;
+                if (occSet.Contains(occ))
+                    ranges.Add((idx, kw.Length));
+                pos = idx + kw.Length;
+                occ++;
+            }
+
             string masked = useSprite
                 ? $"<color=#00000000>{kw}</color>"
                 : $"<mark=#000000><color=#000000>{kw}</color></mark>";
-            text = text.Replace(kw, masked);
+
+            for (int r = ranges.Count - 1; r >= 0; r--)
+            {
+                var (start, len) = ranges[r];
+                text = text.Substring(0, start) + masked + text.Substring(start + len);
+            }
         }
 
         text = slotPlaceholderRegex.Replace(text, m =>
@@ -312,7 +360,7 @@ public class DocumentViewer : MonoBehaviour
                 string inserted = currentDocument.typewriterSlots[idx].insertedWord;
                 if (!string.IsNullOrEmpty(inserted)) return $" {inserted} ";
                 string original = currentDocument.typewriterSlots[idx].originalWord;
-                return string.IsNullOrEmpty(original) ? $" SLOT{idx} " : $" {original} ";
+                return $" SLOT{idx} ";
             }
             return m.Value;
         });
@@ -332,24 +380,29 @@ public class DocumentViewer : MonoBehaviour
             rt.gameObject.SetActive(false);
         _activeOverlays.Clear();
 
-        if (markerFrontSprite  == null) return;
-        if (markerMiddleSprite == null) return;
-        if (markerEndSprite    == null) return;
-        if (maskedKeywords.Count == 0)  return;
+        if (markerFrontSprite == null || markerMiddleSprite == null || markerEndSprite == null) return;
+        if (maskedOccurrences.Count == 0) return;
 
+        contentText.ForceMeshUpdate();
         var info = contentText.textInfo;
         if (info == null || info.wordCount == 0) return;
 
-        float capW = markerCapWidth > 0f
-            ? markerCapWidth
-            : markerFrontSprite.rect.width;
+        float capW = markerCapWidth > 0f ? markerCapWidth : markerFrontSprite.rect.width;
+        var wordOccCounter = new Dictionary<string, int>();
 
         for (int wi = 0; wi < info.wordCount; wi++)
         {
             var wordInfo = info.wordInfo[wi];
-            string word  = wordInfo.GetWord();
-            if (!maskedKeywords.Contains(word)) continue;
+            string word = wordInfo.GetWord();
 
+            if (!wordOccCounter.ContainsKey(word)) wordOccCounter[word] = 0;
+            int occIdx = wordOccCounter[word];
+            wordOccCounter[word]++;
+
+            if (!maskedOccurrences.TryGetValue(word, out var occSet)) continue;
+            if (!occSet.Contains(occIdx)) continue;
+
+            // 바운딩 박스
             float minX = float.MaxValue, minY = float.MaxValue;
             float maxX = float.MinValue, maxY = float.MinValue;
             bool hasVisible = false;
@@ -370,48 +423,54 @@ public class DocumentViewer : MonoBehaviour
 
             if (!hasVisible) continue;
 
-            float   totalW = (maxX - minX) + markerPaddingX * 2f;
-            float   totalH = (maxY - minY) + markerPaddingY * 2f;
-            Vector2 center = new Vector2((minX + maxX) * 0.5f, (minY + maxY) * 0.5f);
+            float totalW = (maxX - minX) + markerPaddingX * 2f;
+            float totalH = (maxY - minY) + markerPaddingY * 2f;
+            float posX = (minX + maxX) * 0.5f;
+            float posY = (minY + maxY) * 0.5f;
 
             var container = GetOrCreateOverlayContainer();
-            container.SetParent(contentText.transform, false);
-
-            // 컨테이너 위치·크기 (contentText 로컬 좌표)
+            // ★ 교체
+            container.SetParent(contentText.transform.parent, false);
+            container.pivot = new Vector2(0.5f, 0.5f);
             container.anchorMin = new Vector2(0.5f, 0.5f);
             container.anchorMax = new Vector2(0.5f, 0.5f);
-            container.pivot = new Vector2(0.5f, 0.5f);
             container.sizeDelta = new Vector2(totalW, totalH);
-            container.localPosition = new Vector3(center.x, center.y, 0f);
-
-            // ── Front: 왼쪽 끝, 고정 너비, 세로 full ──
-            var front = container.GetChild(CHILD_FRONT) as RectTransform;
-            front.anchorMin        = new Vector2(0f, 0f);
-            front.anchorMax        = new Vector2(0f, 1f);
-            front.pivot            = new Vector2(0f, 0.5f);
-            front.anchoredPosition = Vector2.zero;
-            front.sizeDelta        = new Vector2(capW, 0f);
-            front.GetComponent<Image>().sprite = markerFrontSprite;
-
-            // ── End: 오른쪽 끝, 고정 너비, 세로 full ──
-            var end = container.GetChild(CHILD_END) as RectTransform;
-            end.anchorMin        = new Vector2(1f, 0f);
-            end.anchorMax        = new Vector2(1f, 1f);
-            end.pivot            = new Vector2(1f, 0.5f);
-            end.anchoredPosition = Vector2.zero;
-            end.sizeDelta        = new Vector2(capW, 0f);
-            end.GetComponent<Image>().sprite = markerEndSprite;
-
-            // ── Middle: 캡 사이를 가로 stretch ─────
-            var mid = container.GetChild(CHILD_MIDDLE) as RectTransform;
-            mid.anchorMin = new Vector2(0f, 0f);
-            mid.anchorMax = new Vector2(1f, 1f);
-            mid.offsetMin = new Vector2(capW,  0f);
-            mid.offsetMax = new Vector2(-capW, 0f);
-            mid.GetComponent<Image>().sprite = markerMiddleSprite;
-
+            // TMP 로컬 좌표 → 월드 좌표로 변환하여 설정 (localPosition 직접 사용 시 부모 피벗 오프셋 발생)
+            container.position = contentText.transform.TransformPoint(new Vector3(posX, posY, 0f));
             container.gameObject.SetActive(true);
             _activeOverlays.Add(container);
+
+            // Front
+            var frontRT = container.GetChild(CHILD_FRONT) as RectTransform;
+            var frontImg = frontRT.GetComponent<Image>();
+            frontImg.sprite = markerFrontSprite;
+            frontImg.color = Color.black;
+            frontRT.anchorMin = new Vector2(0f, 0f);
+            frontRT.anchorMax = new Vector2(0f, 1f);
+            frontRT.pivot = new Vector2(0f, 0.5f);
+            frontRT.anchoredPosition = Vector2.zero;
+            frontRT.sizeDelta = new Vector2(capW, 0f);
+
+            // Middle
+            var middleRT = container.GetChild(CHILD_MIDDLE) as RectTransform;
+            var middleImg = middleRT.GetComponent<Image>();
+            middleImg.sprite = markerMiddleSprite;
+            middleImg.color = Color.black;
+            middleRT.anchorMin = new Vector2(0f, 0f);
+            middleRT.anchorMax = new Vector2(1f, 1f);
+            middleRT.offsetMin = new Vector2(capW, 0f);
+            middleRT.offsetMax = new Vector2(-capW, 0f);
+
+            // End
+            var endRT = container.GetChild(CHILD_END) as RectTransform;
+            var endImg = endRT.GetComponent<Image>();
+            endImg.sprite = markerEndSprite;
+            endImg.color = Color.black;
+            endRT.anchorMin = new Vector2(1f, 0f);
+            endRT.anchorMax = new Vector2(1f, 1f);
+            endRT.pivot = new Vector2(1f, 0.5f);
+            endRT.anchoredPosition = Vector2.zero;
+            endRT.sizeDelta = new Vector2(capW, 0f);
         }
     }
 
@@ -472,7 +531,8 @@ public class DocumentViewer : MonoBehaviour
     {
         if (!currentDocument.needsCensorship) return true;
         return currentDocument.targetCensorKeywords.All(t =>
-            maskedKeywords.Any(m => m.Contains(t)));
+            maskedOccurrences.Any(kvp =>
+                kvp.Key.Contains(t) && kvp.Value != null && kvp.Value.Count > 0));
     }
 
     private bool CheckTypewriterAnswer()
@@ -502,7 +562,8 @@ public class DocumentViewer : MonoBehaviour
         {
             int total   = currentDocument.targetCensorKeywords.Count;
             int correct = currentDocument.targetCensorKeywords
-                .Count(kw => maskedKeywords.Any(m => m.Contains(kw)));
+             .Count(kw => maskedOccurrences.Any(kvp =>
+               kvp.Key.Contains(kw) && kvp.Value != null && kvp.Value.Count > 0)); // ★
             censor = ((float)correct / total) * 50f;
         }
 

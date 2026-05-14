@@ -34,46 +34,32 @@ public class WordCard : MonoBehaviour,
     {
         myCanvasGroup.alpha = 0.4f;
 
-        // 루트 캔버스 아래에 고스트 생성
         Canvas targetCanvas = rootCanvas != null
             ? rootCanvas
             : GetComponentInParent<Canvas>().rootCanvas;
 
-        ghostObj = new GameObject("WordCard_Ghost");
-        ghostObj.transform.SetParent(targetCanvas.transform, false);
+        // ★ 노란 박스 대신 자신을 복제해서 고스트 생성
+        ghostObj = Instantiate(gameObject, targetCanvas.transform);
+        ghostObj.name = "WordCard_Ghost";
         ghostObj.transform.SetAsLastSibling();
 
-        var ghostImg  = ghostObj.AddComponent<Image>();
-        ghostImg.color = new Color(0.95f, 0.85f, 0.4f, 0.9f);
+        // 상호작용 컴포넌트 제거
+        var ghostCard = ghostObj.GetComponent<WordCard>();
+        if (ghostCard != null) Destroy(ghostCard);
+        var layoutElem = ghostObj.GetComponent<LayoutElement>();
+        if (layoutElem != null) Destroy(layoutElem);
 
-        ghostRT           = ghostObj.GetComponent<RectTransform>();
-        ghostRT.sizeDelta = myRT != null ? myRT.sizeDelta : new Vector2(120f, 40f);
-        ghostRT.pivot     = new Vector2(0.5f, 0.5f);
-        // anchorMin/Max 0.5로 맞춰야 position 설정이 정확함
+        // 고스트 스타일
+        var ghostCG = ghostObj.GetComponent<CanvasGroup>();
+        if (ghostCG == null) ghostCG = ghostObj.AddComponent<CanvasGroup>();
+        ghostCG.alpha = 0.75f;
+        ghostCG.blocksRaycasts = false;
+        ghostCG.interactable = false;
+
+        ghostRT = ghostObj.GetComponent<RectTransform>();
         ghostRT.anchorMin = new Vector2(0.5f, 0.5f);
         ghostRT.anchorMax = new Vector2(0.5f, 0.5f);
-
-        // 텍스트 복사
-        var srcText = GetComponentInChildren<TextMeshProUGUI>();
-        if (srcText != null)
-        {
-            var tObj   = new GameObject("Text");
-            tObj.transform.SetParent(ghostObj.transform, false);
-            var tComp  = tObj.AddComponent<TextMeshProUGUI>();
-            tComp.text      = srcText.text;
-            tComp.font      = srcText.font;
-            tComp.fontSize  = srcText.fontSize;
-            tComp.color     = Color.black;
-            tComp.alignment = TextAlignmentOptions.Center;
-            var tRT         = tObj.GetComponent<RectTransform>();
-            tRT.anchorMin   = Vector2.zero;
-            tRT.anchorMax   = Vector2.one;
-            tRT.offsetMin   = Vector2.zero;
-            tRT.offsetMax   = Vector2.zero;
-        }
-
-        var ghostCG            = ghostObj.AddComponent<CanvasGroup>();
-        ghostCG.blocksRaycasts = false;
+        ghostRT.pivot = new Vector2(0.5f, 0.5f);
 
         MoveGhostToPointer(eventData.position);
     }

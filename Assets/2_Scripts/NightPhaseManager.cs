@@ -29,6 +29,8 @@ public class NightPhaseManager : MonoBehaviour
     public class LocationMapEntry
     {
         public string locationName;
+        [Tooltip("지도 버튼에 표시할 한글 이름. 비우면 locationName 그대로 표시")]
+        public string displayName; // ★ 추가
         public GameObject mapRoot;
         public MapBoundary mapBoundary;
         public Transform spawnPoint;
@@ -47,6 +49,8 @@ public class NightPhaseManager : MonoBehaviour
     private LocationMapEntry activeEntry = null;
     private bool explorationComplete = false;
 
+
+
     public bool IsExplorationComplete => explorationComplete;
     public bool HasRequiredClues =>
         activeEntry != null && activeEntry.requiredClueIDs != null && activeEntry.requiredClueIDs.Count > 0;
@@ -60,6 +64,17 @@ public class NightPhaseManager : MonoBehaviour
             if (entry.mapRoot != null) entry.mapRoot.SetActive(false);
         HideBannerImmediate();
         playerOriginalScale = playerCharacter.transform.localScale; // ★ 원본 스케일 저장
+    }
+
+    /// <summary>GameManager 초기화 시 강제 비활성화 (낮 페이즈에 밤 배경 노출 방지)</summary>
+    public void EnsureHidden()
+    {
+        if (nightTopDownCamera != null)
+            nightTopDownCamera.gameObject.SetActive(false);
+        if (playerCharacter != null)
+            playerCharacter.SetActive(false);
+        foreach (var entry in locationMaps)
+            if (entry.mapRoot != null) entry.mapRoot.SetActive(false);
     }
 
     private void OnEnable()
@@ -83,6 +98,9 @@ public class NightPhaseManager : MonoBehaviour
             result.Add(new LocationButtonInfo
             {
                 locationName = name,
+                displayName = (entry != null && !string.IsNullOrEmpty(entry.displayName))
+                                 ? entry.displayName
+                                 : name.Replace('_', ' '), // ★ 폴백: 언더바→공백
                 buttonPosition = entry != null ? entry.mapButtonPosition : Vector2.zero
             });
         }

@@ -155,7 +155,7 @@ public class IDCardUI : MonoBehaviour
         idCardPanelCG.DOFade(0f, fadeDuration).OnComplete(() =>
         {
             idCardPanelCG.gameObject.SetActive(false);
-            FindObjectOfType<GameManager>()?.StartDay(1);
+            FindObjectOfType<GameManager>()?.StartFromBeginning(); // ★
         });
     }
 }

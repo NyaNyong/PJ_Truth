@@ -94,7 +94,9 @@ public class NightMapUI : MonoBehaviour
             spawnedButtons.Add(btnObj);
 
             var label = btnObj.GetComponentInChildren<TextMeshProUGUI>();
-            if (label != null) label.text = info.locationName;
+            if (label != null) label.text = string.IsNullOrEmpty(info.displayName)
+    ? info.locationName
+    : info.displayName;
 
             var rt = btnObj.GetComponent<RectTransform>();
             rt.anchoredPosition = info.buttonPosition + Vector2.down * buttonRiseDistance;

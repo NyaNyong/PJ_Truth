@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 88f3059482ec9264181047202619fd7f, type: 3}
+  m_Name: DailyData_04
+  m_EditorClassIdentifier: 
+  dayNumber: 4
+  officialNewsTitle: 
+  officialNewsContent: 
+  hasPrivateNews: 0
+  privateNewsTitle: 
+  privateNewsContent: 
+  documentToProcess: {fileID: 11400000, guid: 740ceb8264a515148bb36e793591f101, type: 2}
+  availableLocations: []
+  conditionalLocations: []

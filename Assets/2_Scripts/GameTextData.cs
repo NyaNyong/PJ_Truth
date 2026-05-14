@@ -78,6 +78,7 @@ public class LocationTextData
     public List<ClueTextData> clues;
 }
 
+// NpcTextData 내부에 추가
 [System.Serializable]
 public class NpcTextData
 {
@@ -87,6 +88,7 @@ public class NpcTextData
     public List<string> repeatLines;
     public string grantClueID;
     public string setFlag;
+    public List<DialogueChoiceData> choices; // ★ 신규: null/empty면 기존 방식
 }
 
 [System.Serializable]
@@ -95,6 +97,16 @@ public class ClueTextData
     public string id;
     public string title;
     public List<string> lines;
+}
+
+// ─── 대화 선택지 ──────────────────────────────
+[System.Serializable]
+public class DialogueChoiceData
+{
+    public string label;           // 버튼에 표시될 텍스트
+    public List<string> lines;     // 선택 후 이어지는 대사
+    public string grantClueID;     // 선택 시 획득 단서 (없으면 빈칸)
+    public string setFlag;         // 선택 시 세울 플래그 (없으면 빈칸)
 }
 
 // ─── 조건부 장소 해금 ────────────────────────

@@ -11,6 +11,8 @@ public class GameManager : MonoBehaviour
     [Header("게임 진행 상태")]
     public GamePhase currentPhase;
     public int currentDay = 1;
+    [Tooltip("Play 전 여기서 시작 스테이지 설정. IDCard 없을 때도 이 값으로 시작")]
+    [SerializeField] private int startDay = 4; // ★ 신규
 
     [Header("SOAP Variables")]
     [SerializeField] private IntVariable soapCurrentDay;
@@ -80,11 +82,12 @@ public class GameManager : MonoBehaviour
     {
         InitializePanels();
         if (idCardUI == null)
-            StartDay(1);
+            StartDay(startDay); // ★ 1 → startDay
     }
 
     private void InitializePanels()
     {
+        nightPhaseManager?.EnsureHidden(); // ★ 추가
         HideCanvasGroup(documentPanelCG);
         HideCanvasGroup(guidelinePanelCG);
         HideCanvasGroup(morningNewsPanelCG);
@@ -150,8 +153,7 @@ public class GameManager : MonoBehaviour
 
     private void LoadTodaysData()
     {
-        int index = currentDay - 1;
-        todaysData = (index >= 0 && index < dailyDataList.Count) ? dailyDataList[index] : null;
+        todaysData = dailyDataList?.Find(d => d.dayNumber == currentDay); // ★ 인덱스 제거
     }
 
     private void ActivatePhase(GamePhase phase)
@@ -164,6 +166,9 @@ public class GameManager : MonoBehaviour
             case GamePhase.Whiteboard: ActivateWhiteboardPhase(); break;
         }
     }
+
+    /// <summary>IDCardUI 확인 시 호출 — Inspector의 startDay로 시작</summary>
+    public void StartFromBeginning() => StartDay(startDay); // ★ 신규
 
     // ── 아침 ─────────────────────────────────
     private void ActivateMorningPhase()
