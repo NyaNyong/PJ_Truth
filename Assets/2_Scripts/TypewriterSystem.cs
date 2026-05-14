@@ -78,10 +78,7 @@ public class TypewriterSystem : MonoBehaviour
         AudioManager.Instance?.PlaySfxTypewriterOpen();
         IsOpen = true;
 
-        _scrollX = 0f;
-        if (wordCardContainer != null)
-            wordCardContainer.anchoredPosition =
-                new Vector2(0f, wordCardContainer.anchoredPosition.y);
+    
 
         SpawnAllWordCards();
         wordCardContainer.anchorMin = new Vector2(0f, 0f);
