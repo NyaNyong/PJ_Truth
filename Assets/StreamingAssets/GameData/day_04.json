@@ -2,229 +2,268 @@
   "day": 4,
 
   "news": {
-    "officialTitle": "제4지구 도시재생 사업, 1단계 이주 완료",
-    "officialContent": "정보관리국 발표에 따르면 제4지구 노후 주거지역 주민 총 247세대가 신규 지정 거주 구역으로의 자발적 이전을 완료하였습니다. 시 당국은 이번 재개발이 시민 생활 수준 향상과 도시 미관 개선에 크게 기여할 것이라고 밝혔습니다. 이전된 주민들은 최신 시설이 갖춰진 신규 거주 단지에서 쾌적한 생활을 누리게 됩니다.",
-    "privateTitle": "[비공개 회람] 4지구 이주민 연락 두절 사례 급증",
-    "privateContent": "지난 2주간 제4지구에서 이주한 주민 중 최소 38명이 가족과 연락이 끊긴 것으로 파악됩니다. 신규 거주 단지 주소로 보낸 편지는 모두 반송되었습니다. 이주 버스를 목격한 주민에 따르면 차량이 공식 행선지(7지구)와 다른 방향, 즉 남쪽으로 이동했다고 합니다. 당국은 이를 전산 오류로 해명하고 있습니다.",
+    "officialTitle": "반복 연락 두절 신고, 개별 사건으로 조사 진행",
+    "officialContent": "최근 재개발 예정 구역 인근에서 접수된 연락 두절 신고들은 현재 개별 사건으로 조사 중인 것으로 알려졌다.\n관계 당국은 사건 간 직접적인 연관성은 확인되지 않았으며, 일부 지역의 출입 통제는 안전 점검을 위한 조치라고 밝혔다.",
+    "privateTitle": "사라지는 사람들, 닫히는 구역",
+    "privateContent": "최근 연락 두절 신고가 이어진 지역에서 출입 통제가 강화되고 있다.\n일부 시민들은 실종 신고와 통제 구역 확대가 같은 시기에 반복되고 있다는 점에 의문을 제기하고 있다.",
     "conditionalOverrides": []
   },
 
   "documents": [
     {
-      "id": 1,
-      "title": "제4지구 주민 이송 현황 보고서 (4일차)",
-      "mainText": "【정보관리국 내부 문서 / 3등급 열람 제한】\n\n■ 이송 일시: 본년도 4월 7일 오전 05:30\n■ 이송 인원: 총 61명\n■ 출발지: 제4지구 B구역 (구 노동자 아파트 단지)\n■ 공식 목적지: 제7지구 신규 주거단지\n\n이송 중 [SLOT_0] 사태 발생. 탑승 거부자 9명 발생, 현장 요원이 '설득 절차'에 따라 처리함. 최종 탑승 인원 61명 확인.\n\n차량은 공식 경로 이탈, 제11구역 물류 터미널 방향으로 [SLOT_1] 진입. 이는 상부 지침 B-77에 의거한 보안 경로임.\n\n목적지 도착 후 인원 인계 완료. 인계 담당관: [SLOT_2]. 인수 기관: 미기재.\n\n본 보고서는 열람 후 즉시 [SLOT_3] 처리 바람.",
-      "guidelineText": "【오늘의 검열 지침 — 제4지구 이송 관련 문서】\n\n금일 처리 대상 문서는 도시재생 주민 이주 현황 보고서입니다. 아래 기준을 준수하여 승인 여부를 판단하십시오.\n\n▶ 허용 표현:\n'이송', '이주', '자발적 협조', '행정 처리', '안전 절차', '보안 경로'\n\n▶ 검열 대상 표현 (반드시 마커로 처리):\n'강제', '저항', '거부', '탈출', '미확인', '비밀', '은닉'\n목적지 불명확 관련 내용 전체 / 인계 기관 미기재 사항\n\n▶ 타자기 수정 지침:\n이송 과정에서 부적절한 표현이 포함된 경우, 아래 대체어 목록을 사용하여 수정하십시오. 수정 완료 후 승인 도장 처리합니다.",
-      "needsCensorship": true,
+      "id": 4,
+      "title": "재개발 구역 출입 통제 강화… 관계 인원 이동 기록 확인",
+      "mainText": "도심 재개발 예정 구역 일부 구간에서 안전 점검을 이유로 출입 통제가 강화되었다.\n\n관계 기관은 노후 시설 점검과 철거 준비 과정에서 발생할 수 있는 안전 문제를 예방하기 위한 조치라고 설명했다.\n\n한편 해당 구역 인근에서 [SLOT_0]들의 [SLOT_1]이 확인된 것으로 알려졌다.\n\n기록에 따르면 이들은 마지막 목격 지점 이후 [SLOT_2] 인근으로 이동한 정황이 남아 있다.\n\n일부 관계자는 해당 인원들이 현장 안전 문제로 인해 [SLOT_3]에 포함되었을 가능성이 있다고 밝혔다.\n\n그러나 [SLOT_4]과 보호 절차의 세부 내용은 현재 [SLOT_5].",
+      "guidelineText": "[가이드라인]\n• 사회 불안 조장 표현 제한\n• 과장 및 추측성 표현 금지\n• 정부 및 관계 기관 신뢰 유지\n• 미확인 정보 확산 제한\n\n[추가 지침]\n• 특정 시설 및 이동 경로 관련 표현 제한\n• 관계 인원 이동 사유는 '안전 조치' 또는 '보호 절차'로 정리\n• 출입 통제와 실종 사건 간 직접 연결 금지\n• 신원 확인이 어려운 대상은 '무단 출입자' 또는 '관리 대상자'로 정리",
+      "needsCensorship": false,
       "needsTypewriter": true,
-      "censorKeywords": ["강제", "거부", "이탈", "미기재", "즉시"],
+      "censorKeywords": [],
       "typewriterSlots": [
         {
           "slotIndex": 0,
-          "originalWord": "강제 탑승 저항",
-          "wordOptions": ["자발적 이주 지연", "강제 탑승 저항", "행정 처리 보류", "협조 거부 사태"],
-          "correctWord": "자발적 이주 지연"
+          "originalWord": "연락 두절 신고가 접수된 일부 인원",
+          "wordOptions": ["관리 대상자", "연락 두절 인원", "무단 출입자"],
+          "correctWord": "관리 대상자"
         },
         {
           "slotIndex": 1,
-          "originalWord": "무단",
-          "wordOptions": ["무단", "승인", "비공개", "정식"],
-          "correctWord": "승인"
+          "originalWord": "이동 기록",
+          "wordOptions": ["출입 기록", "이동 기록", "현장 기록"],
+          "correctWord": "출입 기록"
         },
         {
           "slotIndex": 2,
-          "originalWord": "K-요원 (미확인)",
-          "wordOptions": ["담당 행정관", "K-요원 (미확인)", "이송 책임자", "현장 관리관"],
-          "correctWord": "담당 행정관"
+          "originalWord": "재개발 구역 내부 임시 관리 시설",
+          "wordOptions": ["현장 관리 구역", "안전 점검 구역", "임시 관리 시설"],
+          "correctWord": "현장 관리 구역"
         },
         {
           "slotIndex": 3,
-          "originalWord": "은닉",
-          "wordOptions": ["은닉", "보관", "폐기", "보안 처리"],
-          "correctWord": "보안 처리"
+          "originalWord": "임시 보호 절차",
+          "wordOptions": ["안전 확인 절차", "임시 이송 절차", "보호 관리 절차"],
+          "correctWord": "안전 확인 절차"
+        },
+        {
+          "slotIndex": 4,
+          "originalWord": "이동 대상자 명단",
+          "wordOptions": ["무단 출입자 명단", "이동 대상자 명단", "관계자 명단"],
+          "correctWord": "무단 출입자 명단"
+        },
+        {
+          "slotIndex": 5,
+          "originalWord": "공개되지 않은 상태",
+          "wordOptions": ["확인 중", "검토 중", "공개 예정"],
+          "correctWord": "확인 중"
         }
       ]
     }
   ],
 
-  "availableLocations": ["checkpoint_redevelopment", "last_seen_point"],
+  "availableLocations": ["control_post", "last_sighting"],
   "conditionalLocations": [],
 
   "locations": [
     {
-      "locationID": "checkpoint_redevelopment",
+      "locationID": "control_post",
       "npcs": [
         {
-          "id": "npc_guard_choi",
-          "npcName": "통제소 경비원 최씨",
+          "id": "npc_guard_4",
+          "npcName": "경비 직원",
           "firstLines": [
-            "여기는 재개발 구역 통제소입니다. 일반인 출입 금지 구역이에요.",
-            "...뭔가 찾고 계신 거요?"
+            "이 시간에 여기 오시면 안 됩니다."
           ],
           "repeatLines": [
-            "더 드릴 말씀이 없어요. 저도 그냥 여기 서 있을 뿐이라서."
+            "통제 구역입니다. 관계자 외 출입 금지입니다."
           ],
           "grantClueID": "",
           "setFlag": "",
           "choices": [
             {
-              "label": "오늘 버스가 지나갔나요?",
+              "label": "출입 통제는 언제부터 시작됐나요?",
               "lines": [
-                "오늘 낮에 버스 두 대가 지나갔는데... 그게 전부요.",
-                "이상한 건... 돌아온 버스가 없었어요. 보통은 한 대가 빈 차로 돌아오거든요.",
-                "그 버스 번호판은... NX-39였던 것 같은데."
-              ],
-              "grantClueID": "clue_missing_bus",
-              "setFlag": "flag_talked_guard"
-            },
-            {
-              "label": "사람들은 어디로 갔나요?",
-              "lines": [
-                "그건... 저도 몰라요. 윗선에서 알아서 처리한다고 했거든요.",
-                "저는 여기 서서 문만 열어주면 되는 사람이에요. 더 묻지 마세요."
+                "안전 점검 때문에 막아둔 겁니다. 요즘 낡은 건물이 많아서요.",
+                "점검이 끝나면 다시 열릴 겁니다."
               ],
               "grantClueID": "",
-              "setFlag": "flag_talked_guard"
-            }
-          ]
-        },
-        {
-          "id": "npc_worker_kim",
-          "npcName": "철거 작업자 김씨",
-          "firstLines": [
-            "저 여기서 철거 작업하는 사람인데요, 말 걸지 마세요.",
-            "...(주위를 살피며) 저번 주에 이 건물 지하에서 이상한 서류 봤어요."
-          ],
-          "repeatLines": [
-            "제발 여기서 멀리 가세요. 저도 가족이 있다고요."
-          ],
-          "grantClueID": "",
-          "setFlag": "",
-          "choices": [
-            {
-              "label": "그 서류에 대해 더 말해줄 수 있나요?",
-              "lines": [
-                "이름이 적힌 명단 같은 거였어요. 사람 이름들이 죽 나열돼 있고...",
-                "누가 다 가져가버렸어요. 빨간 마크가 찍힌 봉투에 넣어서.",
-                "그 봉투 들고 간 사람... 제복 입은 사람이었어요."
-              ],
-              "grantClueID": "clue_red_envelope",
-              "setFlag": "flag_talked_worker"
+              "setFlag": ""
             },
             {
-              "label": "알겠습니다, 방해하지 않을게요.",
+              "label": "실종 신고와 관련 있나요?",
               "lines": [
-                "...감사합니다. 제발 그냥 가주세요."
+                "그런 이야기는 여기서 하지 않는 게 좋습니다.",
+                "괜히 엮이면 피곤해지는 일이 있습니다."
+              ],
+              "grantClueID": "clue_guard_warning_4",
+              "setFlag": ""
+            },
+            {
+              "label": "그냥 지나가겠습니다.",
+              "lines": [
+                "네. 돌아가세요."
               ],
               "grantClueID": "",
-              "setFlag": "flag_talked_worker"
+              "setFlag": ""
             }
           ]
         }
       ],
       "clues": [
         {
-          "id": "clue_transport_log",
-          "title": "이송 차량 운행 일지 (부분)",
+          "id": "clue_entry_sign_4",
+          "title": "출입 통제 안내 카드",
           "lines": [
-            "차량 번호: NX-39 / NX-41",
-            "출발: 04:50 / 도착(공식): 제7지구 — 미기록",
-            "실제 운행 기록: 제11구역 물류 터미널 방향 확인됨",
-            "서명: [판독 불가]"
+            "안전 점검 구역. 관계자 외 출입 금지.",
+            "안내판 아래쪽에 임시 관리 구역 번호가 작게 적혀 있다."
           ]
         },
         {
-          "id": "clue_torn_notice",
-          "title": "찢긴 공고문",
+          "id": "clue_entry_log_4",
+          "title": "출입 명부 일부",
           "lines": [
-            "...거주지 이전 협조 불응 시 관련 법령 제12조에 의거...",
-            "...신변 안전은 보장하지 않...",
-            "(나머지 부분 소실)"
+            "안전 확인 대상 / 임시 이동 처리 / 관리 구역 B-12"
+          ]
+        },
+        {
+          "id": "clue_damaged_log_4",
+          "title": "훼손된 출입 기록",
+          "lines": [
+            "안전 확인 대상 / 이동 처리…",
+            "나머지 내용은 찢겨 있어 확인이 어렵다."
+          ]
+        },
+        {
+          "id": "clue_cctv_inactive_4",
+          "title": "비활성 CCTV 카드",
+          "lines": [
+            "렌즈는 이쪽을 향해 있지만 녹화 표시등은 꺼져 있다.",
+            "기기 아래에는 점검 완료 스티커가 붙어 있다."
+          ]
+        },
+        {
+          "id": "clue_guard_warning_4",
+          "title": "경비 직원 발언 메모",
+          "lines": [
+            "\"그런 이야기는 여기서 하지 않는 게 좋습니다.\"",
+            "\"괜히 엮이면 피곤해지는 일이 있습니다.\""
           ]
         }
       ]
     },
     {
-      "locationID": "last_seen_point",
+      "locationID": "last_sighting",
       "npcs": [
         {
-          "id": "npc_witness_park",
-          "npcName": "목격자 박씨 (노인)",
+          "id": "npc_clerk_4",
+          "npcName": "편의점 직원",
           "firstLines": [
-            "나는 새벽 다섯 시에 여기서 버스를 봤어요. 창문에 사람들 손이 보였어.",
-            "한 할머니가 유리창에 손바닥을 대고 있었는데... 눈이 마주쳤어요."
+            "그 사람요? 여기서 본 것 같긴 한데…",
+            "그날도 그냥 평소처럼 음료수 하나 사고, 정류장 쪽에 서 있었어요."
           ],
           "repeatLines": [
-            "나는 분명히 봤어요. 그 손을 아직도 잊을 수가 없어."
+            "저도 더 아는 건 없어요. 그날 이후로 못 봤거든요."
           ],
           "grantClueID": "",
           "setFlag": "",
           "choices": [
             {
-              "label": "버스가 어느 방향으로 갔나요?",
+              "label": "혼자 있었나요?",
               "lines": [
-                "그 버스는 7지구 방향이 아니었어. 반대쪽, 남쪽으로 갔어요.",
-                "제발 찾아줘요. 이름은 모르지만... 그 눈빛을."
+                "처음엔 혼자였어요.",
+                "근데 나중에 검은 차가 한 대 멈췄던 것 같아요. 오래 있진 않았고요."
               ],
-              "grantClueID": "clue_witness_testimony",
-              "setFlag": "flag_talked_witness"
+              "grantClueID": "clue_witness_alone_4",
+              "setFlag": ""
             },
             {
-              "label": "버스 번호판을 기억하시나요?",
+              "label": "부담 주려는 건 아닙니다.",
               "lines": [
-                "NX... NX였어요. 뒤에 숫자는 잘 못 봤어.",
-                "어두웠거든요. 헤드라이트도 꺼져 있었어요. 일부러 그런 거겠죠."
+                "…검은 차였어요.",
+                "창문이 어두워서 안은 안 보였고, 그 사람이 차에 탄 건지 끌려간 건지는 못 봤어요."
               ],
-              "grantClueID": "clue_witness_testimony",
-              "setFlag": "flag_talked_witness"
+              "grantClueID": "clue_black_car_4",
+              "setFlag": ""
+            },
+            {
+              "label": "CCTV는 확인했나요?",
+              "lines": [
+                "저도 물어봤는데, 그날만 녹화가 안 됐대요.",
+                "정류장 CCTV도, 편의점 앞쪽 것도요. 이상하죠?"
+              ],
+              "grantClueID": "clue_cctv_missing_4",
+              "setFlag": ""
+            },
+            {
+              "label": "그 사람, 어떤 사람이었나요?",
+              "lines": [
+                "그냥 조용한 사람이었어요.",
+                "가끔 여기 들러서 가족한테 전화하고, 컵라면 하나 먹고 가던 사람이요.",
+                "뉴스에서 말하는 것처럼 문제 일으킬 사람은 아니었는데…"
+              ],
+              "grantClueID": "clue_life_traces_4",
+              "setFlag": ""
             }
           ]
-        },
-        {
-          "id": "npc_child_lee",
-          "npcName": "소녀 이하은",
-          "firstLines": [
-            "...",
-            "엄마가 버스 타고 갔어요. 짐도 없이.",
-            "아저씨들이 빨리 타라고 했어요. 엄마가 나한테 뭔가 줬는데..."
-          ],
-          "repeatLines": [
-            "엄마 언제 와요?",
-            "(주머니에서 구겨진 종이를 꺼낸다)"
-          ],
-          "grantClueID": "clue_mothers_note",
-          "setFlag": "flag_talked_child",
-          "choices": []
         }
       ],
       "clues": [
         {
-          "id": "clue_witness_testimony",
-          "title": "목격자 진술 메모",
+          "id": "clue_bus_route_4",
+          "title": "임시 중단 노선 카드",
           "lines": [
-            "새벽 5시경, NX 번호판 버스 목격",
-            "탑승자 다수, 창문 접근 시도",
-            "차량 진행 방향: 남쪽 (제11구역 방면)",
-            "목격자: 박OO (익명 요청)"
+            "버스 정류장 전광판의 일부 노선 정보가 점검 중으로 표시되어 있다.",
+            "재개발 구역 내부 관리 시설 근처를 지나는 노선 하나가 임시 중단 처리되어 있다."
           ]
         },
         {
-          "id": "clue_mothers_note",
-          "title": "어머니가 남긴 쪽지",
+          "id": "clue_last_ride_4",
+          "title": "마지막 탑승 기록",
           "lines": [
-            "하은아, 엄마 잠깐 어디 다녀올게.",
-            "이 쪽지 아무한테도 보여주지 마.",
-            "11구역 창고 단지 — E동 기억해.",
-            "사랑해. — 엄마"
+            "탑승 시간 22:14 / 하차 기록 없음"
           ]
         },
         {
-          "id": "clue_missing_bus",
-          "title": "버스 미반환 기록",
+          "id": "clue_blurry_receipt_4",
+          "title": "흐릿한 영수증 사진",
           "lines": [
-            "금일 출발 차량 2대 (NX-39, NX-41)",
-            "반환 차량: 0대",
-            "통제소 교신 기록: 오전 6시 이후 두절"
+            "탑승 시간은 확인되지만 하차 기록은 불명확하다."
+          ]
+        },
+        {
+          "id": "clue_cctv_sign_4",
+          "title": "정류장 CCTV 점검 카드",
+          "lines": [
+            "해당 정류장은 방범 CCTV 녹화 구역입니다.",
+            "아래쪽에 '해당 일자 장비 점검'이라는 작은 안내 스티커가 덧붙어 있다."
+          ]
+        },
+        {
+          "id": "clue_witness_alone_4",
+          "title": "목격 진술 카드",
+          "lines": [
+            "실종자는 처음엔 혼자 정류장에 있었으나, 이후 검은 차량이 근처에 정차했다."
+          ]
+        },
+        {
+          "id": "clue_black_car_4",
+          "title": "검은 차량 목격 카드",
+          "lines": [
+            "실종자 마지막 목격 시점에 검은 차량이 정류장 근처에 정차해 있었다.",
+            "창문이 어두워 탑승자는 확인되지 않았다."
+          ]
+        },
+        {
+          "id": "clue_cctv_missing_4",
+          "title": "CCTV 누락 증언 카드",
+          "lines": [
+            "실종 발생 시간대에 정류장과 편의점 주변 CCTV 기록이 모두 비어 있었다."
+          ]
+        },
+        {
+          "id": "clue_life_traces_4",
+          "title": "실종자의 생활 흔적 카드",
+          "lines": [
+            "실종자는 편의점에 자주 들르던 평범한 지역 주민이었으며, 가족과 연락을 이어가고 있었다.",
+            "뉴스에서 묘사된 것과는 달리, 특별히 문제를 일으킬 사람이 아니었다."
           ]
         }
       ]
@@ -234,62 +273,110 @@
   "whiteboard": {
     "cards": [
       {
-        "cardID": "card_transport_report",
+        "cardID": "card_s4_official",
         "requiredClueID": "",
-        "title": "이송 보고서",
-        "content": "공식 목적지와 다른 방향으로\n이동한 이송 차량 기록.\n제11구역 물류 터미널 방면."
+        "title": "STAGE 4 공식 기사",
+        "content": "일부 인원의 출입 기록 확인 — 당국 '안전 확인 절차 진행 중'"
       },
       {
-        "cardID": "card_missing_bus",
-        "requiredClueID": "clue_missing_bus",
-        "title": "미반환 버스 NX-39/41",
-        "content": "출발한 이송 버스 2대가\n통제소로 돌아오지 않음.\n오전 6시 이후 교신 두절."
-      },
-      {
-        "cardID": "card_witness",
-        "requiredClueID": "clue_witness_testimony",
-        "title": "목격자 진술",
-        "content": "새벽 5시, 버스 창문에\n갇힌 사람들의 손을 목격.\n남쪽(11구역) 방향 이동."
-      },
-      {
-        "cardID": "card_mothers_note",
-        "requiredClueID": "clue_mothers_note",
-        "title": "어머니의 쪽지",
-        "content": "이송된 주민이 남긴 쪽지.\n'11구역 창고단지 E동'\n— 행선지의 유일한 단서."
-      },
-      {
-        "cardID": "card_red_envelope",
-        "requiredClueID": "clue_red_envelope",
-        "title": "붉은 봉투 서류",
-        "content": "지하에서 발견된 이름 목록.\n빨간 마크가 찍혀\n누군가에게 회수됨."
-      },
-      {
-        "cardID": "card_sector11",
+        "cardID": "card_s4_guideline",
         "requiredClueID": "",
-        "title": "제11구역 물류 터미널",
-        "content": "공식 지도에 미표기된 시설.\n이송 차량의 실제 목적지로\n추정됨. 정체 불명."
+        "title": "STAGE 4 가이드라인",
+        "content": "이동 경로 관련 표현 제한 / 출입 통제와 실종 사건 직접 연결 금지"
+      },
+      {
+        "cardID": "card_entry_sign_4",
+        "requiredClueID": "clue_entry_sign_4",
+        "title": "출입 통제 안내판",
+        "content": "안전 점검 구역. 관계자 외 출입 금지. 안내판 하단에 임시 관리 구역 번호 확인."
+      },
+      {
+        "cardID": "card_entry_log_4",
+        "requiredClueID": "clue_entry_log_4",
+        "title": "출입 명부 일부",
+        "content": "안전 확인 대상 / 임시 이동 처리 / 관리 구역 B-12"
+      },
+      {
+        "cardID": "card_damaged_log_4",
+        "requiredClueID": "clue_damaged_log_4",
+        "title": "훼손된 출입 기록",
+        "content": "안전 확인 대상 / 이동 처리… (이후 내용 훼손)"
+      },
+      {
+        "cardID": "card_cctv_inactive_4",
+        "requiredClueID": "clue_cctv_inactive_4",
+        "title": "비활성 CCTV",
+        "content": "렌즈는 이쪽을 향하고 있지만 녹화 표시등은 꺼져 있다. 점검 완료 스티커 부착."
+      },
+      {
+        "cardID": "card_bus_route_4",
+        "requiredClueID": "clue_bus_route_4",
+        "title": "임시 중단 노선",
+        "content": "재개발 구역 내부 관리 시설 근처를 지나는 노선이 임시 중단 처리되어 있다."
+      },
+      {
+        "cardID": "card_last_ride_4",
+        "requiredClueID": "clue_last_ride_4",
+        "title": "마지막 탑승 기록",
+        "content": "탑승 시간 22:14 / 하차 기록 없음"
+      },
+      {
+        "cardID": "card_blurry_receipt_4",
+        "requiredClueID": "clue_blurry_receipt_4",
+        "title": "흐릿한 영수증 사진",
+        "content": "탑승 시간은 확인되지만 하차 기록은 불명확하다."
+      },
+      {
+        "cardID": "card_cctv_sign_4",
+        "requiredClueID": "clue_cctv_sign_4",
+        "title": "정류장 CCTV 점검 기록",
+        "content": "CCTV 녹화 구역임에도 해당 일자 장비 점검 스티커가 부착되어 있다."
+      },
+      {
+        "cardID": "card_witness_alone_4",
+        "requiredClueID": "clue_witness_alone_4",
+        "title": "목격 진술",
+        "content": "실종자는 처음엔 혼자 정류장에 있었으나, 이후 검은 차량이 근처에 정차했다."
+      },
+      {
+        "cardID": "card_black_car_4",
+        "requiredClueID": "clue_black_car_4",
+        "title": "검은 차량 목격",
+        "content": "실종자 마지막 목격 시점에 검은 차량이 정류장 근처에 정차. 창문이 어두워 탑승자 미확인."
+      },
+      {
+        "cardID": "card_cctv_missing_4",
+        "requiredClueID": "clue_cctv_missing_4",
+        "title": "CCTV 누락 증언",
+        "content": "실종 발생 시간대에 정류장과 편의점 주변 CCTV 기록이 모두 비어 있었다."
+      },
+      {
+        "cardID": "card_life_traces_4",
+        "requiredClueID": "clue_life_traces_4",
+        "title": "실종자의 생활 흔적",
+        "content": "실종자는 편의점에 자주 들르던 평범한 지역 주민. 가족과 연락을 이어가고 있었다."
       }
     ],
     "correctConnections": [
       {
-        "fromCardID": "card_transport_report",
-        "toCardID": "card_missing_bus",
-        "revealText": "이송 차량은 처음부터 공식 목적지로 향하지 않았다. 보고서의 '보안 경로'는 제11구역을 가리킨다."
+        "fromCardID": "card_s4_official",
+        "toCardID": "card_entry_log_4",
+        "revealText": "기사 속 '이동 기록'이 단순 출입이 아니라, 특정 인원을 분류해 이동시키는 절차였다."
       },
       {
-        "fromCardID": "card_witness",
-        "toCardID": "card_transport_report",
-        "revealText": "목격자가 본 버스와 보고서의 차량은 동일하다. 이송은 새벽에 은밀히 이루어졌으며, 주민들은 저항했다."
+        "fromCardID": "card_last_ride_4",
+        "toCardID": "card_witness_alone_4",
+        "revealText": "실종자는 평범하게 이동한 것이 아니라, 중간에 다른 이동 수단으로 옮겨졌을 가능성이 있다."
       },
       {
-        "fromCardID": "card_mothers_note",
-        "toCardID": "card_sector11",
-        "revealText": "어머니는 어떻게 목적지를 알았는가? 그녀는 끌려가는 순간에도 딸을 위해 단서를 남겼다."
+        "fromCardID": "card_cctv_inactive_4",
+        "toCardID": "card_cctv_sign_4",
+        "revealText": "CCTV 누락이 우연이 아니라 반복적으로 발생하고 있다."
       },
       {
-        "fromCardID": "card_red_envelope",
-        "toCardID": "card_mothers_note",
-        "revealText": "붉은 봉투의 명단과 쪽지를 남긴 사람. 이 어머니의 이름이 그 명단에 있었을 것이다."
+        "fromCardID": "card_bus_route_4",
+        "toCardID": "card_entry_sign_4",
+        "revealText": "실종자의 마지막 동선과 재개발 구역 내부 관리 구역이 겹친다."
       }
     ]
   }
