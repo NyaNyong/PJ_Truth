@@ -356,14 +356,29 @@ public class GameManager : MonoBehaviour
         }
 
         var (censor, typewriter) = documentViewer.CalculateScore();
-        var score        = ScoringSystem.Instance.CalculateAndRecord(censor, typewriter, currentDay);
+        var score = ScoringSystem.Instance.CalculateAndRecord(censor, typewriter, currentDay);
         float kpiProgress = ScoringSystem.Instance.KPIProgress;
-        int totalDocs    = ScoringSystem.Instance.TotalProcessedDocuments;
+        int totalDocs = ScoringSystem.Instance.TotalProcessedDocuments;
+
+        // ★ 검열 강도 플래그 세팅
+        GameFlags.Instance?.SetFlag(GetCensorIntensityFlag(score.grade, currentDay));
 
         if (resultScreenUI != null)
             resultScreenUI.Show(score, kpiProgress, totalDocs, () => ChangePhase(GamePhase.Night));
         else
             ChangePhase(GamePhase.Night);
+    }
+
+    /// <summary>검열 강도 플래그 ID 반환 — 다음날 conditionalOverrides에서 사용</summary>
+    private string GetCensorIntensityFlag(Grade grade, int day)
+    {
+        string intensity = grade switch
+        {
+            Grade.S or Grade.A => "heavy",
+            Grade.B => "mild",
+            _ => "weak"   // C, F
+        };
+        return $"censor_{intensity}_day{day}";
     }
 
     // ── 공통 패널 표시 ────────────────────────
