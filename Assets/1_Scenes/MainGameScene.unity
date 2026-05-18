@@ -3125,8 +3125,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c60c76be933ea34988f91f19088a421, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  npcName: "\uD1B5\uC81C\uC18C \uACBD\uBE44\uC6D0 \uCD5C\uC528"
-  npcID: npc_guard_choi
+  npcName: "\uACBD\uBE44 \uC9C1\uC6D0"
+  npcID: npc_guard_4
   dialogueLines:
   - "\uB09C \uB204\uAD6C \uC5EC\uAE34 \uC5B4\uB514"
   repeatLines: []
@@ -3971,8 +3971,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e775b4e32a72b624d90cea4eb9899f37, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  clueID: clue_torn_notice
-  clueTitle: "\uCC22\uAE34 \uACF5\uACE0\uBB38"
+  clueID: clue_entry_log_4
+  clueTitle: "\uCD9C\uC785 \uBA85\uBD80 \uC77C\uBD80"
   clueDescriptionLines: []
   isPuzzle: 1
   hiddenContent: "\uACF5\uACE0"
@@ -5196,12 +5196,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e775b4e32a72b624d90cea4eb9899f37, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  clueID: clue_missing_bus
-  clueTitle: "\uBC84\uC2A4 \uBBF8\uBC18\uD658 \uAE30\uB85D"
+  clueID: clue_blurry_receipt_4
+  clueTitle: "\uD750\uB9BF\uD55C \uC601\uC218\uC99D \uC0AC\uC9C4"
   clueDescriptionLines: []
   isPuzzle: 1
-  hiddenContent: "\uBC84\uC2A4\uAE30\uB85D"
-  correctAnswer: "\uBC84\uC2A4\uAE30\uB85D"
+  hiddenContent: "\uC601\uC218\uC99D"
+  correctAnswer: "\uC601\uC218\uC99D"
   flagIDOnSolve: 
   detectionRadius: 0
   exclamationRenderer: {fileID: 1820408514}
@@ -6538,7 +6538,6 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1433810392}
   - {fileID: 1513542457}
   - {fileID: 809782822}
   - {fileID: 1475044852}
@@ -6593,8 +6592,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e775b4e32a72b624d90cea4eb9899f37, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  clueID: clue_witness_testimony
-  clueTitle: "\uBAA9\uACA9\uC790 \uC9C4\uC220 \uBA54\uBAA8"
+  clueID: clue_bus_route_4
+  clueTitle: "\uC784\uC2DC \uC911\uB2E8 \uB178\uC120 \uCE74\uB4DC"
   clueDescriptionLines:
   - "\uB2E8\uC11C\uC785\uB2C8\uB2E4"
   isPuzzle: 0
@@ -8912,14 +8911,14 @@ MonoBehaviour:
   bannerFadeDuration: 0.35
   bannerHoldDuration: 2
   locationMaps:
-  - locationName: checkpoint_redevelopment
+  - locationName: control_post
     displayName: "\uC7AC\uAC1C\uBC1C \uAD6C\uC5ED \uD1B5\uC81C\uC18C"
     mapRoot: {fileID: 946646059}
     mapBoundary: {fileID: 1210680408}
     spawnPoint: {fileID: 26602239}
     mapButtonPosition: {x: 0, y: 50}
     requiredClueIDs: []
-  - locationName: last_seen_point
+  - locationName: last_sighting
     displayName: "\uB9C8\uC9C0\uB9C9 \uBAA9\uACA9 \uC9C0\uC810"
     mapRoot: {fileID: 1275101294}
     mapBoundary: {fileID: 1258982472}
@@ -10150,156 +10149,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1368458531}
   m_CullTransparentMesh: 1
---- !u!1 &1433810391
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1433810392}
-  - component: {fileID: 1433810395}
-  - component: {fileID: 1433810394}
-  - component: {fileID: 1433810393}
-  m_Layer: 0
-  m_Name: NPC_Colleague
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1433810392
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1433810391}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 12.92, y: -6.22, z: 0}
-  m_LocalScale: {x: 0.4, y: 0.4, z: 0.4}
-  m_ConstrainProportionsScale: 1
-  m_Children: []
-  m_Father: {fileID: 798039692}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1433810393
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1433810391}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0c60c76be933ea34988f91f19088a421, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  npcName: "\uBAA9\uACA9\uC790 \uBC15\uC528 (\uB178\uC778)"
-  npcID: npc_witness_park
-  dialogueLines:
-  - "\uB09C \uB204\uAD6C \uC5EC\uAE34 \uC5B4\uB514"
-  repeatLines: []
-  grantClueIDOnFinish: 
-  setFlagOnFinish: 
---- !u!61 &1433810394
-BoxCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1433810391}
-  m_Enabled: 1
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 1
-  m_UsedByEffector: 0
-  m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 3.68, y: 5.44}
-    newSize: {x: 1, y: 1}
-    adaptiveTilingThreshold: 0.5
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  serializedVersion: 2
-  m_Size: {x: 7.13, y: 7.59}
-  m_EdgeRadius: 0
---- !u!212 &1433810395
-SpriteRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1433810391}
-  m_Enabled: 1
-  m_CastShadows: 0
-  m_ReceiveShadows: 0
-  m_DynamicOccludee: 1
-  m_StaticShadowCaster: 0
-  m_MotionVectors: 1
-  m_LightProbeUsage: 1
-  m_ReflectionProbeUsage: 1
-  m_RayTracingMode: 0
-  m_RayTraceProcedural: 0
-  m_RenderingLayerMask: 1
-  m_RendererPriority: 0
-  m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
-  m_StaticBatchInfo:
-    firstSubMesh: 0
-    subMeshCount: 0
-  m_StaticBatchRoot: {fileID: 0}
-  m_ProbeAnchor: {fileID: 0}
-  m_LightProbeVolumeOverride: {fileID: 0}
-  m_ScaleInLightmap: 1
-  m_ReceiveGI: 1
-  m_PreserveUVs: 0
-  m_IgnoreNormalsForChartDetection: 0
-  m_ImportantGI: 0
-  m_StitchLightmapSeams: 1
-  m_SelectedEditorRenderState: 0
-  m_MinimumChartSize: 4
-  m_AutoUVMaxDistance: 0.5
-  m_AutoUVMaxAngle: 89
-  m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 71e50c66f732635409e9d6081a9a781f, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_FlipX: 0
-  m_FlipY: 0
-  m_DrawMode: 0
-  m_Size: {x: 1, y: 1}
-  m_AdaptiveModeThreshold: 0.5
-  m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
-  m_MaskInteraction: 0
-  m_SpriteSortPoint: 0
 --- !u!1 &1451300827
 GameObject:
   m_ObjectHideFlags: 0
@@ -10525,8 +10374,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e775b4e32a72b624d90cea4eb9899f37, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  clueID: clue_mothers_note
-  clueTitle: "\uC5B4\uBA38\uB2C8\uAC00 \uB0A8\uAE34 \uCABD\uC9C0"
+  clueID: clue_last_ride_4
+  clueTitle: "\uB9C8\uC9C0\uB9C9 \uD0D1\uC2B9 \uAE30\uB85D"
   clueDescriptionLines:
   - "\uB2E8\uC11C\uC785\uB2C8\uB2E4"
   isPuzzle: 0
@@ -11131,8 +10980,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e775b4e32a72b624d90cea4eb9899f37, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  clueID: clue_transport_log
-  clueTitle: "\uC774\uC1A1 \uCC28\uB7C9 \uC6B4\uD589 \uC77C\uC9C0 (\uBD80\uBD84)"
+  clueID: clue_entry_sign_4
+  clueTitle: "\uCD9C\uC785 \uD1B5\uC81C \uC548\uB0B4 \uCE74\uB4DC"
   clueDescriptionLines:
   - "\uB2E8\uC11C\uC785\uB2C8\uB2E4"
   isPuzzle: 0
@@ -11286,8 +11135,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c60c76be933ea34988f91f19088a421, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  npcName: "\uC18C\uB140 \uC774\uD558\uC740"
-  npcID: npc_child_lee
+  npcName: "\uD3B8\uC758\uC810 \uC9C1\uC6D0"
+  npcID: npc_clerk_4
   dialogueLines:
   - "\uB09C \uB204\uAD6C \uC5EC\uAE34 \uC5B4\uB514"
   repeatLines: []
