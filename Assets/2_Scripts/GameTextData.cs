@@ -73,7 +73,8 @@ public class TypewriterSlotTextData
 [System.Serializable]
 public class LocationTextData
 {
-    public string locationID; // NightPhaseManager.locationName과 일치
+    public string locationID;
+    public string description;  // ★ 지도 팝업 한줄 설명
     public List<NpcTextData> npcs;
     public List<ClueTextData> clues;
 }
@@ -97,6 +98,11 @@ public class ClueTextData
     public string id;
     public string title;
     public List<string> lines;
+    // ★ UV퍼즐 전용 (isPuzzle=false면 무시)
+    public bool isPuzzle;
+    public string hiddenContent;
+    public string correctAnswer;
+    public string flagIDOnSolve;
 }
 
 // ─── 대화 선택지 ──────────────────────────────
@@ -137,7 +143,8 @@ public class WhiteboardCardData
 [System.Serializable]
 public class WhiteboardConnectionData
 {
-    public string fromCardID;
-    public string toCardID;
-    public string revealText; // 정답 연결 시 해금되는 진실 텍스트
+    public string fromCardID;         // 2개 연결 하위 호환용
+    public string toCardID;           // 2개 연결 하위 호환용
+    public List<string> cardIDs;      // ★ 3개 이상 연결용 (있으면 우선 사용)
+    public string revealText;
 }

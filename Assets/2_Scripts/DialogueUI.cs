@@ -5,9 +5,6 @@ using DG.Tweening;
 using System.Collections.Generic;
 using System;
 
-/// <summary>
-/// NPC 대화 및 단서 설명 UI. 선택지(Choices) 분기 지원.
-/// </summary>
 public class DialogueUI : MonoBehaviour
 {
     public static DialogueUI Instance { get; private set; }
@@ -19,12 +16,12 @@ public class DialogueUI : MonoBehaviour
     [SerializeField] private GameObject nextIndicator;
 
     [Header("선택지 UI")]
-    [Tooltip("선택지 전체를 감싸는 CanvasGroup (대화 패널 위에 오버레이)")]
     [SerializeField] private CanvasGroup choicePanelCG;
-    [Tooltip("버튼들이 배치될 컨테이너 (VerticalLayoutGroup 권장)")]
     [SerializeField] private Transform choiceContainer;
-    [Tooltip("선택지 버튼 프리팹 — Button + TextMeshProUGUI 자식 포함")]
     [SerializeField] private Button choiceButtonPrefab;
+
+    [Header("선택 완료 버튼 색상")]
+    [SerializeField] private Color usedChoiceColor = new Color(0.5f, 0.5f, 0.5f, 0.5f);
 
     [Header("DOTween 설정")]
     [SerializeField] private float fadeInDuration = 0.25f;
@@ -41,6 +38,9 @@ public class DialogueUI : MonoBehaviour
     private Action<DialogueChoiceData> onChoiceSelected;
     private bool isShowingChoices = false;
 
+    // ★ 사용한 선택지 인덱스 추적
+    private HashSet<int> usedChoiceIndices = new HashSet<int>();
+
     private void Awake()
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
@@ -53,7 +53,6 @@ public class DialogueUI : MonoBehaviour
             dialoguePanelCG.blocksRaycasts = false;
             dialoguePanelCG.gameObject.SetActive(false);
         }
-
         if (choicePanelCG != null)
         {
             choicePanelCG.alpha = 0f;
@@ -66,7 +65,7 @@ public class DialogueUI : MonoBehaviour
     private void Update()
     {
         if (!IsOpen()) return;
-        if (isShowingChoices) return; // 선택지 표시 중 E키 차단
+        if (isShowingChoices) return;
 
         if (Input.GetKeyDown(KeyCode.E))
         {
@@ -76,16 +75,11 @@ public class DialogueUI : MonoBehaviour
     }
 
     // ─────────────────────────────────────────
-    // 공개 인터페이스
-    // ─────────────────────────────────────────
-
-    /// <summary>선택지 없는 일반 대화</summary>
     public void StartDialogue(string speakerName, List<string> lines, Action onFinished = null)
     {
         StartDialogue(speakerName, lines, null, null, onFinished);
     }
 
-    /// <summary>선택지 포함 대화. 마지막 줄 이후 선택지 버튼 표시.</summary>
     public void StartDialogue(
         string speakerName,
         List<string> lines,
@@ -99,6 +93,7 @@ public class DialogueUI : MonoBehaviour
         this.onChoiceSelected = onChoiceSelected;
         this.onFinished = onFinished;
         isShowingChoices = false;
+        usedChoiceIndices.Clear(); // ★ 초기화
 
         if (speakerNameText != null)
             speakerNameText.text = speakerName;
@@ -112,15 +107,13 @@ public class DialogueUI : MonoBehaviour
                             dialoguePanelCG.alpha > 0.5f;
 
     // ─────────────────────────────────────────
-    // 내부 로직 — 줄 진행
-    // ─────────────────────────────────────────
-
     private void AdvanceLine()
     {
         currentLineIndex++;
         if (currentLineIndex >= currentLines.Count)
         {
-            if (pendingChoices != null)
+            // ★ 선택지가 있고 아직 안 쓴 것이 있으면 선택지로 복귀, 아니면 종료
+            if (pendingChoices != null && usedChoiceIndices.Count < pendingChoices.Count)
                 ShowChoices();
             else
                 CloseDialogue();
@@ -149,11 +142,12 @@ public class DialogueUI : MonoBehaviour
             isTyping = false;
             dialogueBodyText.text = line;
 
-            // 선택지가 올 마지막 줄이면 nextIndicator 숨김
-            bool isLastWithChoices = pendingChoices != null
-                                  && currentLineIndex >= currentLines.Count - 1;
+            // ★ 아직 남은 선택지가 있으면 nextIndicator 숨김
+            bool moreChoices = pendingChoices != null &&
+                               usedChoiceIndices.Count < pendingChoices.Count &&
+                               currentLineIndex >= currentLines.Count - 1;
             if (nextIndicator != null)
-                nextIndicator.SetActive(!isLastWithChoices);
+                nextIndicator.SetActive(!moreChoices);
         });
     }
 
@@ -163,21 +157,19 @@ public class DialogueUI : MonoBehaviour
         isTyping = false;
         dialogueBodyText.text = currentLines[currentLineIndex];
 
-        bool isLastWithChoices = pendingChoices != null
-                              && currentLineIndex >= currentLines.Count - 1;
+        bool moreChoices = pendingChoices != null &&
+                           usedChoiceIndices.Count < pendingChoices.Count &&
+                           currentLineIndex >= currentLines.Count - 1;
         if (nextIndicator != null)
-            nextIndicator.SetActive(!isLastWithChoices);
+            nextIndicator.SetActive(!moreChoices);
     }
 
     // ─────────────────────────────────────────
-    // 내부 로직 — 선택지
-    // ─────────────────────────────────────────
-
     private void ShowChoices()
     {
         if (choicePanelCG == null || choiceContainer == null || choiceButtonPrefab == null)
         {
-            Debug.LogWarning("[DialogueUI] 선택지 UI 미연결 — 그냥 종료합니다.");
+            Debug.LogWarning("[DialogueUI] 선택지 UI 미연결 — 종료합니다.");
             CloseDialogue();
             return;
         }
@@ -185,22 +177,36 @@ public class DialogueUI : MonoBehaviour
         isShowingChoices = true;
         if (nextIndicator != null) nextIndicator.SetActive(false);
 
-        // 기존 버튼 정리
         foreach (Transform child in choiceContainer)
             Destroy(child.gameObject);
 
-        // 버튼 생성
-        foreach (var choice in pendingChoices)
+        // ★ 인덱스 기반으로 버튼 생성 — 사용한 선택지는 비활성화
+        for (int i = 0; i < pendingChoices.Count; i++)
         {
+            var choice = pendingChoices[i];
             var btn = Instantiate(choiceButtonPrefab, choiceContainer);
             var label = btn.GetComponentInChildren<TextMeshProUGUI>();
             if (label != null) label.text = choice.label;
 
-            var captured = choice;
-            btn.onClick.AddListener(() => OnChoiceClicked(captured));
+            bool used = usedChoiceIndices.Contains(i);
+            btn.interactable = !used;
+
+            // 사용한 선택지 색상 처리
+            if (used)
+            {
+                var img = btn.GetComponent<Image>();
+                if (img != null) img.color = usedChoiceColor;
+                if (label != null) label.color = usedChoiceColor;
+            }
+
+            if (!used)
+            {
+                int capturedIndex = i;
+                var capturedChoice = choice;
+                btn.onClick.AddListener(() => OnChoiceClicked(capturedIndex, capturedChoice));
+            }
         }
 
-        // 패널 페이드인
         choicePanelCG.gameObject.SetActive(true);
         choicePanelCG.alpha = 0f;
         choicePanelCG.interactable = false;
@@ -227,34 +233,36 @@ public class DialogueUI : MonoBehaviour
         });
     }
 
-    private void OnChoiceClicked(DialogueChoiceData choice)
+    // ★ 인덱스 파라미터 추가
+    private void OnChoiceClicked(int choiceIndex, DialogueChoiceData choice)
     {
         AudioManager.Instance?.PlaySfxDialogueNext();
         isShowingChoices = false;
-        onChoiceSelected?.Invoke(choice); // ★ 단서/플래그는 NPCInteractable에서 처리
+
+        usedChoiceIndices.Add(choiceIndex); // ★ 사용 기록
+        onChoiceSelected?.Invoke(choice);   // 단서/플래그 처리 (NPCInteractable)
 
         HideChoices(() =>
         {
-            pendingChoices = null; // 선택지 소비
-
             if (choice.lines != null && choice.lines.Count > 0)
             {
-                // 선택지 대사 재생 → 끝나면 CloseDialogue
+                // 선택지 대사 재생 → 끝나면 AdvanceLine에서 자동 분기
                 currentLines = choice.lines;
                 currentLineIndex = 0;
                 ShowLine(currentLines[0]);
             }
             else
             {
-                CloseDialogue();
+                // 대사 없는 선택지 → 바로 분기 판단
+                if (usedChoiceIndices.Count < pendingChoices.Count)
+                    ShowChoices();
+                else
+                    CloseDialogue();
             }
         });
     }
 
     // ─────────────────────────────────────────
-    // 패널 제어
-    // ─────────────────────────────────────────
-
     private void ShowPanel()
     {
         dialoguePanelCG.gameObject.SetActive(true);

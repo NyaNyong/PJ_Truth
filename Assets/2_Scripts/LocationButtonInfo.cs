@@ -8,5 +8,7 @@ public class LocationButtonInfo
 {
     public string locationName;
     public string displayName;
+    public string description; // ★ 팝업 한줄 설명
     public Vector2 buttonPosition;
+    public bool isVisited;     // ★ 방문 여부
 }

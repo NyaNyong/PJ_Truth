@@ -54,9 +54,12 @@ public class PlayerController : MonoBehaviour
         if (!isControllable) return;
 
         bool dialogueOpen = DialogueUI.Instance != null && DialogueUI.Instance.IsOpen();
-        if (dialogueOpen)
+        bool uvPuzzleOpen = UVPuzzleUI.Instance != null && UVPuzzleUI.Instance.IsOpen(); // ★ 추가
+
+        if (dialogueOpen || uvPuzzleOpen) // ★ 수정
         {
             moveInput = Vector2.zero;
+            rb.velocity = Vector2.zero; // ★ 즉시 정지
             UpdateAnimator();
             return;
         }

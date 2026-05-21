@@ -2,104 +2,73 @@
   "day": 4,
 
   "news": {
-    "officialTitle": "반복 연락 두절 신고, 개별 사건으로 조사 진행",
-    "officialContent": "최근 재개발 예정 구역 인근에서 접수된 연락 두절 신고들은 현재 개별 사건으로 조사 중인 것으로 알려졌다.\n관계 당국은 사건 간 직접적인 연관성은 확인되지 않았으며, 일부 지역의 출입 통제는 안전 점검을 위한 조치라고 밝혔다.",
-    "privateTitle": "사라지는 사람들, 닫히는 구역",
-    "privateContent": "최근 연락 두절 신고가 이어진 지역에서 출입 통제가 강화되고 있다.\n일부 시민들은 실종 신고와 통제 구역 확대가 같은 시기에 반복되고 있다는 점에 의문을 제기하고 있다.",
+    "officialTitle": "[테스트] 공식 뉴스 제목",
+    "officialContent": "이것은 공식 뉴스 본문입니다.\nJSON에서 정상적으로 불러온 텍스트입니다.",
+    "privateTitle": "[테스트] 사설 뉴스 제목",
+    "privateContent": "이것은 사설 뉴스 본문입니다.\n공식 뉴스와 다른 내용이 표시되어야 합니다.",
     "conditionalOverrides": []
   },
 
   "documents": [
     {
       "id": 4,
-      "title": "재개발 구역 출입 통제 강화… 관계 인원 이동 기록 확인",
-      "mainText": "도심 재개발 예정 구역 일부 구간에서 안전 점검을 이유로 출입 통제가 강화되었다.\n\n관계 기관은 노후 시설 점검과 철거 준비 과정에서 발생할 수 있는 안전 문제를 예방하기 위한 조치라고 설명했다.\n\n한편 해당 구역 인근에서 [SLOT_0]들의 [SLOT_1]이 확인된 것으로 알려졌다.\n\n기록에 따르면 이들은 마지막 목격 지점 이후 [SLOT_2] 인근으로 이동한 정황이 남아 있다.\n\n일부 관계자는 해당 인원들이 현장 안전 문제로 인해 [SLOT_3]에 포함되었을 가능성이 있다고 밝혔다.\n\n그러나 [SLOT_4]과 보호 절차의 세부 내용은 현재 [SLOT_5].",
-      "guidelineText": "[가이드라인]\n• 사회 불안 조장 표현 제한\n• 과장 및 추측성 표현 금지\n• 정부 및 관계 기관 신뢰 유지\n• 미확인 정보 확산 제한\n\n[추가 지침]\n• 특정 시설 및 이동 경로 관련 표현 제한\n• 관계 인원 이동 사유는 '안전 조치' 또는 '보호 절차'로 정리\n• 출입 통제와 실종 사건 간 직접 연결 금지\n• 신원 확인이 어려운 대상은 '무단 출입자' 또는 '관리 대상자'로 정리",
+      "title": "[테스트] 검열 문서",
+      "mainText": "이것은 테스트용 문서 본문입니다.\n[SLOT_0] 항목이 포함된 문장입니다.\n[SLOT_1] 항목도 포함되어 있습니다.",
+      "guidelineText": "[테스트 가이드라인]\n• 가이드라인 항목 1\n• 가이드라인 항목 2\n• 가이드라인 항목 3",
       "needsCensorship": false,
       "needsTypewriter": true,
       "censorKeywords": [],
       "typewriterSlots": [
         {
           "slotIndex": 0,
-          "originalWord": "연락 두절 신고가 접수된 일부 인원",
-          "wordOptions": ["관리 대상자", "연락 두절 인원", "무단 출입자"],
-          "correctWord": "관리 대상자"
+          "originalWord": "원본 단어 A",
+          "wordOptions": ["오답A", "정답A", "오답B"],
+          "correctWord": "정답A"
         },
         {
           "slotIndex": 1,
-          "originalWord": "이동 기록",
-          "wordOptions": ["출입 기록", "이동 기록", "현장 기록"],
-          "correctWord": "출입 기록"
-        },
-        {
-          "slotIndex": 2,
-          "originalWord": "재개발 구역 내부 임시 관리 시설",
-          "wordOptions": ["현장 관리 구역", "안전 점검 구역", "임시 관리 시설"],
-          "correctWord": "현장 관리 구역"
-        },
-        {
-          "slotIndex": 3,
-          "originalWord": "임시 보호 절차",
-          "wordOptions": ["안전 확인 절차", "임시 이송 절차", "보호 관리 절차"],
-          "correctWord": "안전 확인 절차"
-        },
-        {
-          "slotIndex": 4,
-          "originalWord": "이동 대상자 명단",
-          "wordOptions": ["무단 출입자 명단", "이동 대상자 명단", "관계자 명단"],
-          "correctWord": "무단 출입자 명단"
-        },
-        {
-          "slotIndex": 5,
-          "originalWord": "공개되지 않은 상태",
-          "wordOptions": ["확인 중", "검토 중", "공개 예정"],
-          "correctWord": "확인 중"
+          "originalWord": "원본 단어 B",
+          "wordOptions": ["오답C", "오답D", "정답B"],
+          "correctWord": "정답B"
         }
       ]
     }
   ],
 
-  "availableLocations": ["control_post", "last_sighting"],
+  "availableLocations": ["test_loc_a", "test_loc_b", "test_loc_c"],
   "conditionalLocations": [],
 
   "locations": [
     {
-      "locationID": "control_post",
+      "locationID": "test_loc_a",
+      "description": "테스트 장소 A입니다. NPC, 일반 단서, UV 단서가 있습니다.",
       "npcs": [
         {
-          "id": "npc_guard_4",
-          "npcName": "경비 직원",
+          "id": "npc_a",
+          "npcName": "테스트 NPC-A",
           "firstLines": [
-            "이 시간에 여기 오시면 안 됩니다."
+            "안녕하세요. 저는 장소 A의 NPC입니다.",
+            "선택지를 골라보세요."
           ],
           "repeatLines": [
-            "통제 구역입니다. 관계자 외 출입 금지입니다."
+            "이미 대화한 NPC입니다. 반복 대사가 표시됩니다."
           ],
           "grantClueID": "",
           "setFlag": "",
           "choices": [
             {
-              "label": "출입 통제는 언제부터 시작됐나요?",
+              "label": "단서를 주는 선택지",
               "lines": [
-                "안전 점검 때문에 막아둔 겁니다. 요즘 낡은 건물이 많아서요.",
-                "점검이 끝나면 다시 열릴 겁니다."
+                "이 선택지를 고르면 단서를 획득합니다.",
+                "clue_npc_a가 GameFlags에 추가되어야 합니다."
               ],
-              "grantClueID": "",
+              "grantClueID": "clue_npc_a",
               "setFlag": ""
             },
             {
-              "label": "실종 신고와 관련 있나요?",
+              "label": "단서 없는 선택지",
               "lines": [
-                "그런 이야기는 여기서 하지 않는 게 좋습니다.",
-                "괜히 엮이면 피곤해지는 일이 있습니다."
-              ],
-              "grantClueID": "clue_guard_warning_4",
-              "setFlag": ""
-            },
-            {
-              "label": "그냥 지나가겠습니다.",
-              "lines": [
-                "네. 돌아가세요."
+                "이 선택지는 단서를 주지 않습니다."
               ],
               "grantClueID": "",
               "setFlag": ""
@@ -109,97 +78,73 @@
       ],
       "clues": [
         {
-          "id": "clue_entry_sign_4",
-          "title": "출입 통제 안내 카드",
+          "id": "clue_normal_a",
+          "title": "[A] 일반 단서",
           "lines": [
-            "안전 점검 구역. 관계자 외 출입 금지.",
-            "안내판 아래쪽에 임시 관리 구역 번호가 작게 적혀 있다."
-          ]
+            "장소 A의 일반 단서입니다.",
+            "상호작용하면 즉시 획득됩니다."
+          ],
+          "isPuzzle": false,
+          "hiddenContent": "",
+          "correctAnswer": "",
+          "flagIDOnSolve": ""
         },
         {
-          "id": "clue_entry_log_4",
-          "title": "출입 명부 일부",
+          "id": "clue_uv_a",
+          "title": "[A] UV 단서",
           "lines": [
-            "안전 확인 대상 / 임시 이동 처리 / 관리 구역 B-12"
-          ]
+            "UV 조사 결과: 숨겨진 텍스트를 발견했습니다."
+          ],
+          "isPuzzle": true,
+          "hiddenContent": "ㅇ",
+          "correctAnswer": "ㅇ",
+          "flagIDOnSolve": "flag_uv_a_solved"
         },
         {
-          "id": "clue_damaged_log_4",
-          "title": "훼손된 출입 기록",
+          "id": "clue_npc_a",
+          "title": "[A] NPC 대화 단서",
           "lines": [
-            "안전 확인 대상 / 이동 처리…",
-            "나머지 내용은 찢겨 있어 확인이 어렵다."
-          ]
-        },
-        {
-          "id": "clue_cctv_inactive_4",
-          "title": "비활성 CCTV 카드",
-          "lines": [
-            "렌즈는 이쪽을 향해 있지만 녹화 표시등은 꺼져 있다.",
-            "기기 아래에는 점검 완료 스티커가 붙어 있다."
-          ]
-        },
-        {
-          "id": "clue_guard_warning_4",
-          "title": "경비 직원 발언 메모",
-          "lines": [
-            "\"그런 이야기는 여기서 하지 않는 게 좋습니다.\"",
-            "\"괜히 엮이면 피곤해지는 일이 있습니다.\""
-          ]
+            "NPC-A와의 대화에서 획득한 단서입니다.",
+            "선택지 분기가 정상 동작했습니다."
+          ],
+          "isPuzzle": false,
+          "hiddenContent": "",
+          "correctAnswer": "",
+          "flagIDOnSolve": ""
         }
       ]
     },
     {
-      "locationID": "last_sighting",
+      "locationID": "test_loc_b",
+      "description": "테스트 장소 B입니다. 장소 A와 동일한 구성으로 테스트합니다.",
       "npcs": [
         {
-          "id": "npc_clerk_4",
-          "npcName": "편의점 직원",
+          "id": "npc_b",
+          "npcName": "테스트 NPC-B",
           "firstLines": [
-            "그 사람요? 여기서 본 것 같긴 한데…",
-            "그날도 그냥 평소처럼 음료수 하나 사고, 정류장 쪽에 서 있었어요."
+            "장소 B의 NPC입니다.",
+            "선택지를 골라보세요."
           ],
           "repeatLines": [
-            "저도 더 아는 건 없어요. 그날 이후로 못 봤거든요."
+            "장소 B NPC 반복 대사입니다."
           ],
           "grantClueID": "",
           "setFlag": "",
           "choices": [
             {
-              "label": "혼자 있었나요?",
+              "label": "단서를 주는 선택지",
               "lines": [
-                "처음엔 혼자였어요.",
-                "근데 나중에 검은 차가 한 대 멈췄던 것 같아요. 오래 있진 않았고요."
+                "clue_npc_b를 획득합니다."
               ],
-              "grantClueID": "clue_witness_alone_4",
+              "grantClueID": "clue_npc_b",
               "setFlag": ""
             },
             {
-              "label": "부담 주려는 건 아닙니다.",
+              "label": "단서 없는 선택지",
               "lines": [
-                "…검은 차였어요.",
-                "창문이 어두워서 안은 안 보였고, 그 사람이 차에 탄 건지 끌려간 건지는 못 봤어요."
+                "단서 없는 선택지입니다."
               ],
-              "grantClueID": "clue_black_car_4",
-              "setFlag": ""
-            },
-            {
-              "label": "CCTV는 확인했나요?",
-              "lines": [
-                "저도 물어봤는데, 그날만 녹화가 안 됐대요.",
-                "정류장 CCTV도, 편의점 앞쪽 것도요. 이상하죠?"
-              ],
-              "grantClueID": "clue_cctv_missing_4",
-              "setFlag": ""
-            },
-            {
-              "label": "그 사람, 어떤 사람이었나요?",
-              "lines": [
-                "그냥 조용한 사람이었어요.",
-                "가끔 여기 들러서 가족한테 전화하고, 컵라면 하나 먹고 가던 사람이요.",
-                "뉴스에서 말하는 것처럼 문제 일으킬 사람은 아니었는데…"
-              ],
-              "grantClueID": "clue_life_traces_4",
+              "grantClueID": "",
               "setFlag": ""
             }
           ]
@@ -207,64 +152,109 @@
       ],
       "clues": [
         {
-          "id": "clue_bus_route_4",
-          "title": "임시 중단 노선 카드",
+          "id": "clue_normal_b",
+          "title": "[B] 일반 단서",
           "lines": [
-            "버스 정류장 전광판의 일부 노선 정보가 점검 중으로 표시되어 있다.",
-            "재개발 구역 내부 관리 시설 근처를 지나는 노선 하나가 임시 중단 처리되어 있다."
-          ]
+            "장소 B의 일반 단서입니다."
+          ],
+          "isPuzzle": false,
+          "hiddenContent": "",
+          "correctAnswer": "",
+          "flagIDOnSolve": ""
         },
         {
-          "id": "clue_last_ride_4",
-          "title": "마지막 탑승 기록",
+          "id": "clue_uv_b",
+          "title": "[B] UV 단서",
           "lines": [
-            "탑승 시간 22:14 / 하차 기록 없음"
-          ]
+            "장소 B UV 조사 결과 확인됨."
+          ],
+          "isPuzzle": true,
+          "hiddenContent": "ㅇ",
+          "correctAnswer": "ㅇ",
+          "flagIDOnSolve": "flag_uv_b_solved"
         },
         {
-          "id": "clue_blurry_receipt_4",
-          "title": "흐릿한 영수증 사진",
+          "id": "clue_npc_b",
+          "title": "[B] NPC 대화 단서",
           "lines": [
-            "탑승 시간은 확인되지만 하차 기록은 불명확하다."
+            "NPC-B 선택지에서 획득한 단서입니다."
+          ],
+          "isPuzzle": false,
+          "hiddenContent": "",
+          "correctAnswer": "",
+          "flagIDOnSolve": ""
+        }
+      ]
+    },
+    {
+      "locationID": "test_loc_c",
+      "description": "테스트 장소 C입니다. requireAllLocations 테스트를 위한 마지막 장소입니다.",
+      "npcs": [
+        {
+          "id": "npc_c",
+          "npcName": "테스트 NPC-C",
+          "firstLines": [
+            "장소 C의 NPC입니다.",
+            "여기까지 왔다면 세 곳 모두 탐험할 수 있습니다."
+          ],
+          "repeatLines": [
+            "장소 C NPC 반복 대사입니다."
+          ],
+          "grantClueID": "",
+          "setFlag": "",
+          "choices": [
+            {
+              "label": "단서를 주는 선택지",
+              "lines": [
+                "clue_npc_c를 획득합니다."
+              ],
+              "grantClueID": "clue_npc_c",
+              "setFlag": ""
+            },
+            {
+              "label": "단서 없는 선택지",
+              "lines": [
+                "단서 없는 선택지입니다."
+              ],
+              "grantClueID": "",
+              "setFlag": ""
+            }
           ]
+        }
+      ],
+      "clues": [
+        {
+          "id": "clue_normal_c",
+          "title": "[C] 일반 단서",
+          "lines": [
+            "장소 C의 일반 단서입니다."
+          ],
+          "isPuzzle": false,
+          "hiddenContent": "",
+          "correctAnswer": "",
+          "flagIDOnSolve": ""
         },
         {
-          "id": "clue_cctv_sign_4",
-          "title": "정류장 CCTV 점검 카드",
+          "id": "clue_uv_c",
+          "title": "[C] UV 단서",
           "lines": [
-            "해당 정류장은 방범 CCTV 녹화 구역입니다.",
-            "아래쪽에 '해당 일자 장비 점검'이라는 작은 안내 스티커가 덧붙어 있다."
-          ]
+            "장소 C UV 조사 결과 확인됨."
+          ],
+          "isPuzzle": true,
+          "hiddenContent": "ㅇ",
+          "correctAnswer": "ㅇ",
+          "flagIDOnSolve": "flag_uv_c_solved"
         },
         {
-          "id": "clue_witness_alone_4",
-          "title": "목격 진술 카드",
+          "id": "clue_npc_c",
+          "title": "[C] NPC 대화 단서",
           "lines": [
-            "실종자는 처음엔 혼자 정류장에 있었으나, 이후 검은 차량이 근처에 정차했다."
-          ]
-        },
-        {
-          "id": "clue_black_car_4",
-          "title": "검은 차량 목격 카드",
-          "lines": [
-            "실종자 마지막 목격 시점에 검은 차량이 정류장 근처에 정차해 있었다.",
-            "창문이 어두워 탑승자는 확인되지 않았다."
-          ]
-        },
-        {
-          "id": "clue_cctv_missing_4",
-          "title": "CCTV 누락 증언 카드",
-          "lines": [
-            "실종 발생 시간대에 정류장과 편의점 주변 CCTV 기록이 모두 비어 있었다."
-          ]
-        },
-        {
-          "id": "clue_life_traces_4",
-          "title": "실종자의 생활 흔적 카드",
-          "lines": [
-            "실종자는 편의점에 자주 들르던 평범한 지역 주민이었으며, 가족과 연락을 이어가고 있었다.",
-            "뉴스에서 묘사된 것과는 달리, 특별히 문제를 일으킬 사람이 아니었다."
-          ]
+            "NPC-C 선택지에서 획득한 단서입니다."
+          ],
+          "isPuzzle": false,
+          "hiddenContent": "",
+          "correctAnswer": "",
+          "flagIDOnSolve": ""
         }
       ]
     }
@@ -273,110 +263,90 @@
   "whiteboard": {
     "cards": [
       {
-        "cardID": "card_s4_official",
+        "cardID": "card_free_1",
         "requiredClueID": "",
-        "title": "STAGE 4 공식 기사",
-        "content": "일부 인원의 출입 기록 확인 — 당국 '안전 확인 절차 진행 중'"
+        "title": "[항상 표시] 카드 1",
+        "content": "단서 없이 항상 표시되는 카드입니다."
       },
       {
-        "cardID": "card_s4_guideline",
+        "cardID": "card_free_2",
         "requiredClueID": "",
-        "title": "STAGE 4 가이드라인",
-        "content": "이동 경로 관련 표현 제한 / 출입 통제와 실종 사건 직접 연결 금지"
+        "title": "[항상 표시] 카드 2",
+        "content": "두 번째 항상 표시 카드입니다."
       },
       {
-        "cardID": "card_entry_sign_4",
-        "requiredClueID": "clue_entry_sign_4",
-        "title": "출입 통제 안내판",
-        "content": "안전 점검 구역. 관계자 외 출입 금지. 안내판 하단에 임시 관리 구역 번호 확인."
+        "cardID": "card_normal_a",
+        "requiredClueID": "clue_normal_a",
+        "title": "[A] 일반 단서 카드",
+        "content": "장소 A 일반 단서 수집 시 표시됩니다."
       },
       {
-        "cardID": "card_entry_log_4",
-        "requiredClueID": "clue_entry_log_4",
-        "title": "출입 명부 일부",
-        "content": "안전 확인 대상 / 임시 이동 처리 / 관리 구역 B-12"
+        "cardID": "card_uv_a",
+        "requiredClueID": "clue_uv_a",
+        "title": "[A] UV 단서 카드",
+        "content": "장소 A UV 퍼즐 완료 시 표시됩니다."
       },
       {
-        "cardID": "card_damaged_log_4",
-        "requiredClueID": "clue_damaged_log_4",
-        "title": "훼손된 출입 기록",
-        "content": "안전 확인 대상 / 이동 처리… (이후 내용 훼손)"
+        "cardID": "card_npc_a",
+        "requiredClueID": "clue_npc_a",
+        "title": "[A] NPC 단서 카드",
+        "content": "장소 A NPC 선택지 단서 수집 시 표시됩니다."
       },
       {
-        "cardID": "card_cctv_inactive_4",
-        "requiredClueID": "clue_cctv_inactive_4",
-        "title": "비활성 CCTV",
-        "content": "렌즈는 이쪽을 향하고 있지만 녹화 표시등은 꺼져 있다. 점검 완료 스티커 부착."
+        "cardID": "card_normal_b",
+        "requiredClueID": "clue_normal_b",
+        "title": "[B] 일반 단서 카드",
+        "content": "장소 B 일반 단서 수집 시 표시됩니다."
       },
       {
-        "cardID": "card_bus_route_4",
-        "requiredClueID": "clue_bus_route_4",
-        "title": "임시 중단 노선",
-        "content": "재개발 구역 내부 관리 시설 근처를 지나는 노선이 임시 중단 처리되어 있다."
+        "cardID": "card_uv_b",
+        "requiredClueID": "clue_uv_b",
+        "title": "[B] UV 단서 카드",
+        "content": "장소 B UV 퍼즐 완료 시 표시됩니다."
       },
       {
-        "cardID": "card_last_ride_4",
-        "requiredClueID": "clue_last_ride_4",
-        "title": "마지막 탑승 기록",
-        "content": "탑승 시간 22:14 / 하차 기록 없음"
+        "cardID": "card_npc_b",
+        "requiredClueID": "clue_npc_b",
+        "title": "[B] NPC 단서 카드",
+        "content": "장소 B NPC 선택지 단서 수집 시 표시됩니다."
       },
       {
-        "cardID": "card_blurry_receipt_4",
-        "requiredClueID": "clue_blurry_receipt_4",
-        "title": "흐릿한 영수증 사진",
-        "content": "탑승 시간은 확인되지만 하차 기록은 불명확하다."
+        "cardID": "card_normal_c",
+        "requiredClueID": "clue_normal_c",
+        "title": "[C] 일반 단서 카드",
+        "content": "장소 C 일반 단서 수집 시 표시됩니다."
       },
       {
-        "cardID": "card_cctv_sign_4",
-        "requiredClueID": "clue_cctv_sign_4",
-        "title": "정류장 CCTV 점검 기록",
-        "content": "CCTV 녹화 구역임에도 해당 일자 장비 점검 스티커가 부착되어 있다."
+        "cardID": "card_uv_c",
+        "requiredClueID": "clue_uv_c",
+        "title": "[C] UV 단서 카드",
+        "content": "장소 C UV 퍼즐 완료 시 표시됩니다."
       },
       {
-        "cardID": "card_witness_alone_4",
-        "requiredClueID": "clue_witness_alone_4",
-        "title": "목격 진술",
-        "content": "실종자는 처음엔 혼자 정류장에 있었으나, 이후 검은 차량이 근처에 정차했다."
-      },
-      {
-        "cardID": "card_black_car_4",
-        "requiredClueID": "clue_black_car_4",
-        "title": "검은 차량 목격",
-        "content": "실종자 마지막 목격 시점에 검은 차량이 정류장 근처에 정차. 창문이 어두워 탑승자 미확인."
-      },
-      {
-        "cardID": "card_cctv_missing_4",
-        "requiredClueID": "clue_cctv_missing_4",
-        "title": "CCTV 누락 증언",
-        "content": "실종 발생 시간대에 정류장과 편의점 주변 CCTV 기록이 모두 비어 있었다."
-      },
-      {
-        "cardID": "card_life_traces_4",
-        "requiredClueID": "clue_life_traces_4",
-        "title": "실종자의 생활 흔적",
-        "content": "실종자는 편의점에 자주 들르던 평범한 지역 주민. 가족과 연락을 이어가고 있었다."
+        "cardID": "card_npc_c",
+        "requiredClueID": "clue_npc_c",
+        "title": "[C] NPC 단서 카드",
+        "content": "장소 C NPC 선택지 단서 수집 시 표시됩니다."
       }
     ],
     "correctConnections": [
       {
-        "fromCardID": "card_s4_official",
-        "toCardID": "card_entry_log_4",
-        "revealText": "기사 속 '이동 기록'이 단순 출입이 아니라, 특정 인원을 분류해 이동시키는 절차였다."
+        "fromCardID": "card_free_1",
+        "toCardID": "card_normal_a",
+        "cardIDs": [],
+        "revealText": "[테스트] 2장 연결 정답입니다. 진실 노트에 추가되어야 합니다."
       },
       {
-        "fromCardID": "card_last_ride_4",
-        "toCardID": "card_witness_alone_4",
-        "revealText": "실종자는 평범하게 이동한 것이 아니라, 중간에 다른 이동 수단으로 옮겨졌을 가능성이 있다."
+        "fromCardID": "card_uv_a",
+        "toCardID": "card_uv_b",
+        "cardIDs": [],
+        "revealText": "[테스트] UV 단서 두 장 연결 정답입니다."
       },
       {
-        "fromCardID": "card_cctv_inactive_4",
-        "toCardID": "card_cctv_sign_4",
-        "revealText": "CCTV 누락이 우연이 아니라 반복적으로 발생하고 있다."
-      },
-      {
-        "fromCardID": "card_bus_route_4",
-        "toCardID": "card_entry_sign_4",
-        "revealText": "실종자의 마지막 동선과 재개발 구역 내부 관리 구역이 겹친다."
+        "fromCardID": "card_npc_a",
+        "toCardID": "card_npc_b",
+        "cardIDs": ["card_npc_a", "card_npc_b", "card_npc_c"],
+        "revealText": "[테스트] 3장 연결 정답입니다. A, B, C NPC 단서가 모두 연결되어야 합니다."
       }
     ]
   }

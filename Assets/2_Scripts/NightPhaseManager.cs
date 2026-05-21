@@ -29,8 +29,10 @@ public class NightPhaseManager : MonoBehaviour
     public class LocationMapEntry
     {
         public string locationName;
-        [Tooltip("지도 버튼에 표시할 한글 이름. 비우면 locationName 그대로 표시")]
-        public string displayName; // ★ 추가
+        [Tooltip("지도 버튼 표시 한글 이름")]
+        public string displayName;
+        [Tooltip("지도 팝업 한줄 설명 (JSON 있으면 JSON 우선)")]
+        public string description;
         public GameObject mapRoot;
         public MapBoundary mapBoundary;
         public Transform spawnPoint;
@@ -48,33 +50,50 @@ public class NightPhaseManager : MonoBehaviour
 
     private LocationMapEntry activeEntry = null;
     private bool explorationComplete = false;
+    private Vector3 playerOriginalScale;
 
-
+    // ★ 이번 밤 방문한 장소 추적
+    private HashSet<string> visitedLocations = new HashSet<string>();
 
     public bool IsExplorationComplete => explorationComplete;
     public bool HasRequiredClues =>
-        activeEntry != null && activeEntry.requiredClueIDs != null && activeEntry.requiredClueIDs.Count > 0;
+        activeEntry != null &&
+        activeEntry.requiredClueIDs != null &&
+        activeEntry.requiredClueIDs.Count > 0;
 
+    // ── 방문 정보 ─────────────────────────────
+    public HashSet<string> GetVisitedLocations() => new HashSet<string>(visitedLocations);
+
+    /// <summary>locationNames 목록 전부 방문했는지 확인</summary>
+    public bool HasVisitedAll(List<string> locationNames)
+    {
+        if (locationNames == null || locationNames.Count == 0) return true;
+        foreach (var name in locationNames)
+            if (!visitedLocations.Contains(name)) return false;
+        return true;
+    }
+
+    /// <summary>다음 날 시작 시 방문 기록 초기화</summary>
+    public void ResetVisited() => visitedLocations.Clear();
+
+    // ── 초기화 ───────────────────────────────
     private void Awake()
     {
         nightTopDownCamera.gameObject.SetActive(false);
         playerCharacter.SetActive(false);
         if (goHomeButton != null) goHomeButton.SetActive(false);
-        foreach (var entry in locationMaps)
-            if (entry.mapRoot != null) entry.mapRoot.SetActive(false);
+        foreach (var e in locationMaps)
+            if (e.mapRoot != null) e.mapRoot.SetActive(false);
         HideBannerImmediate();
-        playerOriginalScale = playerCharacter.transform.localScale; // ★ 원본 스케일 저장
+        playerOriginalScale = playerCharacter.transform.localScale;
     }
 
-    /// <summary>GameManager 초기화 시 강제 비활성화 (낮 페이즈에 밤 배경 노출 방지)</summary>
     public void EnsureHidden()
     {
-        if (nightTopDownCamera != null)
-            nightTopDownCamera.gameObject.SetActive(false);
-        if (playerCharacter != null)
-            playerCharacter.SetActive(false);
-        foreach (var entry in locationMaps)
-            if (entry.mapRoot != null) entry.mapRoot.SetActive(false);
+        if (nightTopDownCamera != null) nightTopDownCamera.gameObject.SetActive(false);
+        if (playerCharacter != null) playerCharacter.SetActive(false);
+        foreach (var e in locationMaps)
+            if (e.mapRoot != null) e.mapRoot.SetActive(false);
     }
 
     private void OnEnable()
@@ -89,24 +108,34 @@ public class NightPhaseManager : MonoBehaviour
         if (onClueCollected != null) onClueCollected.OnRaised -= OnClueCollectedHandler;
     }
 
+    // ── 버튼 목록 빌드 ───────────────────────
     public List<LocationButtonInfo> BuildButtonInfoList(List<string> locationNames)
     {
         var result = new List<LocationButtonInfo>();
         foreach (string name in locationNames)
         {
             var entry = locationMaps.Find(e => e.locationName == name);
+
+            // description: JSON 우선, Inspector 폴백
+            string desc = GameTextLoader.Instance?.GetLocationDescription(name) ?? "";
+            if (string.IsNullOrEmpty(desc) && entry != null)
+                desc = entry.description;
+
             result.Add(new LocationButtonInfo
             {
                 locationName = name,
                 displayName = (entry != null && !string.IsNullOrEmpty(entry.displayName))
-                                 ? entry.displayName
-                                 : name.Replace('_', ' '), // ★ 폴백: 언더바→공백
-                buttonPosition = entry != null ? entry.mapButtonPosition : Vector2.zero
+                                     ? entry.displayName
+                                     : name.Replace('_', ' '),
+                description = desc,
+                buttonPosition = entry != null ? entry.mapButtonPosition : Vector2.zero,
+                isVisited = visitedLocations.Contains(name)
             });
         }
         return result;
     }
 
+    // ── 이벤트 ───────────────────────────────
     private void OnLocationSelectedHandler()
     {
         string loc = selectedLocation != null ? selectedLocation.Value : string.Empty;
@@ -134,12 +163,14 @@ public class NightPhaseManager : MonoBehaviour
         ShowCompleteBanner();
     }
 
-    private Vector3 playerOriginalScale;
+    // ── 탑다운 뷰 활성/비활성 ────────────────
     private void ActivateNightView(string locationName)
     {
         Debug.Log($"🌙 탑다운 뷰 활성화 → {locationName}");
         explorationComplete = false;
         activeEntry = null;
+
+        visitedLocations.Add(locationName); // ★ 방문 기록
 
         foreach (var entry in locationMaps)
         {
@@ -151,8 +182,7 @@ public class NightPhaseManager : MonoBehaviour
         if (dayCameraOrUICamera != null) dayCameraOrUICamera.gameObject.SetActive(false);
         nightTopDownCamera.gameObject.SetActive(true);
 
-        if (nightCameraController != null)
-            nightCameraController.SetBoundary(activeEntry?.mapBoundary);
+        nightCameraController?.SetBoundary(activeEntry?.mapBoundary);
         playerController.SetMapBoundary(activeEntry?.mapBoundary);
 
         if (!HasRequiredClues) explorationComplete = true;
@@ -162,9 +192,9 @@ public class NightPhaseManager : MonoBehaviour
 
         playerCharacter.transform.position = spawnPos;
         playerCharacter.SetActive(true);
-        // ActivateNightView() 안의 DOScale 부분 교체
         playerCharacter.transform.localScale = Vector3.zero;
-        playerCharacter.transform.DOScale(playerOriginalScale, playerSpawnDuration) // ★ Vector3.one → playerOriginalScale
+        playerCharacter.transform
+            .DOScale(playerOriginalScale, playerSpawnDuration)
             .SetEase(Ease.OutBack)
             .OnComplete(() =>
             {
@@ -179,7 +209,8 @@ public class NightPhaseManager : MonoBehaviour
         playerController.EnableControl(false);
         HideBannerImmediate();
 
-        playerCharacter.transform.DOScale(Vector3.zero, 0.25f) // 이건 0으로 줄이는 거라 그대로 OK
+        playerCharacter.transform
+            .DOScale(Vector3.zero, 0.25f)
             .SetEase(Ease.InBack)
             .OnComplete(() =>
             {
@@ -194,6 +225,7 @@ public class NightPhaseManager : MonoBehaviour
             });
     }
 
+    // ── 배너 ─────────────────────────────────
     private void ShowCompleteBanner()
     {
         if (explorationCompleteBannerCG == null) return;

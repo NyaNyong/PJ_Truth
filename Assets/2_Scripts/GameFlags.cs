@@ -40,4 +40,13 @@ public class GameFlags : MonoBehaviour
     // 플래그 관련
     public void SetFlag(string flagID) => triggeredFlags.Add(flagID);
     public bool HasFlag(string flagID) => triggeredFlags.Contains(flagID);
+
+    private List<string> collectedTruths = new List<string>();
+
+    public void AddTruth(string truth)
+    {
+        if (!collectedTruths.Contains(truth)) collectedTruths.Add(truth);
+        Debug.Log($"📖 진실 수집: {truth}");
+    }
+    public List<string> GetAllTruths() => new List<string>(collectedTruths);
 }

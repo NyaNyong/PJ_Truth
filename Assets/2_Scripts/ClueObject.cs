@@ -107,26 +107,26 @@ public class ClueObject : MonoBehaviour, IInteractable
     // ── UV 퍼즐 ──────────────────────────────
     private void InteractAsPuzzle()
     {
-        if (UVPuzzleUI.Instance == null)
-        {
-            Debug.LogWarning("[ClueObject] UVPuzzleUI가 씬에 없습니다.");
-            return;
-        }
+        if (UVPuzzleUI.Instance == null) return;
         if (UVPuzzleUI.Instance.IsOpen()) return;
 
-        UVPuzzleUI.Instance.OpenPuzzle(hiddenContent, correctAnswer, OnPuzzleSolved);
+        // ★ JSON에서 퍼즐 내용 로드
+        var data = GameTextLoader.Instance?.GetClue(clueID);
+        string hidden = (data != null && !string.IsNullOrEmpty(data.hiddenContent))
+                         ? data.hiddenContent : hiddenContent;
+        string answer = (data != null && !string.IsNullOrEmpty(data.correctAnswer))
+                         ? data.correctAnswer : correctAnswer;
+        string flag = (data != null && !string.IsNullOrEmpty(data.flagIDOnSolve))
+                         ? data.flagIDOnSolve : flagIDOnSolve;
+
+        UVPuzzleUI.Instance.OpenPuzzle(hidden, answer, () =>
+        {
+            if (!string.IsNullOrEmpty(flag)) GameFlags.Instance?.SetFlag(flag);
+            DOVirtual.DelayedCall(0.35f, ShowClueDialogue);
+        });
     }
 
-    private void OnPuzzleSolved()
-    {
-        if (!string.IsNullOrEmpty(flagIDOnSolve))
-            GameFlags.Instance?.SetFlag(flagIDOnSolve);
-
-        Debug.Log($"🔦 [UV 퍼즐 완료] clueID: {clueID}");
-
-        // 퍼즐 패널 페이드아웃(0.3s) 후 단서 대화창
-        DOVirtual.DelayedCall(0.35f, ShowClueDialogue);
-    }
+  
 
     private void ShowClueDialogue()
     {

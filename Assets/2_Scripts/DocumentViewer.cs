@@ -42,6 +42,9 @@ public class DocumentViewer : MonoBehaviour
     [SerializeField] private float markerPaddingX = 6f;
     [SerializeField] private float markerPaddingY = 4f;
 
+    [Header("승인 버튼")]
+    [SerializeField] private Button approveButton; // ★ 추가
+
     // ─────────────────────────────────────────
     private DocumentData    currentDocument;
     private bool            isAllMaskedCorrectly = false;
@@ -67,12 +70,15 @@ public class DocumentViewer : MonoBehaviour
     private const int CHILD_END    = 2;
 
     // ─────────────────────────────────────────
+    // [SerializeField] private Button approveButton; ← 삭제
+
     private void Awake()
     {
         if (blackMarkerButton != null)
             blackMarkerButton.onClick.AddListener(OnClickBlackMarkerButton);
         if (typewriterButton != null)
             typewriterButton.onClick.AddListener(OnClickTypewriterButton);
+        // approveButton AddListener ← 삭제
         RefreshToolButtonUI();
     }
 
@@ -544,12 +550,21 @@ public class DocumentViewer : MonoBehaviour
 
     public void OnClickApproveButton()
     {
-        CheckAnswer();
-        Debug.Log("서류 승인 → " + (isAllMaskedCorrectly ? "[정답]" : "[오답]"));
-        isDocumentActive = false;
-        currentTool      = ToolMode.None;
-        typewriterSystem?.Close();
-        onApproveClicked?.Raise();
+        ConfirmPopupUI.Instance?.Open(
+            "검열이 완료되었습니까?",
+            "",
+            "",
+            onConfirm: () =>
+            {
+                CheckAnswer();
+                Debug.Log("서류 승인 → " + (isAllMaskedCorrectly ? "[정답]" : "[오답]"));
+                isDocumentActive = false;
+                currentTool = ToolMode.None;
+                typewriterSystem?.Close();
+                onApproveClicked?.Raise();
+            },
+            confirmText: "예", cancelText: "아니요"
+        );
     }
 
     /// <summary>GameManager가 결과창 표시 전 호출 — 검열/타자기 점수 반환</summary>

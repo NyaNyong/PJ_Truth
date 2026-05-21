@@ -96,6 +96,12 @@ public class GameTextLoader : MonoBehaviour
         return null;
     }
 
+    public string GetLocationDescription(string locationID)
+    {
+        var loc = currentData?.locations?.Find(l => l.locationID == locationID);
+        return loc?.description ?? "";
+    }
+
     public WhiteboardData GetWhiteboard() => currentData?.whiteboard;
 
     public List<string> GetAvailableLocations() => currentData?.availableLocations;

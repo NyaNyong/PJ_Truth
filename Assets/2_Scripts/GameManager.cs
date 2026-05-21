@@ -11,8 +11,7 @@ public class GameManager : MonoBehaviour
     [Header("게임 진행 상태")]
     public GamePhase currentPhase;
     public int currentDay = 1;
-    [Tooltip("Play 전 여기서 시작 스테이지 설정. IDCard 없을 때도 이 값으로 시작")]
-    [SerializeField] private int startDay = 4; // ★ 신규
+    [SerializeField] private int startDay = 4;
 
     [Header("SOAP Variables")]
     [SerializeField] private IntVariable soapCurrentDay;
@@ -57,7 +56,6 @@ public class GameManager : MonoBehaviour
     [SerializeField] private ResultScreenUI resultScreenUI;
 
     [Header("타이틀 UI")]
-    [Tooltip("연결하면 IDCard 확인 후 게임 시작. 비워두면 즉시 시작(테스트용)")]
     [SerializeField] private IDCardUI idCardUI;
 
     private DailyData todaysData;
@@ -65,15 +63,15 @@ public class GameManager : MonoBehaviour
     // ── 이벤트 ───────────────────────────────
     private void OnEnable()
     {
-        if (onApproveClicked != null)        onApproveClicked.OnRaised        += GoToNextPhase;
-        if (onLocationSelected != null)      onLocationSelected.OnRaised      += OnLocationSelectedHandler;
+        if (onApproveClicked != null) onApproveClicked.OnRaised += GoToNextPhase;
+        if (onLocationSelected != null) onLocationSelected.OnRaised += OnLocationSelectedHandler;
         if (onPhaseTransitionRequest != null) onPhaseTransitionRequest.OnRaised += GoToNextPhase;
     }
 
     private void OnDisable()
     {
-        if (onApproveClicked != null)        onApproveClicked.OnRaised        -= GoToNextPhase;
-        if (onLocationSelected != null)      onLocationSelected.OnRaised      -= OnLocationSelectedHandler;
+        if (onApproveClicked != null) onApproveClicked.OnRaised -= GoToNextPhase;
+        if (onLocationSelected != null) onLocationSelected.OnRaised -= OnLocationSelectedHandler;
         if (onPhaseTransitionRequest != null) onPhaseTransitionRequest.OnRaised -= GoToNextPhase;
     }
 
@@ -82,12 +80,12 @@ public class GameManager : MonoBehaviour
     {
         InitializePanels();
         if (idCardUI == null)
-            StartDay(startDay); // ★ 1 → startDay
+            StartDay(startDay);
     }
 
     private void InitializePanels()
     {
-        nightPhaseManager?.EnsureHidden(); // ★ 추가
+        nightPhaseManager?.EnsureHidden();
         HideCanvasGroup(documentPanelCG);
         HideCanvasGroup(guidelinePanelCG);
         HideCanvasGroup(morningNewsPanelCG);
@@ -104,7 +102,11 @@ public class GameManager : MonoBehaviour
         currentDay = day;
         if (soapCurrentDay != null) soapCurrentDay.Value = day;
 
+        nightPhaseManager?.ResetVisited(); // ★ 방문 기록 초기화
+
         LoadTodaysData();
+        if (todaysData == null) { Debug.LogWarning($"[GameManager] Day{day} DailyData 없음 → 종료"); return; }
+
         GameTextLoader.Instance?.LoadDay(day);
         GameTextLoader.Instance?.InjectIntoDaily(todaysData);
 
@@ -140,9 +142,7 @@ public class GameManager : MonoBehaviour
     {
         if (cg == null) return;
         cg.DOKill();
-        cg.alpha = 0f;
-        cg.interactable = false;
-        cg.blocksRaycasts = false;
+        cg.alpha = 0f; cg.interactable = false; cg.blocksRaycasts = false;
     }
 
     private void HideCanvasGroup(CanvasGroup cg)
@@ -153,68 +153,56 @@ public class GameManager : MonoBehaviour
 
     private void LoadTodaysData()
     {
-        todaysData = dailyDataList?.Find(d => d.dayNumber == currentDay); // ★ 인덱스 제거
+        todaysData = dailyDataList?.Find(d => d.dayNumber == currentDay);
     }
 
     private void ActivatePhase(GamePhase phase)
     {
         switch (phase)
         {
-            case GamePhase.Morning:    ActivateMorningPhase();    break;
-            case GamePhase.Day:        ActivateDayPhase();        break;
-            case GamePhase.Night:      ActivateNightPhase();      break;
+            case GamePhase.Morning: ActivateMorningPhase(); break;
+            case GamePhase.Day: ActivateDayPhase(); break;
+            case GamePhase.Night: ActivateNightPhase(); break;
             case GamePhase.Whiteboard: ActivateWhiteboardPhase(); break;
         }
     }
 
-    /// <summary>IDCardUI 확인 시 호출 — Inspector의 startDay로 시작</summary>
-    public void StartFromBeginning() => StartDay(startDay); // ★ 신규
+    public void StartFromBeginning() => StartDay(startDay);
 
     // ── 아침 ─────────────────────────────────
     private void ActivateMorningPhase()
     {
         AudioManager.Instance?.PlayDayPhase();
-        Debug.Log($"[아침] Stage {currentDay}");
         if (todaysData == null) return;
-
         if (dayPhaseBG != null) dayPhaseBG.SetActive(true);
 
-        if (officialNewsTitleUI != null)   officialNewsTitleUI.text   = todaysData.officialNewsTitle;
+        if (officialNewsTitleUI != null) officialNewsTitleUI.text = todaysData.officialNewsTitle;
         if (officialNewsContentUI != null) officialNewsContentUI.text = todaysData.officialNewsContent;
 
         if (morningNewsButton != null)
         {
             morningNewsButton.SetActive(true);
             morningNewsButton.transform.localScale = Vector3.zero;
-            morningNewsButton.transform
-                .DOScale(Vector3.one, 0.35f)
-                .SetEase(Ease.OutBack);
+            morningNewsButton.transform.DOScale(Vector3.one, 0.35f).SetEase(Ease.OutBack);
         }
     }
 
-    /// <summary>뉴스 버튼 클릭 → Panel_Morning 표시</summary>
     public void OnClickMorningNewsButton()
     {
-        AudioManager.Instance?.PlaySfxDayInteraction(); // ★ SFX
-
+        AudioManager.Instance?.PlaySfxDayInteraction();
         if (morningNewsButton != null)
-        {
-            morningNewsButton.transform
-                .DOScale(Vector3.zero, 0.15f)
+            morningNewsButton.transform.DOScale(Vector3.zero, 0.15f)
                 .SetEase(Ease.InBack)
                 .OnComplete(() => morningNewsButton.SetActive(false));
-        }
 
         if (morningNewsPanelCG != null)
             morningNewsPanelCG.gameObject.SetActive(true);
-
         ShowPanel(morningNewsPanelCG);
     }
 
     public void OnClickMorningNewsConfirm()
     {
-        AudioManager.Instance?.PlaySfxDayInteraction(); // ★ SFX
-        Debug.Log("[GameManager] 아침 확인 클릭");
+        AudioManager.Instance?.PlaySfxDayInteraction();
         GoToNextPhase();
     }
 
@@ -222,16 +210,13 @@ public class GameManager : MonoBehaviour
     private void ActivateDayPhase()
     {
         AudioManager.Instance?.PlayDayPhase();
-        Debug.Log($"[낮] Stage {currentDay}");
         if (todaysData == null || todaysData.documentToProcess == null)
         {
-            Debug.LogWarning("documentToProcess null"); return;
+            Debug.LogWarning("[GameManager] documentToProcess null"); return;
         }
-
         if (dayPhaseBG != null) dayPhaseBG.SetActive(true);
 
         GameTextLoader.Instance?.InjectIntoDocument(todaysData.documentToProcess);
-
         documentViewer?.ShowDocument(todaysData.documentToProcess);
         if (guidelineTextUI != null) guidelineTextUI.text = todaysData.documentToProcess.guidelineText;
         ShowPanel(documentPanelCG);
@@ -240,42 +225,85 @@ public class GameManager : MonoBehaviour
 
     public void OnClickGuidelineToggle()
     {
-        AudioManager.Instance?.PlaySfxCasebookToggle(); // ★ SFX
+        AudioManager.Instance?.PlaySfxCasebookToggle();
         if (guidelinePanelCG == null) return;
         bool isVisible = guidelinePanelCG.alpha > 0.5f;
         if (isVisible)
-        {
             guidelinePanelCG.DOFade(0f, panelFadeDuration).SetEase(Ease.OutQuad)
-                .OnComplete(() =>
-                {
-                    guidelinePanelCG.interactable = false;
-                    guidelinePanelCG.blocksRaycasts = false;
-                });
-        }
-        else ShowPanel(guidelinePanelCG);
+                .OnComplete(() => { guidelinePanelCG.interactable = false; guidelinePanelCG.blocksRaycasts = false; });
+        else
+            ShowPanel(guidelinePanelCG);
     }
 
     // ── 밤 ───────────────────────────────────
     private void ActivateNightPhase()
     {
         AudioManager.Instance?.PlayNightPhase();
-        Debug.Log("[밤] 지도 UI 오픈");
         if (nightMapUI == null || nightPhaseManager == null || todaysData == null) return;
 
         List<string> locationNames = LocationUnlockManager.Instance != null
             ? LocationUnlockManager.Instance.GetAvailableLocations(todaysData, currentDay)
             : todaysData.availableLocations;
 
+        // BuildButtonInfoList 내부에서 isVisited가 자동으로 세팅됨
         nightMapUI.ShowMap(nightPhaseManager.BuildButtonInfoList(locationNames));
     }
 
     private void OnLocationSelectedHandler() { }
 
+    /// <summary>
+    /// 퇴근 버튼 onClick에 연결.
+    /// requireAllLocations이고 미방문 장소가 있으면 맵으로 복귀, 아니면 화이트보드.
+    /// </summary>
+    public void OnClickGoHome()
+    {
+        if (nightPhaseManager == null) return;
+
+        List<string> allLocs = GetCurrentLocationNames();
+        bool requireAll = todaysData != null && todaysData.requireAllLocations;
+        bool allVisited = nightPhaseManager.HasVisitedAll(allLocs);
+        bool returnToMap = requireAll && !allVisited;
+
+        string title = returnToMap
+            ? "다른 곳으로 가시겠습니까?"
+            : "집으로 돌아가시겠습니까?";
+
+        ConfirmPopupUI.Instance?.Open(
+            title: title,
+            message: "",
+            warning: "다시 조사할 수 없습니다",
+            onConfirm: () =>
+            {
+                if (returnToMap)
+                    // 맵 선택으로 복귀 (방문한 장소 버튼은 비활성화됨)
+                    nightPhaseManager.DeactivateNightView(() => ActivateNightPhase());
+                else
+                    nightPhaseManager.DeactivateNightView(() => ChangePhase(GamePhase.Whiteboard));
+            },
+            confirmText: "예",
+            cancelText: "아니요"
+        );
+    }
+
+    private List<string> GetCurrentLocationNames()
+    {
+        if (todaysData == null) return new List<string>();
+        return LocationUnlockManager.Instance != null
+            ? LocationUnlockManager.Instance.GetAvailableLocations(todaysData, currentDay)
+            : todaysData.availableLocations ?? new List<string>();
+    }
+    /// <summary>ExitObject에서 호출 — 맵 복귀 필요 여부 반환</summary>
+    public bool ShouldReturnToMap()
+    {
+        bool requireAll = todaysData != null && todaysData.requireAllLocations;
+        bool allVisited = nightPhaseManager?.HasVisitedAll(GetCurrentLocationNames()) ?? true;
+        return requireAll && !allVisited;
+    }
+
     // ── 화이트보드 ────────────────────────────
     private void ActivateWhiteboardPhase()
     {
         AudioManager.Instance?.PlayWhiteboard();
-        Debug.Log("[화이트보드] 오픈");
         if (whiteboardManager != null)
         {
             whiteboardManager.LoadFromJson();
@@ -283,7 +311,7 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("WhiteboardManager 미연결 — 다음 날로 건너뜁니다");
+            Debug.LogWarning("[GameManager] WhiteboardManager 미연결");
             StartDay(currentDay + 1);
         }
     }
@@ -291,42 +319,43 @@ public class GameManager : MonoBehaviour
     // ── 페이즈 전환 ───────────────────────────
     public void GoToNextPhase()
     {
-        Debug.Log($"[GameManager] GoToNextPhase — 현재: {currentPhase}");
         switch (currentPhase)
         {
             case GamePhase.Morning:
-                ChangePhase(GamePhase.Day);
-                break;
+                ChangePhase(GamePhase.Day); break;
 
             case GamePhase.Day:
-                ShowApprovalStamp(() => ShowResultScreen());
-                break;
+                ShowApprovalStamp(() => ShowResultScreen()); break;
 
             case GamePhase.Night:
                 if (nightPhaseManager != null)
-                    nightPhaseManager.DeactivateNightView(() => ChangePhase(GamePhase.Whiteboard));
+                {
+                    bool requireAll = todaysData != null && todaysData.requireAllLocations;
+                    bool allVisited = nightPhaseManager.HasVisitedAll(GetCurrentLocationNames());
+
+                    if (requireAll && !allVisited)
+                        // 아직 방문 안 한 장소 있음 → 맵으로 복귀
+                        nightPhaseManager.DeactivateNightView(() => ActivateNightPhase());
+                    else
+                        // 모두 방문 or requireAll 아님 → 화이트보드
+                        nightPhaseManager.DeactivateNightView(() => ChangePhase(GamePhase.Whiteboard));
+                }
                 else
                     ChangePhase(GamePhase.Whiteboard);
                 break;
 
             case GamePhase.Whiteboard:
-                StartDay(currentDay + 1);
-                break;
+                StartDay(currentDay + 1); break;
         }
     }
 
     // ── 승인 도장 ────────────────────────────
     private void ShowApprovalStamp(System.Action onComplete)
     {
-        if (stampCG == null || stampRT == null)
-        {
-            onComplete?.Invoke(); return;
-        }
+        if (stampCG == null || stampRT == null) { onComplete?.Invoke(); return; }
 
-        AudioManager.Instance?.PlaySfxApproveStamp(); // ★ SFX
-
-        stampCG.DOKill();
-        stampRT.DOKill();
+        AudioManager.Instance?.PlaySfxApproveStamp();
+        stampCG.DOKill(); stampRT.DOKill();
         stampCG.gameObject.SetActive(true);
         stampCG.alpha = 0f;
         stampRT.localScale = Vector3.zero;
@@ -338,12 +367,8 @@ public class GameManager : MonoBehaviour
             .AppendInterval(1f)
             .OnComplete(() =>
             {
-                if (stampCG != null)
-                {
-                    stampCG.DOKill();
-                    stampCG.alpha = 0f;
-                    stampCG.gameObject.SetActive(false);
-                }
+                stampCG?.DOKill();
+                if (stampCG != null) { stampCG.alpha = 0f; stampCG.gameObject.SetActive(false); }
                 onComplete?.Invoke();
             });
     }
@@ -360,7 +385,6 @@ public class GameManager : MonoBehaviour
         float kpiProgress = ScoringSystem.Instance.KPIProgress;
         int totalDocs = ScoringSystem.Instance.TotalProcessedDocuments;
 
-        // ★ 검열 강도 플래그 세팅
         GameFlags.Instance?.SetFlag(GetCensorIntensityFlag(score.grade, currentDay));
 
         if (resultScreenUI != null)
@@ -369,14 +393,13 @@ public class GameManager : MonoBehaviour
             ChangePhase(GamePhase.Night);
     }
 
-    /// <summary>검열 강도 플래그 ID 반환 — 다음날 conditionalOverrides에서 사용</summary>
     private string GetCensorIntensityFlag(Grade grade, int day)
     {
         string intensity = grade switch
         {
             Grade.S or Grade.A => "heavy",
             Grade.B => "mild",
-            _ => "weak"   // C, F
+            _ => "weak"
         };
         return $"censor_{intensity}_day{day}";
     }
@@ -386,13 +409,8 @@ public class GameManager : MonoBehaviour
     {
         if (cg == null) return;
         float d = duration < 0f ? panelFadeDuration : duration;
-        cg.alpha = 0f;
-        cg.interactable = false;
-        cg.blocksRaycasts = false;
-        cg.DOFade(1f, d).SetEase(Ease.InQuad).OnComplete(() =>
-        {
-            cg.interactable = true;
-            cg.blocksRaycasts = true;
-        });
+        cg.alpha = 0f; cg.interactable = false; cg.blocksRaycasts = false;
+        cg.DOFade(1f, d).SetEase(Ease.InQuad)
+            .OnComplete(() => { cg.interactable = true; cg.blocksRaycasts = true; });
     }
 }
