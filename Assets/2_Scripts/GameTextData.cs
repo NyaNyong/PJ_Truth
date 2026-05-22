@@ -57,6 +57,7 @@ public class DocumentTextData
     public bool needsCensorship;
     public bool needsTypewriter;
     public List<string> censorKeywords;
+    public List<string> criticalCensorKeywords; // ★ 추가: 등급 판정용 핵심 키워드
     public List<TypewriterSlotTextData> typewriterSlots;
 }
 

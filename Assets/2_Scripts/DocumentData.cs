@@ -17,8 +17,9 @@ public class DocumentData : ScriptableObject
     public string guidelineText;
 
     [Header("블랙 마커 검열")]
-    public bool         needsCensorship;
+    public bool needsCensorship;
     public List<string> targetCensorKeywords;
+    public List<string> criticalCensorKeywords; // ★ 추가
 
     [Header("타자기 시스템")]
     public bool                     needsTypewriter;

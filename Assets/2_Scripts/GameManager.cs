@@ -1,8 +1,9 @@
-using UnityEngine;
-using System.Collections.Generic;
-using TMPro;
 using DG.Tweening;
 using Obvious.Soap;
+using System.Collections.Generic;
+using System.Linq;
+using TMPro;
+using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
@@ -395,6 +396,19 @@ public class GameManager : MonoBehaviour
 
     private string GetCensorIntensityFlag(Grade grade, int day)
     {
+        // criticalCensorKeywords가 정의된 경우: 키워드 기반 판정 우선
+        var criticals = todaysData?.documentToProcess?.criticalCensorKeywords;
+        if (documentViewer != null && criticals != null && criticals.Count > 0)
+        {
+            int censored = criticals.Count(k => documentViewer.WasKeywordCensored(k));
+            string kw = censored == criticals.Count ? "heavy"
+                      : censored >= 1 ? "mild"
+                      : "weak";
+            Debug.Log($"[Score] 핵심키워드 {censored}/{criticals.Count} 검열 → censor_{kw}_day{day}");
+            return $"censor_{kw}_day{day}";
+        }
+
+        // 폴백: 기존 등급 기반
         string intensity = grade switch
         {
             Grade.S or Grade.A => "heavy",

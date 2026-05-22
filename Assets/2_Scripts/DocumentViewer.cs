@@ -594,6 +594,13 @@ public class DocumentViewer : MonoBehaviour
         return (censor, typewriter);
     }
 
+    /// <summary>특정 키워드가 검열됐는지 여부 반환</summary>
+    public bool WasKeywordCensored(string keyword)
+    {
+        return maskedOccurrences.Any(kvp =>
+            kvp.Key.Contains(keyword) && kvp.Value != null && kvp.Value.Count > 0);
+    }
+
     // ─────────────────────────────────────────
     private int GetWordIndexAt(Vector2 screenPos)
     {
