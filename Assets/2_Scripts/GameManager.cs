@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SocialPlatforms.Impl;
 
 public class GameManager : MonoBehaviour
 {
@@ -386,6 +387,11 @@ public class GameManager : MonoBehaviour
         float kpiProgress = ScoringSystem.Instance.KPIProgress;
         int totalDocs = ScoringSystem.Instance.TotalProcessedDocuments;
 
+        // 동일 날짜의 censor 플래그를 먼저 모두 제거
+        GameFlags.Instance?.RemoveFlag($"censor_heavy_day{currentDay}");
+        GameFlags.Instance?.RemoveFlag($"censor_mild_day{currentDay}");
+        GameFlags.Instance?.RemoveFlag($"censor_weak_day{currentDay}");
+
         GameFlags.Instance?.SetFlag(GetCensorIntensityFlag(score.grade, currentDay));
 
         if (resultScreenUI != null)
@@ -396,7 +402,6 @@ public class GameManager : MonoBehaviour
 
     private string GetCensorIntensityFlag(Grade grade, int day)
     {
-        // criticalCensorKeywords가 정의된 경우: 키워드 기반 판정 우선
         var criticals = todaysData?.documentToProcess?.criticalCensorKeywords;
         if (documentViewer != null && criticals != null && criticals.Count > 0)
         {
@@ -407,8 +412,6 @@ public class GameManager : MonoBehaviour
             Debug.Log($"[Score] 핵심키워드 {censored}/{criticals.Count} 검열 → censor_{kw}_day{day}");
             return $"censor_{kw}_day{day}";
         }
-
-        // 폴백: 기존 등급 기반
         string intensity = grade switch
         {
             Grade.S or Grade.A => "heavy",

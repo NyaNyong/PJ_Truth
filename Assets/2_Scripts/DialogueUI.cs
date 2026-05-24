@@ -180,26 +180,35 @@ public class DialogueUI : MonoBehaviour
         foreach (Transform child in choiceContainer)
             Destroy(child.gameObject);
 
-        // ★ 인덱스 기반으로 버튼 생성 — 사용한 선택지는 비활성화
         for (int i = 0; i < pendingChoices.Count; i++)
         {
             var choice = pendingChoices[i];
             var btn = Instantiate(choiceButtonPrefab, choiceContainer);
             var label = btn.GetComponentInChildren<TextMeshProUGUI>();
-            if (label != null) label.text = choice.label;
 
             bool used = usedChoiceIndices.Contains(i);
-            btn.interactable = !used;
+            bool cannotAfford = choice.costBonusPay > 0 &&
+                                (ScoringSystem.Instance == null ||
+                                 ScoringSystem.Instance.BonusPay < choice.costBonusPay);
 
-            // 사용한 선택지 색상 처리
-            if (used)
+            btn.interactable = !used && !cannotAfford;
+
+            if (label != null)
+            {
+                string labelText = choice.label;
+                if (choice.costBonusPay > 0)
+                    labelText += $"  [{ScoringSystem.Instance?.BonusPay ?? 0}/{choice.costBonusPay}]";
+                label.text = labelText;
+            }
+
+            if (used || cannotAfford)
             {
                 var img = btn.GetComponent<Image>();
                 if (img != null) img.color = usedChoiceColor;
                 if (label != null) label.color = usedChoiceColor;
             }
 
-            if (!used)
+            if (!used && !cannotAfford)
             {
                 int capturedIndex = i;
                 var capturedChoice = choice;

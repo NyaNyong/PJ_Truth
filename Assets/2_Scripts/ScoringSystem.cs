@@ -15,6 +15,13 @@ public class ScoringSystem : MonoBehaviour
     [Tooltip("승급에 필요한 누적 KPI 총량")]
     [SerializeField] private float kpiMax = 500f;
 
+    [Header("성과금 지급 기준")]
+    [SerializeField] private int bonusPayS = 2;
+    [SerializeField] private int bonusPayA = 1;
+    [SerializeField] private int bonusPayB = 1;
+    [SerializeField] private int bonusPayC = 0;
+    [SerializeField] private int bonusPayF = 0;
+
     [Header("디버그 (Play 모드 전용)")]
     [SerializeField] private float debugKPIValue = 0f;
 
@@ -39,9 +46,9 @@ public class ScoringSystem : MonoBehaviour
         Debug.Log("[Debug] KPI 초기화");
     }
 
-
     public float TotalKPI { get; private set; } = 0f;
     public float KPIProgress => Mathf.Clamp01(TotalKPI / kpiMax);
+    public int BonusPay { get; private set; } = 0; // ★ 성과금 잔액
 
     private DayScore lastScore;
 
@@ -52,12 +59,11 @@ public class ScoringSystem : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
-    /// <summary>점수 계산, KPI 누적, DayScore 반환</summary>
     public int TotalProcessedDocuments { get; private set; } = 0;
 
     public DayScore CalculateAndRecord(float censorScore, float typewriterScore, int day)
     {
-        TotalProcessedDocuments++; // ★ 추가
+        TotalProcessedDocuments++;
         float total = Mathf.Clamp(censorScore + typewriterScore, 0f, 100f);
         Grade grade = GetGrade(total);
 
@@ -72,10 +78,36 @@ public class ScoringSystem : MonoBehaviour
 
         TotalKPI = Mathf.Clamp(TotalKPI + total, 0f, kpiMax);
 
+        // ★ 등급별 성과금 지급
+        int earned = grade switch
+        {
+            Grade.S => bonusPayS,
+            Grade.A => bonusPayA,
+            Grade.B => bonusPayB,
+            Grade.C => bonusPayC,
+            _ => bonusPayF
+        };
+        if (earned > 0) EarnBonusPay(earned);
+
         Debug.Log($"[Score] Day{day} — {total:F1}점 / {grade} / KPI: {TotalKPI:F0}/{kpiMax}");
         return lastScore;
     }
 
+    // ★ 성과금 획득
+    public void EarnBonusPay(int amount)
+    {
+        BonusPay += amount;
+        Debug.Log($"[성과금] +{amount} → 잔액: {BonusPay}");
+    }
+
+    // ★ 성과금 소비 (잔액 부족 시 false 반환)
+    public bool SpendBonusPay(int amount)
+    {
+        if (BonusPay < amount) return false;
+        BonusPay -= amount;
+        Debug.Log($"[성과금] -{amount} → 잔액: {BonusPay}");
+        return true;
+    }
 
     public DayScore GetLastScore() => lastScore;
 

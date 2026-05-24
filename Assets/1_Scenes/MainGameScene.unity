@@ -2463,6 +2463,11 @@ MonoBehaviour:
   thresholdB: 60
   thresholdC: 40
   kpiMax: 500
+  bonusPayS: 2
+  bonusPayA: 1
+  bonusPayB: 1
+  bonusPayC: 0
+  bonusPayF: 0
   debugKPIValue: 0
 --- !u!1 &312875745
 GameObject:
@@ -3265,7 +3270,7 @@ CanvasGroup:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 373446095}
   m_Enabled: 1
-  m_Alpha: 0
+  m_Alpha: 1
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
@@ -14443,7 +14448,7 @@ CanvasGroup:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1647569610}
   m_Enabled: 1
-  m_Alpha: 0
+  m_Alpha: 1
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0

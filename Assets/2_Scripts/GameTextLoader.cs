@@ -140,7 +140,7 @@ public class GameTextLoader : MonoBehaviour
         data.needsCensorship = d.needsCensorship;
         data.needsTypewriter = d.needsTypewriter;
         data.targetCensorKeywords = d.censorKeywords ?? new List<string>();
-        data.criticalCensorKeywords = d.criticalCensorKeywords ?? new List<string>(); // ★ 추가
+        data.criticalCensorKeywords = d.criticalCensorKeywords ?? new List<string>(); // ★
 
         if (d.typewriterSlots != null && d.typewriterSlots.Count > 0)
         {

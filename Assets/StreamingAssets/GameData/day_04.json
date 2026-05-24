@@ -146,7 +146,8 @@
                 "저는 아무것도 못 본 겁니다."
               ],
               "grantClueID": "clue_b12_memo",
-              "setFlag": ""
+              "setFlag": "",
+              "costBonusPay": 1
             },
             {
               "label": "더 묻지 않는다.",
@@ -156,6 +157,103 @@
               ],
               "grantClueID": "",
               "setFlag": ""
+            }
+          ],
+          "conditionalFirstLines": [
+            {
+              "requiredFlag": "censor_heavy_day4",
+              "lines": [
+                "멈추십시오.",
+                "건물 점검 일정이 앞당겨졌습니다."
+              ]
+            },
+            {
+              "requiredFlag": "censor_mild_day4",
+              "lines": [
+                "멈추십시오.",
+                "오늘은 현장 접근 절차가 까다롭습니다."
+              ]
+            },
+            {
+              "requiredFlag": "censor_weak_day4",
+              "lines": [
+                "거기서 멈추십시오.",
+                "지금부터는 허가 없는 접근을 통제합니다."
+              ]
+            }
+          ],
+          "conditionalChoiceLines": [
+            {
+              "choiceIndex": 0,
+              "requiredFlag": "censor_heavy_day4",
+              "lines": [
+                "며칠 전부터입니다.",
+                "건물 점검 일정이 앞당겨졌다고만 들었습니다."
+              ]
+            },
+            {
+              "choiceIndex": 0,
+              "requiredFlag": "censor_mild_day4",
+              "lines": [
+                "정확한 날짜는 말할 수 없습니다.",
+                "요즘 같은 질문을 하는 사람이 늘어서요."
+              ]
+            },
+            {
+              "choiceIndex": 0,
+              "requiredFlag": "censor_weak_day4",
+              "lines": [
+                "그 질문에 답하지 말라는 지시가 있었습니다.",
+                "현장 일정은 외부에 공개하지 않습니다."
+              ]
+            },
+            {
+              "choiceIndex": 1,
+              "requiredFlag": "censor_heavy_day4",
+              "lines": [
+                "현장 출입 확인용입니다.",
+                "점검 인원과 임시 이동 인원을 구분해두는 정도입니다."
+              ]
+            },
+            {
+              "choiceIndex": 1,
+              "requiredFlag": "censor_mild_day4",
+              "lines": [
+                "출입 기록입니다.",
+                "다만 이동 관련 항목은 제가 설명할 수 없습니다."
+              ]
+            },
+            {
+              "choiceIndex": 1,
+              "requiredFlag": "censor_weak_day4",
+              "lines": [
+                "그 문서는 보시면 안 됩니다.",
+                "기록 관련 질문은 여기서 받지 않습니다."
+              ]
+            },
+            {
+              "choiceIndex": 2,
+              "requiredFlag": "censor_heavy_day4",
+              "lines": [
+                "정기 점검 중입니다.",
+                "표시등만 꺼져 있는 겁니다."
+              ]
+            },
+            {
+              "choiceIndex": 2,
+              "requiredFlag": "censor_mild_day4",
+              "lines": [
+                "장비 확인 중입니다.",
+                "점검 기록은 담당 부서에서 관리합니다."
+              ]
+            },
+            {
+              "choiceIndex": 2,
+              "requiredFlag": "censor_weak_day4",
+              "lines": [
+                "촬영 장비에 대해선 답하지 않습니다.",
+                "지금 기록하고 있는 건 아니겠죠?"
+              ]
             }
           ]
         },
@@ -329,7 +427,8 @@
                 "그리고 그 차, 그날 처음 본 게 아니었어요."
               ],
               "grantClueID": "clue_repeat_vehicle",
-              "setFlag": ""
+              "setFlag": "",
+              "costBonusPay": 1
             },
             {
               "label": "더 묻지 않는다.",

@@ -25,7 +25,7 @@ public class TypewriterSystem : MonoBehaviour
 
     [Header("패널 위치")]
     [SerializeField] private float hiddenY = -250f;
-    [SerializeField] private float visibleY = 0f;
+    [SerializeField] private float visibleY = -80f;
 
     [Header("닫기 버튼")]
     [SerializeField] private Button closeButton;
