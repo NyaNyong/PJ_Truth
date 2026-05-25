@@ -103,6 +103,23 @@ public class GameTextLoader : MonoBehaviour
     }
 
     public WhiteboardData GetWhiteboard() => currentData?.whiteboard;
+    public string GetNextStageHint()
+    {
+        if (currentData == null) return "";
+
+        // 조건부 암시 우선 (censor_heavy/mild/weak 등)
+        if (currentData.conditionalNextStageHints != null && GameFlags.Instance != null)
+        {
+            foreach (var c in currentData.conditionalNextStageHints)
+            {
+                if (!string.IsNullOrEmpty(c.requiredFlag) &&
+                    GameFlags.Instance.HasFlag(c.requiredFlag))
+                    return c.hint;
+            }
+        }
+
+        return currentData.nextStageHint ?? "";
+    }
 
     public List<string> GetAvailableLocations() => currentData?.availableLocations;
 

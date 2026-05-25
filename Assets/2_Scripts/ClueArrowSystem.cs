@@ -2,29 +2,24 @@ using UnityEngine;
 using System.Collections.Generic;
 using DG.Tweening;
 
-/// <summary>
-/// 씬의 모든 ClueObject를 추적하여 화살표 UI를 갱신합니다.
-/// Night Phase UI Canvas의 자식으로 배치하세요.
-/// </summary>
 public class ClueArrowSystem : MonoBehaviour
 {
     public static ClueArrowSystem Instance { get; private set; }
 
     [Header("레퍼런스")]
-    [Tooltip("플레이어 캐릭터 Transform")]
     [SerializeField] private Transform playerTransform;
-    [Tooltip("밤 페이즈 탑다운 카메라")]
     [SerializeField] private Camera nightCamera;
-    [Tooltip("ClueArrowElement 컴포넌트가 붙은 화살표 UI 프리팹")]
     [SerializeField] private GameObject arrowPrefab;
 
     [Header("화살표 설정")]
-    [Tooltip("플레이어 스크린 좌표 기준 화살표 원 반경 (픽셀)")]
     [SerializeField] private float circleRadius = 120f;
     [SerializeField] private float fadeDuration = 0.25f;
 
     private readonly List<ClueObject> clues = new List<ClueObject>();
-    private readonly Dictionary<ClueObject, ClueArrowElement> arrowMap = new Dictionary<ClueObject, ClueArrowElement>();
+    private readonly Dictionary<ClueObject, ClueArrowElement> arrowMap
+        = new Dictionary<ClueObject, ClueArrowElement>();
+
+    private bool wasNightActive = false; // ★
 
     private void Awake()
     {
@@ -40,7 +35,7 @@ public class ClueArrowSystem : MonoBehaviour
 
         var go = Instantiate(arrowPrefab, transform);
         var element = go.GetComponent<ClueArrowElement>();
-        element.SetVisible(false, 0f); // 처음엔 숨김, Update에서 제어
+        element.ForceHide(); // ★ SetVisible 대신 ForceHide로 확실히 숨김
         arrowMap[clue] = element;
     }
 
@@ -53,10 +48,31 @@ public class ClueArrowSystem : MonoBehaviour
         clue.ShowExclamation(false, 0f);
     }
 
+    // ★ 외부에서 강제 숨김 호출용 (NightPhaseManager에서 호출)
+    public void ForceHideAll()
+    {
+        foreach (var pair in arrowMap)
+            pair.Value.ForceHide();
+        foreach (var clue in clues)
+            clue.ShowExclamation(false, 0f);
+        wasNightActive = false;
+    }
+
     // ── 매 프레임 갱신 ────────────────────────
     private void Update()
     {
         if (playerTransform == null || nightCamera == null) return;
+
+        bool nightActive = nightCamera.gameObject.activeInHierarchy;
+
+        // ★ 카메라 비활성 감지 → 전부 숨김
+        if (!nightActive)
+        {
+            if (wasNightActive) ForceHideAll();
+            return;
+        }
+
+        wasNightActive = true;
 
         Vector2 playerScreen = nightCamera.WorldToScreenPoint(playerTransform.position);
 
@@ -67,15 +83,12 @@ public class ClueArrowSystem : MonoBehaviour
             Vector3 clueWorld = clue.transform.position;
             Vector2 clueScreen = nightCamera.WorldToScreenPoint(clueWorld);
 
-            // 방향 및 각도 계산
             Vector2 dir = (clueScreen - playerScreen).normalized;
             float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
 
-            // 화살표 위치: 플레이어 스크린 좌표 기준 원 위
             Vector2 arrowPos = playerScreen + dir * circleRadius;
             element.UpdateTransform(arrowPos, angle);
 
-            // 탐지 범위 체크 (월드 단위 2D 거리)
             float dist = Vector2.Distance(playerTransform.position, clueWorld);
             bool inRange = dist <= clue.DetectionRadius;
 

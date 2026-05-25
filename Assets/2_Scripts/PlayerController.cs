@@ -8,7 +8,7 @@ public class PlayerController : MonoBehaviour
     [Header("이동 설정")]
     [SerializeField] private float moveSpeed = 4f;
 
-    [Header("상호작용 UI")]
+    [Header("상호작용 UI (플레이어 전역)")]
     [SerializeField] private GameObject interactPromptUI;
 
     [Header("SOAP 연결")]
@@ -21,7 +21,6 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private string animParamIsMoving = "IsMoving";
 
     [Header("상호작용 쿨다운")]
-    [Tooltip("대화 종료 후 E키 재입력 방지 시간 (초)")]
     [SerializeField] private float interactionCooldown = 0.4f;
 
     [Header("방향 스프라이트")]
@@ -36,17 +35,23 @@ public class PlayerController : MonoBehaviour
     private Vector2 moveInput;
     private bool isControllable = false;
     private IInteractable currentInteractable = null;
+    private InteractPromptHost currentPromptHost = null; // ★
     private float lastInteractionTime = -99f;
 
-    // ── 맵 경계 ───────────────────────────────
     private bool hasBounds = false;
     private Bounds mapBounds;
+
+    private Vector3 promptOriginalScale; // ★
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
-        if (interactPromptUI != null) interactPromptUI.SetActive(false);
+        if (interactPromptUI != null)
+        {
+            promptOriginalScale = interactPromptUI.transform.localScale; // ★
+            interactPromptUI.SetActive(false);
+        }
     }
 
     private void Update()
@@ -54,12 +59,12 @@ public class PlayerController : MonoBehaviour
         if (!isControllable) return;
 
         bool dialogueOpen = DialogueUI.Instance != null && DialogueUI.Instance.IsOpen();
-        bool uvPuzzleOpen = UVPuzzleUI.Instance != null && UVPuzzleUI.Instance.IsOpen(); // ★ 추가
+        bool uvPuzzleOpen = UVPuzzleUI.Instance != null && UVPuzzleUI.Instance.IsOpen();
 
-        if (dialogueOpen || uvPuzzleOpen) // ★ 수정
+        if (dialogueOpen || uvPuzzleOpen)
         {
             moveInput = Vector2.zero;
-            rb.velocity = Vector2.zero; // ★ 즉시 정지
+            rb.velocity = Vector2.zero;
             UpdateAnimator();
             return;
         }
@@ -70,36 +75,26 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (!isControllable)
-        {
-            rb.velocity = Vector2.zero;
-            return;
-        }
-
+        if (!isControllable) { rb.velocity = Vector2.zero; return; }
         rb.velocity = moveInput * moveSpeed;
 
-        // ★ 맵 경계 클램프 — 벽 콜라이더 없어도 맵 밖으로 나가지 않음
         if (hasBounds)
         {
             rb.position = new Vector2(
                 Mathf.Clamp(rb.position.x, mapBounds.min.x, mapBounds.max.x),
-                Mathf.Clamp(rb.position.y, mapBounds.min.y, mapBounds.max.y)
-            );
+                Mathf.Clamp(rb.position.y, mapBounds.min.y, mapBounds.max.y));
         }
     }
 
-    // ─────────────────────────────────────────
     private void HandleMovementInput()
     {
         moveInput = new Vector2(
             Input.GetAxisRaw("Horizontal"),
-            Input.GetAxisRaw("Vertical")
-        ).normalized;
+            Input.GetAxisRaw("Vertical")).normalized;
 
         directionalSprite?.UpdateDirection(moveInput);
         UpdateAnimator();
 
-        // ★ 발소리 SFX
         if (moveInput.sqrMagnitude > 0.01f)
         {
             _footstepTimer -= Time.deltaTime;
@@ -109,10 +104,7 @@ public class PlayerController : MonoBehaviour
                 _footstepTimer = footstepInterval;
             }
         }
-        else
-        {
-            _footstepTimer = 0f; // 멈추면 즉시 리셋 (재개 시 바로 첫 발소리)
-        }
+        else _footstepTimer = 0f;
     }
 
     private void UpdateAnimator()
@@ -133,18 +125,25 @@ public class PlayerController : MonoBehaviour
         currentInteractable.Interact(this);
     }
 
-    // ─────────────────────────────────────────
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (!other.TryGetComponent<IInteractable>(out var interactable)) return;
         currentInteractable = interactable;
-        ShowInteractPrompt(true);
+
+        // ★ 오브젝트별 E 프롬프트
+        currentPromptHost = other.GetComponent<InteractPromptHost>();
+        currentPromptHost?.SetVisible(true);
+        ShowInteractPrompt(true); // 플레이어 전역 프롬프트(있으면)
     }
 
     private void OnTriggerExit2D(Collider2D other)
     {
         if (!other.TryGetComponent<IInteractable>(out _)) return;
         currentInteractable = null;
+
+        // ★ 오브젝트별 E 프롬프트 숨김
+        currentPromptHost?.SetVisible(false);
+        currentPromptHost = null;
         ShowInteractPrompt(false);
     }
 
@@ -155,7 +154,7 @@ public class PlayerController : MonoBehaviour
         {
             interactPromptUI.SetActive(true);
             interactPromptUI.transform.localScale = Vector3.zero;
-            interactPromptUI.transform.DOScale(Vector3.one, 0.2f).SetEase(Ease.OutBack);
+            interactPromptUI.transform.DOScale(promptOriginalScale, 0.2f).SetEase(Ease.OutBack); // ★
         }
         else
         {
@@ -164,7 +163,6 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    // ─────────────────────────────────────────
     public void EnableControl(bool enable)
     {
         isControllable = enable;
@@ -173,22 +171,18 @@ public class PlayerController : MonoBehaviour
             rb.velocity = Vector2.zero;
             moveInput = Vector2.zero;
             UpdateAnimator();
+            // ★ 제어 불가 시 프롬프트 모두 숨김
+            currentPromptHost?.SetVisible(false);
+            currentPromptHost = null;
+            currentInteractable = null;
             ShowInteractPrompt(false);
         }
     }
 
-    /// <summary>NightPhaseManager가 장소 진입 시 호출 — 맵 경계 설정</summary>
     public void SetMapBoundary(MapBoundary boundary)
     {
-        if (boundary != null)
-        {
-            mapBounds = boundary.GetBounds();
-            hasBounds = true;
-        }
-        else
-        {
-            hasBounds = false;
-        }
+        if (boundary != null) { mapBounds = boundary.GetBounds(); hasBounds = true; }
+        else hasBounds = false;
     }
 
     public void NotifyInteractionEnded() => lastInteractionTime = Time.time;

@@ -14,6 +14,8 @@ public class DayTextData
     public List<string> availableLocations;
     public List<ConditionalLocationData> conditionalLocations;
     public WhiteboardData whiteboard;
+    public string nextStageHint;                                      // ★
+    public List<ConditionalNextStageHintData> conditionalNextStageHints; // ★
 }
 
 // ─── 뉴스 ────────────────────────────────────
@@ -123,6 +125,7 @@ public class DialogueChoiceData
     public string grantClueID;
     public string setFlag;
     public int costBonusPay; // ★ 필요 성과금 (0이면 무료)
+    public bool isExitChoice; // ★ 대화/조사 종료 선택지
     // conditionalLines 삭제
 }
 
@@ -166,4 +169,11 @@ public class WhiteboardConnectionData
     public string toCardID;
     public List<string> cardIDs;
     public string revealText;
+}
+
+[System.Serializable]
+public class ConditionalNextStageHintData
+{
+    public string requiredFlag;
+    public string hint;
 }

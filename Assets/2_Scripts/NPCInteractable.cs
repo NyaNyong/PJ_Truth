@@ -9,21 +9,30 @@ public class NPCInteractable : MonoBehaviour, IInteractable
     [SerializeField] private string npcName = "???";
 
     [Header("JSON 연동")]
-    [Tooltip("day_XX.json 의 npcs[].id 와 일치. 비워두면 Inspector 값 사용")]
     [SerializeField] private string npcID = "";
 
-    [Header("Inspector 폴백 대사 (JSON 미사용 시)")]
+    [Header("Inspector 폴백 대사")]
     [SerializeField] private List<string> dialogueLines = new List<string>();
-    [Tooltip("비어있으면 첫 대화를 반복합니다")]
     [SerializeField] private List<string> repeatLines = new List<string>();
 
     [Header("단서/플래그 연동 — 선택지 없을 때만 적용")]
     [SerializeField] private string grantClueIDOnFinish = "";
     [SerializeField] private string setFlagOnFinish = "";
 
-    private bool hasSpoken = false;
-    private bool choicesWereUsed = false;
+    // ── 상태 ──────────────────────────────────────────────────────────────
+    private enum NpcState { Idle, ExitedViaChoice, Done }
+    private NpcState npcState = NpcState.Idle;
+
+    private bool pendingExitClose = false;
+    private bool firstConvoHadChoices = false;
+    private int totalNonExitChoices = 0;
+
+    /// <summary>세션 간 유지되는 사용 완료 선택지 인덱스 (종료 선택지 제외)</summary>
+    private HashSet<int> persistentUsedIndices = new HashSet<int>();
+
     private PlayerController cachedPlayer = null;
+
+    // ─────────────────────────────────────────────────────────────────────
 
     public void Interact(PlayerController player)
     {
@@ -34,59 +43,103 @@ public class NPCInteractable : MonoBehaviour, IInteractable
         if (DialogueUI.Instance.IsOpen()) return;
 
         cachedPlayer = player;
-
         var (resolvedName, firstLines, resolvedRepeat, jsonClueID, jsonFlag, choices) = ResolveTextData();
 
-        List<string> linesToShow = (hasSpoken && resolvedRepeat.Count > 0)
-            ? resolvedRepeat : firstLines;
+        List<string> linesToShow;
+        bool useChoices;
+        HashSet<int> preUsed = null;
 
-        bool useChoices = !hasSpoken && choices != null && choices.Count > 0;
-        choicesWereUsed = useChoices;
+        switch (npcState)
+        {
+            case NpcState.Idle:
+                linesToShow = firstLines;
+                useChoices = choices != null && choices.Count > 0;
+                firstConvoHadChoices = useChoices;
+                if (useChoices)
+                    totalNonExitChoices = choices.Count(c => !c.isExitChoice);
+                break;
+
+            case NpcState.ExitedViaChoice:
+                // ★ 빈 라인 전달 → DialogueUI가 패널 열자마자 선택지로 진입
+                linesToShow = new List<string>();
+                useChoices = choices != null && choices.Count > 0;
+                preUsed = persistentUsedIndices; // ★ 이전 세션 선택 상태 전달
+                break;
+
+            default: // Done
+                linesToShow = resolvedRepeat.Count > 0 ? resolvedRepeat : firstLines;
+                if (linesToShow.Count == 0) linesToShow = new List<string> { "..." };
+                useChoices = false;
+                break;
+        }
+
+        pendingExitClose = false;
 
         DialogueUI.Instance.StartDialogue(
             resolvedName,
             linesToShow,
             useChoices ? choices : null,
             useChoices ? (Action<DialogueChoiceData>)OnChoiceMade : null,
-            () => OnDialogueFinished(jsonClueID, jsonFlag)
+            () => OnDialogueFinished(jsonClueID, jsonFlag),
+            preUsed
         );
     }
 
     private void OnChoiceMade(DialogueChoiceData choice)
     {
-        // ★ 성과금 비용 처리
         if (choice.costBonusPay > 0)
         {
             bool success = ScoringSystem.Instance?.SpendBonusPay(choice.costBonusPay) ?? false;
-            if (!success) return; // 버튼이 이미 비활성화돼야 하지만 안전 장치
+            if (!success) return;
         }
 
-        if (!string.IsNullOrEmpty(choice.grantClueID) && GameFlags.Instance != null)
-            GameFlags.Instance.AddClue(choice.grantClueID);
-        if (!string.IsNullOrEmpty(choice.setFlag) && GameFlags.Instance != null)
-            GameFlags.Instance.SetFlag(choice.setFlag);
+        if (!string.IsNullOrEmpty(choice.grantClueID))
+            GameFlags.Instance?.AddClue(choice.grantClueID);
+        if (!string.IsNullOrEmpty(choice.setFlag))
+            GameFlags.Instance?.SetFlag(choice.setFlag);
+
+        if (choice.isExitChoice)
+            pendingExitClose = true;
+        // 일반 선택지는 DialogueUI의 usedChoiceIndices가 추적 → 종료 시 병합
     }
 
     private void OnDialogueFinished(string clueID, string flagID)
     {
         cachedPlayer?.NotifyInteractionEnded();
 
-        if (!hasSpoken && !choicesWereUsed)
+        if (pendingExitClose)
+        {
+            pendingExitClose = false;
+
+            // ★ 이번 세션 사용 인덱스를 영구 저장소에 병합
+            var sessionUsed = DialogueUI.Instance?.GetUsedChoiceIndices();
+            if (sessionUsed != null)
+                foreach (var idx in sessionUsed)
+                    persistentUsedIndices.Add(idx);
+
+            // 모든 일반 선택지가 소진됐으면 Done (다음엔 repeatLines)
+            bool allDone = totalNonExitChoices > 0 &&
+                           persistentUsedIndices.Count >= totalNonExitChoices;
+            npcState = allDone ? NpcState.Done : NpcState.ExitedViaChoice;
+            return;
+        }
+
+        // 최초 대화 & 선택지 없을 때만 단서/플래그 지급
+        if (npcState == NpcState.Idle && !firstConvoHadChoices)
         {
             string finalClue = !string.IsNullOrEmpty(clueID) ? clueID : grantClueIDOnFinish;
             string finalFlag = !string.IsNullOrEmpty(flagID) ? flagID : setFlagOnFinish;
-
-            if (!string.IsNullOrEmpty(finalClue) && GameFlags.Instance != null)
-                GameFlags.Instance.AddClue(finalClue);
-            if (!string.IsNullOrEmpty(finalFlag) && GameFlags.Instance != null)
-                GameFlags.Instance.SetFlag(finalFlag);
+            if (!string.IsNullOrEmpty(finalClue)) GameFlags.Instance?.AddClue(finalClue);
+            if (!string.IsNullOrEmpty(finalFlag)) GameFlags.Instance?.SetFlag(finalFlag);
         }
 
-        hasSpoken = true;
+        npcState = NpcState.Done;
     }
 
+    // ─── 텍스트 리졸브 ────────────────────────────────────────────────────
+
     private (string name, List<string> first, List<string> repeat,
-         string clueID, string flag, List<DialogueChoiceData> choices)
+             string clueID, string flag, List<DialogueChoiceData> choices)
     ResolveTextData()
     {
         if (!string.IsNullOrEmpty(npcID) && GameTextLoader.Instance != null)
@@ -94,23 +147,16 @@ public class NPCInteractable : MonoBehaviour, IInteractable
             var data = GameTextLoader.Instance.GetNpc(npcID);
             if (data != null)
             {
-                var firstLines = ResolveLines(data.firstLines, data.conditionalFirstLines);
-                var choices = ResolveChoiceLines(data.choices, data.conditionalChoiceLines); // ★
-                return (data.npcName, firstLines, data.repeatLines,
-                        data.grantClueID, data.setFlag, choices);
+                var first = ResolveLines(data.firstLines, data.conditionalFirstLines);
+                var ch = ResolveChoiceLines(data.choices, data.conditionalChoiceLines);
+                return (data.npcName, first, data.repeatLines, data.grantClueID, data.setFlag, ch);
             }
         }
         return (npcName, dialogueLines, repeatLines, "", "", null);
     }
 
-
-    // ─── 헬퍼 ────────────────────────────────────────────────────────────
-
-    /// <summary>conditionals 중 현재 세팅된 플래그와 일치하는 첫 항목의 lines 반환.
-    /// 없으면 defaultLines 반환.</summary>
     private static List<string> ResolveLines(
-        List<string> defaultLines,
-        List<ConditionalLinesData> conditionals)
+        List<string> defaultLines, List<ConditionalLinesData> conditionals)
     {
         if (conditionals != null && GameFlags.Instance != null)
         {
@@ -122,10 +168,9 @@ public class NPCInteractable : MonoBehaviour, IInteractable
         return defaultLines;
     }
 
-    /// <summary>각 선택지의 lines를 conditionalLines 기준으로 해석한 복사본 반환.</summary>
     private static List<DialogueChoiceData> ResolveChoiceLines(
-    List<DialogueChoiceData> choices,
-    List<ConditionalChoiceLineData> conditionalChoiceLines) // ★ 시그니처 변경
+        List<DialogueChoiceData> choices,
+        List<ConditionalChoiceLineData> conditionalChoiceLines)
     {
         if (choices == null) return null;
 
@@ -135,7 +180,6 @@ public class NPCInteractable : MonoBehaviour, IInteractable
             var c = choices[i];
             List<string> resolvedLines = c.lines;
 
-            // 해당 인덱스의 조건부 대사 탐색
             if (conditionalChoiceLines != null && GameFlags.Instance != null)
             {
                 foreach (var cond in conditionalChoiceLines)
@@ -155,7 +199,8 @@ public class NPCInteractable : MonoBehaviour, IInteractable
                 label = c.label,
                 grantClueID = c.grantClueID,
                 setFlag = c.setFlag,
-                costBonusPay = c.costBonusPay, // ★
+                costBonusPay = c.costBonusPay,
+                isExitChoice = c.isExitChoice,
                 lines = resolvedLines
             });
         }

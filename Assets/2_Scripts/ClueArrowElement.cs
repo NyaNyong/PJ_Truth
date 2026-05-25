@@ -28,4 +28,12 @@ public class ClueArrowElement : MonoBehaviour
         if (duration <= 0f) { cg.alpha = visible ? 1f : 0f; return; }
         cg.DOFade(visible ? 1f : 0f, duration);
     }
+
+    /// <summary>currentVisible 상태 무시하고 즉시 숨김</summary>
+    public void ForceHide()
+    {
+        currentVisible = false;
+        cg.DOKill();
+        cg.alpha = 0f;
+    }
 }

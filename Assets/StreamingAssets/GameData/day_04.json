@@ -1,5 +1,20 @@
 {
   "day": 4,
+  "nextStageHint": "새 문서가 도착했습니다.\n\n[ 사건 제목 ]\n가족들, 실종자 이름과 사진 공개 요구",
+  "conditionalNextStageHints": [
+    {
+      "requiredFlag": "censor_heavy_day4",
+      "hint": "상사: \"문서는 안정적으로 처리되었습니다.\"\n??: \"좋습니다. 아직 기준 안에 있군요.\"\n상사: \"다음 기록을 투입할까요?\"\n??: \"예정대로 진행하십시오.\"\n\n[ 새 문서 도착 ]\n가족들, 실종자 이름과 사진 공개 요구"
+    },
+    {
+      "requiredFlag": "censor_mild_day4",
+      "hint": "상사: \"일부 표현이 남았습니다.\"\n??: \"실수입니까?\"\n상사: \"아직은 판단하기 어렵습니다.\"\n??: \"다음 기록에서 확인하십시오.\"\n\n[ 새 문서 도착 ]\n가족들, 실종자 이름과 사진 공개 요구"
+    },
+    {
+      "requiredFlag": "censor_weak_day4",
+      "hint": "상사: \"민감 표현이 외부 문서에 남았습니다.\"\n??: \"반응을 서두를 필요는 없습니다.\"\n상사: \"계속 진행합니까?\"\n??: \"예정대로 두십시오. 아직 끊을 단계는 아닙니다.\"\n\n[ 새 문서 도착 ]\n가족들, 실종자 이름과 사진 공개 요구"
+    }
+  ],
   "news": {
     "officialTitle": "노후 건물 인근 연락 두절 신고… 개별 조사 진행",
     "officialContent": "최근 도심 일부 지역에서 접수된 연락 두절 신고에 대해 관계 당국이 개별 조사를 진행 중인 것으로 알려졌다.\n관계 당국은 현재까지 다른 사건과의 직접적인 연관성은 확인되지 않았으며, 일부 구역의 출입 제한은 노후 시설 안전 점검을 위한 조치라고 밝혔다.",
@@ -15,84 +30,21 @@
       "guidelineText": "【가이드라인】\n• 출입 통제 구역 관련 신고는 시민 불안을 줄이는 방향으로 정리한다.\n• 피해 규모는 축소하십시오.  예: 3명 → 1명\n• 실종 표현은 연락 문제로 완화하십시오.  예: 실종 → 연락두절\n• 강제성을 암시하는 표현은 삭제하십시오.  예: 강제로 → 삭제\n• 목격자 증언은 확정되지 않은 언급으로 낮추십시오.  예: 진술했다 → 언급했다\n• 구체적인 시설명은 일반 현장 표현으로 바꾸십시오.  예: 관리 시설 → 현장 구역\n• 공개되지 않은 정보는 확인 절차로 정리하십시오.  예: 명단 → 기록 / 공개되지 → 확인되지",
       "needsCensorship": true,
       "needsTypewriter": true,
-      "censorKeywords": [
-        "강제로"
-      ],
+      "censorKeywords": ["강제로"],
+      "criticalCensorKeywords": ["강제로"],
       "typewriterSlots": [
-        {
-          "slotIndex": 0,
-          "originalWord": "3명",
-          "wordOptions": [
-            "1명"
-          ],
-          "correctWord": "1명"
-        },
-        {
-          "slotIndex": 1,
-          "originalWord": "실종",
-          "wordOptions": [
-            "연락두절"
-          ],
-          "correctWord": "연락두절"
-        },
-        {
-          "slotIndex": 2,
-          "originalWord": "관리",
-          "wordOptions": [
-            "현장"
-          ],
-          "correctWord": "현장"
-        },
-        {
-          "slotIndex": 3,
-          "originalWord": "시설",
-          "wordOptions": [
-            "구역"
-          ],
-          "correctWord": "구역"
-        },
-        {
-          "slotIndex": 4,
-          "originalWord": "이동됐다고",
-          "wordOptions": [
-            "이동했다고"
-          ],
-          "correctWord": "이동했다고"
-        },
-        {
-          "slotIndex": 5,
-          "originalWord": "진술했다",
-          "wordOptions": [
-            "언급했다"
-          ],
-          "correctWord": "언급했다"
-        },
-        {
-          "slotIndex": 6,
-          "originalWord": "명단",
-          "wordOptions": [
-            "기록"
-          ],
-          "correctWord": "기록"
-        },
-        {
-          "slotIndex": 7,
-          "originalWord": "공개되지",
-          "wordOptions": [
-            "확인되지"
-          ],
-          "correctWord": "확인되지"
-        }
-      ],
-      "criticalCensorKeywords": [
-        "강제로"
+        { "slotIndex": 0, "originalWord": "3명", "wordOptions": ["1명"], "correctWord": "1명" },
+        { "slotIndex": 1, "originalWord": "실종", "wordOptions": ["연락두절"], "correctWord": "연락두절" },
+        { "slotIndex": 2, "originalWord": "관리", "wordOptions": ["현장"], "correctWord": "현장" },
+        { "slotIndex": 3, "originalWord": "시설", "wordOptions": ["구역"], "correctWord": "구역" },
+        { "slotIndex": 4, "originalWord": "이동됐다고", "wordOptions": ["이동했다고"], "correctWord": "이동했다고" },
+        { "slotIndex": 5, "originalWord": "진술했다", "wordOptions": ["언급했다"], "correctWord": "언급했다" },
+        { "slotIndex": 6, "originalWord": "명단", "wordOptions": ["기록"], "correctWord": "기록" },
+        { "slotIndex": 7, "originalWord": "공개되지", "wordOptions": ["확인되지"], "correctWord": "확인되지" }
       ]
     }
   ],
-  "availableLocations": [
-    "loc_control_post",
-    "loc_last_sighting"
-  ],
+  "availableLocations": ["loc_control_post", "loc_last_sighting"],
   "conditionalLocations": [],
   "locations": [
     {
@@ -106,9 +58,7 @@
             "멈추십시오.",
             "현재 이 구역은 일반 출입이 제한되어 있습니다."
           ],
-          "repeatLines": [
-            "더 볼 일 없으면 돌아가십시오."
-          ],
+          "repeatLines": ["더 볼 일 없으면 돌아가십시오."],
           "grantClueID": "",
           "setFlag": "",
           "choices": [
@@ -118,8 +68,7 @@
                 "정확한 날짜는 말할 수 없습니다.",
                 "요즘 같은 질문을 하는 사람이 늘어서요."
               ],
-              "grantClueID": "",
-              "setFlag": ""
+              "grantClueID": "", "setFlag": "", "costBonusPay": 0, "isExitChoice": false
             },
             {
               "label": "이 명부는 무엇인가요?",
@@ -127,8 +76,7 @@
                 "출입 기록입니다.",
                 "다만 이동 관련 항목은 제가 설명할 수 없습니다."
               ],
-              "grantClueID": "",
-              "setFlag": ""
+              "grantClueID": "", "setFlag": "", "costBonusPay": 0, "isExitChoice": false
             },
             {
               "label": "CCTV는 왜 꺼져 있나요?",
@@ -136,8 +84,7 @@
                 "장비 확인 중입니다.",
                 "점검 기록은 담당 부서에서 관리합니다."
               ],
-              "grantClueID": "",
-              "setFlag": ""
+              "grantClueID": "", "setFlag": "", "costBonusPay": 0, "isExitChoice": false
             },
             {
               "label": "성과금을 건넨다.",
@@ -145,9 +92,7 @@
                 "…오래 보지 마십시오.",
                 "저는 아무것도 못 본 겁니다."
               ],
-              "grantClueID": "clue_b12_memo",
-              "setFlag": "",
-              "costBonusPay": 1
+              "grantClueID": "clue_b12_memo", "setFlag": "", "costBonusPay": 1, "isExitChoice": false
             },
             {
               "label": "더 묻지 않는다.",
@@ -155,106 +100,33 @@
                 "그럼 돌아가십시오.",
                 "오래 머무르지 않는 게 좋습니다."
               ],
-              "grantClueID": "",
-              "setFlag": ""
+              "grantClueID": "", "setFlag": "", "costBonusPay": 0, "isExitChoice": true
             }
           ],
           "conditionalFirstLines": [
             {
               "requiredFlag": "censor_heavy_day4",
-              "lines": [
-                "멈추십시오.",
-                "건물 점검 일정이 앞당겨졌습니다."
-              ]
+              "lines": ["멈추십시오.", "건물 점검 일정이 앞당겨졌습니다."]
             },
             {
               "requiredFlag": "censor_mild_day4",
-              "lines": [
-                "멈추십시오.",
-                "오늘은 현장 접근 절차가 까다롭습니다."
-              ]
+              "lines": ["멈추십시오.", "오늘은 현장 접근 절차가 까다롭습니다."]
             },
             {
               "requiredFlag": "censor_weak_day4",
-              "lines": [
-                "거기서 멈추십시오.",
-                "지금부터는 허가 없는 접근을 통제합니다."
-              ]
+              "lines": ["거기서 멈추십시오.", "지금부터는 허가 없는 접근을 통제합니다."]
             }
           ],
           "conditionalChoiceLines": [
-            {
-              "choiceIndex": 0,
-              "requiredFlag": "censor_heavy_day4",
-              "lines": [
-                "며칠 전부터입니다.",
-                "건물 점검 일정이 앞당겨졌다고만 들었습니다."
-              ]
-            },
-            {
-              "choiceIndex": 0,
-              "requiredFlag": "censor_mild_day4",
-              "lines": [
-                "정확한 날짜는 말할 수 없습니다.",
-                "요즘 같은 질문을 하는 사람이 늘어서요."
-              ]
-            },
-            {
-              "choiceIndex": 0,
-              "requiredFlag": "censor_weak_day4",
-              "lines": [
-                "그 질문에 답하지 말라는 지시가 있었습니다.",
-                "현장 일정은 외부에 공개하지 않습니다."
-              ]
-            },
-            {
-              "choiceIndex": 1,
-              "requiredFlag": "censor_heavy_day4",
-              "lines": [
-                "현장 출입 확인용입니다.",
-                "점검 인원과 임시 이동 인원을 구분해두는 정도입니다."
-              ]
-            },
-            {
-              "choiceIndex": 1,
-              "requiredFlag": "censor_mild_day4",
-              "lines": [
-                "출입 기록입니다.",
-                "다만 이동 관련 항목은 제가 설명할 수 없습니다."
-              ]
-            },
-            {
-              "choiceIndex": 1,
-              "requiredFlag": "censor_weak_day4",
-              "lines": [
-                "그 문서는 보시면 안 됩니다.",
-                "기록 관련 질문은 여기서 받지 않습니다."
-              ]
-            },
-            {
-              "choiceIndex": 2,
-              "requiredFlag": "censor_heavy_day4",
-              "lines": [
-                "정기 점검 중입니다.",
-                "표시등만 꺼져 있는 겁니다."
-              ]
-            },
-            {
-              "choiceIndex": 2,
-              "requiredFlag": "censor_mild_day4",
-              "lines": [
-                "장비 확인 중입니다.",
-                "점검 기록은 담당 부서에서 관리합니다."
-              ]
-            },
-            {
-              "choiceIndex": 2,
-              "requiredFlag": "censor_weak_day4",
-              "lines": [
-                "촬영 장비에 대해선 답하지 않습니다.",
-                "지금 기록하고 있는 건 아니겠죠?"
-              ]
-            }
+            { "choiceIndex": 0, "requiredFlag": "censor_heavy_day4", "lines": ["며칠 전부터입니다.", "건물 점검 일정이 앞당겨졌다고만 들었습니다."] },
+            { "choiceIndex": 0, "requiredFlag": "censor_mild_day4", "lines": ["정확한 날짜는 말할 수 없습니다.", "요즘 같은 질문을 하는 사람이 늘어서요."] },
+            { "choiceIndex": 0, "requiredFlag": "censor_weak_day4", "lines": ["그 질문에 답하지 말라는 지시가 있었습니다.", "현장 일정은 외부에 공개하지 않습니다."] },
+            { "choiceIndex": 1, "requiredFlag": "censor_heavy_day4", "lines": ["현장 출입 확인용입니다.", "점검 인원과 임시 이동 인원을 구분해두는 정도입니다."] },
+            { "choiceIndex": 1, "requiredFlag": "censor_mild_day4", "lines": ["출입 기록입니다.", "다만 이동 관련 항목은 제가 설명할 수 없습니다."] },
+            { "choiceIndex": 1, "requiredFlag": "censor_weak_day4", "lines": ["그 문서는 보시면 안 됩니다.", "기록 관련 질문은 여기서 받지 않습니다."] },
+            { "choiceIndex": 2, "requiredFlag": "censor_heavy_day4", "lines": ["정기 점검 중입니다.", "표시등만 꺼져 있는 겁니다."] },
+            { "choiceIndex": 2, "requiredFlag": "censor_mild_day4", "lines": ["장비 확인 중입니다.", "점검 기록은 담당 부서에서 관리합니다."] },
+            { "choiceIndex": 2, "requiredFlag": "censor_weak_day4", "lines": ["촬영 장비에 대해선 답하지 않습니다.", "지금 기록하고 있는 건 아니겠죠?"] }
           ]
         },
         {
@@ -264,11 +136,8 @@
             "초소 책상 위에 출입 명부가 펼쳐져 있다.",
             "일부 이름은 검게 가려져 있다."
           ],
-          "repeatLines": [
-            "명부는 그대로 놓여 있다."
-          ],
-          "grantClueID": "",
-          "setFlag": "",
+          "repeatLines": ["명부는 그대로 놓여 있다."],
+          "grantClueID": "", "setFlag": "",
           "choices": [
             {
               "label": "명부를 자세히 확인한다.",
@@ -276,8 +145,7 @@
                 "안전 확인 대상 / 임시 이동 처리 / 관리 구역 B-12.",
                 "같은 확인 도장이 반복해서 찍혀 있다. 이건 개별 기록이 아니라 처리 절차에 가깝다."
               ],
-              "grantClueID": "clue_log_detail",
-              "setFlag": ""
+              "grantClueID": "clue_log_detail", "setFlag": "", "costBonusPay": 0, "isExitChoice": false
             },
             {
               "label": "대충 훑어본다.",
@@ -285,18 +153,16 @@
                 "안전 확인 대상 / 이동 처리.",
                 "세부 항목까지는 잘 보이지 않는다."
               ],
-              "grantClueID": "clue_log_damaged",
-              "setFlag": ""
+              "grantClueID": "clue_log_damaged", "setFlag": "", "costBonusPay": 0, "isExitChoice": false
             },
             {
               "label": "건드리지 않는다.",
-              "lines": [
-                "그냥 지나친다."
-              ],
-              "grantClueID": "",
-              "setFlag": ""
+              "lines": ["그냥 지나친다."],
+              "grantClueID": "", "setFlag": "", "costBonusPay": 0, "isExitChoice": true
             }
-          ]
+          ],
+          "conditionalFirstLines": [],
+          "conditionalChoiceLines": []
         }
       ],
       "clues": [
@@ -307,10 +173,7 @@
             "안전 점검 구역. 관계자 외 출입 금지.",
             "재개발 구역 일부가 단순 공사장이 아니라 통제된 임시 관리 구역으로 운영되고 있다."
           ],
-          "isPuzzle": false,
-          "hiddenContent": "",
-          "correctAnswer": "",
-          "flagIDOnSolve": ""
+          "isPuzzle": false, "hiddenContent": "", "correctAnswer": "", "flagIDOnSolve": ""
         },
         {
           "id": "clue_log_detail",
@@ -319,10 +182,7 @@
             "안전 확인 대상 / 임시 이동 처리 / 관리 구역 B-12.",
             "같은 확인 도장이 반복적으로 찍혀 있다."
           ],
-          "isPuzzle": false,
-          "hiddenContent": "",
-          "correctAnswer": "",
-          "flagIDOnSolve": ""
+          "isPuzzle": false, "hiddenContent": "", "correctAnswer": "", "flagIDOnSolve": ""
         },
         {
           "id": "clue_log_damaged",
@@ -331,10 +191,7 @@
             "안전 확인 대상 / 이동 처리.",
             "일부 항목은 훼손되거나 지워진 상태다."
           ],
-          "isPuzzle": false,
-          "hiddenContent": "",
-          "correctAnswer": "",
-          "flagIDOnSolve": ""
+          "isPuzzle": false, "hiddenContent": "", "correctAnswer": "", "flagIDOnSolve": ""
         },
         {
           "id": "clue_cctv_off",
@@ -343,10 +200,7 @@
             "렌즈는 이쪽을 향해 있지만, 녹화 표시등은 꺼져 있다.",
             "출입 통제 구역의 CCTV가 꺼져 있으나, 기록상으로는 점검 처리되어 있다."
           ],
-          "isPuzzle": false,
-          "hiddenContent": "",
-          "correctAnswer": "",
-          "flagIDOnSolve": ""
+          "isPuzzle": false, "hiddenContent": "", "correctAnswer": "", "flagIDOnSolve": ""
         },
         {
           "id": "clue_b12_memo",
@@ -356,10 +210,7 @@
             "B-12 / 임시 이동 / 외부 열람 제한.",
             "이동 처리 기록은 단순 출입 기록이 아니라 특정 관리 구역과 연결되어 있다."
           ],
-          "isPuzzle": false,
-          "hiddenContent": "",
-          "correctAnswer": "",
-          "flagIDOnSolve": ""
+          "isPuzzle": false, "hiddenContent": "", "correctAnswer": "", "flagIDOnSolve": ""
         }
       ]
     },
@@ -374,11 +225,8 @@
             "어서 오세요.",
             "이 시간엔 손님이 별로 없는데… 뭐 찾으시는 거 있으세요?"
           ],
-          "repeatLines": [
-            "저도 괜히 말 길어지는 건 싫어요."
-          ],
-          "grantClueID": "",
-          "setFlag": "",
+          "repeatLines": ["저도 괜히 말 길어지는 건 싫어요."],
+          "grantClueID": "", "setFlag": "",
           "choices": [
             {
               "label": "며칠 전 정류장 일을 묻고 싶습니다.",
@@ -387,8 +235,7 @@
                 "괜히 말 엮이는 건 싫은데…",
                 "어딘가로 이동했다는 말은 들었어요. 근데 자기가 간 건지는 모르겠고요."
               ],
-              "grantClueID": "",
-              "setFlag": ""
+              "grantClueID": "", "setFlag": "", "costBonusPay": 0, "isExitChoice": false
             },
             {
               "label": "무엇을 봤나요?",
@@ -397,8 +244,7 @@
                 "잠깐 정류장에 같이 서 있었고, 근처에 검은 차량이 멈췄어요.",
                 "그 뒤로는 아무도 못 봤습니다."
               ],
-              "grantClueID": "clue_black_vehicle",
-              "setFlag": ""
+              "grantClueID": "clue_black_vehicle", "setFlag": "", "costBonusPay": 0, "isExitChoice": false
             },
             {
               "label": "그 사람은 어떤 사람이었나요?",
@@ -407,8 +253,7 @@
                 "가끔 여기 들러서 가족한테 전화하고, 컵라면 하나 먹고 가던 사람이요.",
                 "문제 일으킬 사람은 아니었는데…"
               ],
-              "grantClueID": "clue_life_trace",
-              "setFlag": ""
+              "grantClueID": "clue_life_trace", "setFlag": "", "costBonusPay": 0, "isExitChoice": false
             },
             {
               "label": "CCTV를 확인할 수 있을까요?",
@@ -416,8 +261,7 @@
                 "그 얘기도 많이 물어보더라고요.",
                 "그날만 녹화가 안 됐대요. 정류장도, 편의점 앞도요."
               ],
-              "grantClueID": "clue_cctv_missing",
-              "setFlag": ""
+              "grantClueID": "clue_cctv_missing", "setFlag": "", "costBonusPay": 0, "isExitChoice": false
             },
             {
               "label": "사례금을 건넨다.",
@@ -426,31 +270,36 @@
                 "그날만 녹화가 안 됐대요. 정류장도, 편의점 앞도요.",
                 "그리고 그 차, 그날 처음 본 게 아니었어요."
               ],
-              "grantClueID": "clue_repeat_vehicle",
-              "setFlag": "",
-              "costBonusPay": 1
+              "grantClueID": "clue_repeat_vehicle", "setFlag": "", "costBonusPay": 1, "isExitChoice": false
             },
             {
               "label": "더 묻지 않는다.",
-              "lines": [
-                "네. 필요하신 거 있으면 말씀하세요."
-              ],
-              "grantClueID": "",
-              "setFlag": ""
+              "lines": ["네. 필요하신 거 있으면 말씀하세요."],
+              "grantClueID": "", "setFlag": "", "costBonusPay": 0, "isExitChoice": true
             }
-          ]
+          ],
+          "conditionalFirstLines": [
+            {
+              "requiredFlag": "censor_heavy_day4",
+              "lines": ["어서 오세요.", "뉴스엔 별일 아닌 것처럼 나오던데… 제가 본 건 뭘까요?"]
+            },
+            {
+              "requiredFlag": "censor_mild_day4",
+              "lines": ["어서 오세요.", "그래도 기사에 '이동 기록'이라는 말은 남아 있더라고요."]
+            },
+            {
+              "requiredFlag": "censor_weak_day4",
+              "lines": ["어서 오세요.", "오늘 기사 봤어요. 뭔가 남아 있던데… 혹시 누가 일부러 안 지운 걸까요?"]
+            }
+          ],
+          "conditionalChoiceLines": []
         },
         {
           "id": "npc_receipt_inspect",
           "npcName": "교통카드 영수증",
-          "firstLines": [
-            "바닥에 교통카드 영수증이 떨어져 있다."
-          ],
-          "repeatLines": [
-            "영수증은 그대로 바닥에 있다."
-          ],
-          "grantClueID": "",
-          "setFlag": "",
+          "firstLines": ["바닥에 교통카드 영수증이 떨어져 있다."],
+          "repeatLines": ["영수증은 그대로 바닥에 있다."],
+          "grantClueID": "", "setFlag": "",
           "choices": [
             {
               "label": "영수증을 줍는다.",
@@ -458,26 +307,21 @@
                 "탑승 시간 22:14 / 하차 기록 없음.",
                 "정류장에서 탑승했지만 하차 기록이 없다. 중간에 다른 이동 수단으로 옮겨 탄 것일 수 있다."
               ],
-              "grantClueID": "clue_last_boarding",
-              "setFlag": ""
+              "grantClueID": "clue_last_boarding", "setFlag": "", "costBonusPay": 0, "isExitChoice": false
             },
             {
               "label": "사진만 찍는다.",
-              "lines": [
-                "탑승 시간은 확인되지만 하차 기록은 불명확하다."
-              ],
-              "grantClueID": "clue_blurry_receipt",
-              "setFlag": ""
+              "lines": ["탑승 시간은 확인되지만 하차 기록은 불명확하다."],
+              "grantClueID": "clue_blurry_receipt", "setFlag": "", "costBonusPay": 0, "isExitChoice": false
             },
             {
               "label": "그냥 둔다.",
-              "lines": [
-                "그냥 지나친다."
-              ],
-              "grantClueID": "",
-              "setFlag": ""
+              "lines": ["그냥 지나친다."],
+              "grantClueID": "", "setFlag": "", "costBonusPay": 0, "isExitChoice": true
             }
-          ]
+          ],
+          "conditionalFirstLines": [],
+          "conditionalChoiceLines": []
         }
       ],
       "clues": [
@@ -488,10 +332,7 @@
             "일부 노선 정보가 '점검 중'으로 표시되어 있다.",
             "재개발 구역 내부 관리 시설 근처를 지나는 노선 하나가 임시 중단 처리되어 있다."
           ],
-          "isPuzzle": false,
-          "hiddenContent": "",
-          "correctAnswer": "",
-          "flagIDOnSolve": ""
+          "isPuzzle": false, "hiddenContent": "", "correctAnswer": "", "flagIDOnSolve": ""
         },
         {
           "id": "clue_cctv_check",
@@ -501,10 +342,7 @@
             "아래쪽에 '해당 일자 장비 점검' 스티커가 붙어 있다.",
             "기록이 사후에 처리된 흔적이다."
           ],
-          "isPuzzle": false,
-          "hiddenContent": "",
-          "correctAnswer": "",
-          "flagIDOnSolve": ""
+          "isPuzzle": false, "hiddenContent": "", "correctAnswer": "", "flagIDOnSolve": ""
         },
         {
           "id": "clue_last_boarding",
@@ -513,21 +351,13 @@
             "탑승 시간 22:14 / 하차 기록 없음.",
             "정상적으로 이동을 마친 것이 아니다."
           ],
-          "isPuzzle": false,
-          "hiddenContent": "",
-          "correctAnswer": "",
-          "flagIDOnSolve": ""
+          "isPuzzle": false, "hiddenContent": "", "correctAnswer": "", "flagIDOnSolve": ""
         },
         {
           "id": "clue_blurry_receipt",
           "title": "흐릿한 영수증 사진",
-          "lines": [
-            "탑승 시간은 확인되지만 하차 기록은 불명확하다."
-          ],
-          "isPuzzle": false,
-          "hiddenContent": "",
-          "correctAnswer": "",
-          "flagIDOnSolve": ""
+          "lines": ["탑승 시간은 확인되지만 하차 기록은 불명확하다."],
+          "isPuzzle": false, "hiddenContent": "", "correctAnswer": "", "flagIDOnSolve": ""
         },
         {
           "id": "clue_black_vehicle",
@@ -536,10 +366,7 @@
             "실종자 마지막 목격 시점에 검은 차량이 정류장 근처에 정차해 있었다.",
             "목격자는 세 명이 정류장에 함께 있었고, 그 뒤로는 아무도 못 봤다고 했다."
           ],
-          "isPuzzle": false,
-          "hiddenContent": "",
-          "correctAnswer": "",
-          "flagIDOnSolve": ""
+          "isPuzzle": false, "hiddenContent": "", "correctAnswer": "", "flagIDOnSolve": ""
         },
         {
           "id": "clue_life_trace",
@@ -548,10 +375,7 @@
             "가족과 연락을 이어가던 평범한 지역 주민.",
             "문제를 일으킬 사람이 아니었다는 증언."
           ],
-          "isPuzzle": false,
-          "hiddenContent": "",
-          "correctAnswer": "",
-          "flagIDOnSolve": ""
+          "isPuzzle": false, "hiddenContent": "", "correctAnswer": "", "flagIDOnSolve": ""
         },
         {
           "id": "clue_cctv_missing",
@@ -560,10 +384,7 @@
             "정류장과 편의점 앞 CCTV 기록이 그날만 비어 있다.",
             "편의점 직원도 같은 날 녹화가 안 됐다는 것을 알고 있었다."
           ],
-          "isPuzzle": false,
-          "hiddenContent": "",
-          "correctAnswer": "",
-          "flagIDOnSolve": ""
+          "isPuzzle": false, "hiddenContent": "", "correctAnswer": "", "flagIDOnSolve": ""
         },
         {
           "id": "clue_repeat_vehicle",
@@ -572,10 +393,7 @@
             "검은 차량은 그날 처음 본 것이 아니었다.",
             "같은 시간대에 같은 차량이 반복적으로 정차한 것을 직원이 목격했다."
           ],
-          "isPuzzle": false,
-          "hiddenContent": "",
-          "correctAnswer": "",
-          "flagIDOnSolve": ""
+          "isPuzzle": false, "hiddenContent": "", "correctAnswer": "", "flagIDOnSolve": ""
         }
       ]
     }

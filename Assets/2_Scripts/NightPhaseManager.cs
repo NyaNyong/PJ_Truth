@@ -94,6 +94,8 @@ public class NightPhaseManager : MonoBehaviour
         if (playerCharacter != null) playerCharacter.SetActive(false);
         foreach (var e in locationMaps)
             if (e.mapRoot != null) e.mapRoot.SetActive(false);
+
+        ClueArrowSystem.Instance?.ForceHideAll(); // ★
     }
 
     private void OnEnable()
@@ -208,6 +210,7 @@ public class NightPhaseManager : MonoBehaviour
         if (goHomeButton != null) goHomeButton.SetActive(false);
         playerController.EnableControl(false);
         HideBannerImmediate();
+        ClueArrowSystem.Instance?.ForceHideAll(); // ★ 애니메이션 시작 전 즉시 숨김
 
         playerCharacter.transform
             .DOScale(Vector3.zero, 0.25f)
