@@ -117,16 +117,20 @@ public class GameManager : MonoBehaviour
         HideImmediate(dayHeaderCG);
         HideImmediate(blackoutCG);
         HideImmediate(nextStagePanelCG);
+
+        // ★ 기본 "New Text" 제거 + 완전 비활성화
+        if (nextStageHintText != null) nextStageHintText.text = "";
+        if (nextStagePanelCG != null) nextStagePanelCG.gameObject.SetActive(false);
+
         if (guidelineButton != null) guidelineButton.SetActive(false);
+        if (morningNewsButton != null) morningNewsButton.SetActive(false);
+        if (dayPhaseBG != null) dayPhaseBG.SetActive(false);
+        if (stampCG != null) { stampCG.alpha = 0f; stampCG.gameObject.SetActive(false); }
         if (morningNewsButton != null)
         {
-            morningNewsButton.SetActive(false);
-            // ★ 신문 스프라이트 투명 영역 클릭 차단
             var img = morningNewsButton.GetComponent<Image>();
             if (img != null) img.alphaHitTestMinimumThreshold = 0.1f;
         }
-        if (dayPhaseBG != null) dayPhaseBG.SetActive(false);
-        if (stampCG != null) { stampCG.alpha = 0f; stampCG.gameObject.SetActive(false); }
     }
 
     // ── 날짜 시작 ─────────────────────────────────────────────────────────
@@ -424,15 +428,23 @@ public class GameManager : MonoBehaviour
         {
             if (nextStagePanelCG == null) { StartDay(currentDay + 1); return; }
 
+            // ★ 텍스트 먼저 세팅, 패널은 비활성 유지
             if (nextStageHintText != null)
                 nextStageHintText.text = GetNextStageHint();
 
             nextStagePanelCG.gameObject.SetActive(true);
             nextStagePanelCG.alpha = 0f;
-            nextStagePanelCG.DOFade(1f, 0.4f).OnComplete(() =>
+            nextStagePanelCG.interactable = false;
+            nextStagePanelCG.blocksRaycasts = false;
+
+            // ★ 1프레임 대기 → TMP 메시 갱신 완료 후 페이드 시작
+            DOVirtual.DelayedCall(0f, () =>
             {
-                nextStagePanelCG.interactable = true;
-                nextStagePanelCG.blocksRaycasts = true;
+                nextStagePanelCG.DOFade(1f, 0.4f).OnComplete(() =>
+                {
+                    nextStagePanelCG.interactable = true;
+                    nextStagePanelCG.blocksRaycasts = true;
+                });
             });
         });
     }

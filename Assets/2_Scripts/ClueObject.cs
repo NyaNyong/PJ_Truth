@@ -148,11 +148,26 @@ public class ClueObject : MonoBehaviour, IInteractable
         cachedPlayer?.NotifyClueCollected();
         ClueArrowSystem.Instance?.Unregister(this);
 
+        // ★ Collider 즉시 비활성 → 스케일 축소 중 트리거 이탈 이벤트 중복 방지
+        var col = GetComponent<Collider2D>();
+        if (col != null) col.enabled = false;
+
         if (hideOnCollect)
         {
-            transform.DOScale(Vector3.zero, 0.3f)
-                .SetEase(Ease.InBack).SetDelay(0.2f)
-                .OnComplete(() => gameObject.SetActive(false));
+            transform.DOKill();
+            transform.DOScale(Vector3.zero, 0.3f).SetEase(Ease.InBack).SetDelay(0.2f);
+
+            // ★ SetActive는 DOScale과 분리된 DelayedCall로 처리
+            // → transform.DOKill()에 영향받지 않음
+            DOVirtual.DelayedCall(0.55f, () =>
+            {
+                if (this != null && gameObject != null)
+                    gameObject.SetActive(false);
+            });
+        }
+        else
+        {
+            gameObject.SetActive(false);
         }
     }
 
