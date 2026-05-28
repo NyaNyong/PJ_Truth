@@ -26,207 +26,92 @@
   "documents": [
     {
       "id": 5,
-      "title": "유가족 집회 현장 사건 처리 기록",
-      "mainText": "[SLOT_0]이 재개발 예정 구역 인근에서 집회를 열었다. 집회에서는 [SLOT_1] 공개 요구가 이어졌다.\n\n집회 참가자들은 관계 기관의 이동 처리 기록과 실종자 명단이 공개되지 않고 있다고 주장했다. 유가족 대표는 기록 열람 거부에 대한 진상 조사를 촉구했다.\n\n현장에서는 목격자 진술을 담은 자료가 배포되었으며, 일부 참가자는 이관 처리 절차에 대한 의혹을 제기했다.\n\n관계 기관은 집회를 강제 해산하고, 관련 기록을 내부 관리 절차에 따라 처리하겠다고 밝혔다.",
-      "guidelineText": "【가이드라인】\n• 집회 참가자는 '민원인' 또는 '시민'으로 표기하십시오.\n• '실종자 명단' 표현은 '기록 현황'으로 대체하십시오.\n• 기관의 절차적 문제를 시사하는 표현을 제한하십시오.\n• 강제성을 암시하는 표현은 삭제하십시오.\n• 검열 우선순위: 이동 처리 기록 > 진상 조사 > 강제 해산",
+      "title": "가족들, 실종자 이름과 사진 공개 요구",
+      "mainText": "최근 [SLOT_0]이 실종자의 이름과 사진이 공식 기록에서 사라졌다고 주장했다.\n\n일부 기록은 이름이 비공개 처리되고, 사진은 노이즈 처리되었으며, 현재 상태는 확인 불가로 표시되어 있다.\n\n[SLOT_0]은 실종자가 기관 문서에서 [SLOT_1]로 분류되었다고 주장했다.\n\n관계 기관은 개인정보 보호와 절차상 제한으로 즉각적인 공개는 어렵다고 밝혔다.",
+      "guidelineText": "【가이드라인】\n• 가족 관계를 드러내는 표현은 민원 표현으로 바꾸십시오.\n  예: 가족들 → 민원인\n• 기관의 분류 책임을 드러내는 표현은 중립화하십시오.\n  예: 관리 대상자 → 관계 인원\n• 이름과 사진 관련 표현은 식별정보 보호 표현으로 바꾸십시오.\n  예: 이름 → 식별정보 / 사진 → 이미지\n• 기록이 사라졌다는 표현은 제한 처리로 정리하십시오.\n• 기록 훼손을 암시하는 표현은 보호 절차로 바꾸십시오.\n  예: 비공개 → 보호 / 노이즈 → 식별제한",
       "needsCensorship": true,
       "needsTypewriter": true,
       "censorKeywords": [
-        "이동 처리 기록", "실종자 명단", "기록 열람 거부", "진상 조사",
-        "목격자 진술", "이관 처리", "강제 해산", "유가족 대표", "관리 절차"
+        "실종자", "이름", "사진", "공개", "사라졌다고", "비공개", "노이즈", "확인 불가"
       ],
-      "criticalCensorKeywords": ["이동 처리 기록", "진상 조사", "강제 해산"],
+      "criticalCensorKeywords": ["실종자", "비공개", "노이즈"],
       "typewriterSlots": [
         {
           "slotIndex": 0,
-          "originalWord": "유가족",
-          "wordOptions": ["민원인", "유가족", "시민"],
+          "originalWord": "가족들",
+          "wordOptions": ["민원인", "가족들", "시민들"],
           "correctWord": "민원인"
         },
         {
           "slotIndex": 1,
-          "originalWord": "실종자 명단",
-          "wordOptions": ["기록 현황", "실종자 명단", "관련 정보"],
-          "correctWord": "기록 현황"
+          "originalWord": "관리 대상자",
+          "wordOptions": ["관계 인원", "관리 대상자", "민원 인원"],
+          "correctWord": "관계 인원"
         }
       ]
     }
   ],
-  "availableLocations": ["loc_control_post", "loc_last_sighting"],
-  "conditionalLocations": [],
-  "locations": [
+  "availableLocations": [],
+  "requireAllLocations": true,
+  "conditionalLocations": [
     {
-      "locationID": "loc_control_post",
-      "description": "재개발 구역 통제소. 경비 인력이 늘었다. 집회 여파로 출입 통제가 이전보다 훨씬 강화된 모습이다.",
-      "npcs": [
-        {
-          "id": "npc_guard",
-          "npcName": "경비 직원",
-          "firstLines": [
-            "오늘은 대화 없습니다.",
-            "명부도 없고, 확인할 것도 없습니다."
-          ],
-          "repeatLines": ["돌아가십시오."],
-          "grantClueID": "",
-          "setFlag": "",
-          "choices": [
-            {
-              "label": "집회 이후 달라진 게 있나요?",
-              "lines": [
-                "모르는 일입니다.",
-                "현장 지시만 따릅니다."
-              ],
-              "grantClueID": "", "setFlag": "", "costBonusPay": 0, "isExitChoice": false, "isUniqueChoice": false
-            },
-            {
-              "label": "명부는 어디 갔나요?",
-              "lines": [
-                "회수됐습니다.",
-                "열람 대상이 아닙니다."
-              ],
-              "grantClueID": "clue_s5_log_removed", "setFlag": "", "costBonusPay": 0, "isExitChoice": false, "isUniqueChoice": true
-            },
-            {
-              "label": "성과금을 건넨다.",
-              "lines": [
-                "…이쪽 구역은 집회 이후 기록 전부 회수됐습니다.",
-                "B-12 구역은 지금 외부 접근 불가입니다.",
-                "더 이상은 모릅니다."
-              ],
-              "grantClueID": "clue_s5_b12_sealed", "setFlag": "", "costBonusPay": 1, "isExitChoice": false, "isUniqueChoice": true
-            },
-            {
-              "label": "알겠습니다.",
-              "lines": [],
-              "grantClueID": "", "setFlag": "", "costBonusPay": 0, "isExitChoice": true, "isUniqueChoice": false
-            }
-          ],
-          "conditionalFirstLines": [
-            {
-              "requiredFlag": "censor_heavy_day4",
-              "lines": ["통제 구역입니다.", "집회 이후 출입 기준이 강화되었습니다."]
-            },
-            {
-              "requiredFlag": "censor_mild_day4",
-              "lines": ["오늘은 대화 없습니다.", "명부도 없고, 확인할 것도 없습니다."]
-            },
-            {
-              "requiredFlag": "censor_weak_day4",
-              "lines": ["당신이 누구인지 알고 있습니다.", "여기서 더 조사하는 건 권하지 않습니다."]
-            }
-          ],
-          "conditionalChoiceLines": []
-        },
-        {
-          "id": "npc_entrance_log",
-          "npcName": "회수된 명부 자리",
-          "firstLines": [
-            "초소 책상 위가 비어 있다.",
-            "명부가 있던 자리에 흔적만 남아 있다."
-          ],
-          "repeatLines": ["명부는 이미 치워졌다."],
-          "grantClueID": "clue_s5_log_removed",
-          "setFlag": "",
-          "choices": [],
-          "conditionalFirstLines": [],
-          "conditionalChoiceLines": []
-        },
-        {
-          "id": "npc_s5_resident",
-          "npcName": "지역 주민",
-          "firstLines": [
-            "집회 이후로 여기 더 무서워졌어요.",
-            "사람들이 많이 왔다 갔는데… 달라진 게 없어요."
-          ],
-          "repeatLines": ["저도 더는 잘 모르겠어요."],
-          "grantClueID": "clue_s5_protest_flyer",
-          "setFlag": "",
-          "choices": [],
-          "conditionalFirstLines": [],
-          "conditionalChoiceLines": []
-        }
-      ],
-      "clues": [
-        {
-          "id": "clue_access_notice",
-          "title": "출입 통제 안내판",
-          "lines": [
-            "이전보다 안내 문구가 늘었다.",
-            "아래쪽에 '집회 관련 문의 금지 / 현장 기록 외부 반출 금지'가 새로 추가되어 있다.",
-            "집회 이후 기관이 더 빠르게 봉쇄에 나서고 있다."
-          ],
-          "isPuzzle": false, "hiddenContent": "", "correctAnswer": "", "flagIDOnSolve": ""
-        },
-        {
-          "id": "clue_cctv_off",
-          "title": "비활성 CCTV",
-          "lines": [
-            "여전히 꺼져 있다.",
-            "이번엔 점검 스티커도 없다. 꺼진 채로 방치되고 있다."
-          ],
-          "isPuzzle": false, "hiddenContent": "", "correctAnswer": "", "flagIDOnSolve": ""
-        },
-        {
-          "id": "clue_s5_log_removed",
-          "title": "명부 회수 확인",
-          "lines": [
-            "초소 책상 위에 명부가 없다.",
-            "집회 이후 관련 기록이 모두 회수된 것으로 보인다.",
-            "기록이 사라진 것이 아니라 더 안쪽으로 이동했다."
-          ],
-          "isPuzzle": false, "hiddenContent": "", "correctAnswer": "", "flagIDOnSolve": ""
-        },
-        {
-          "id": "clue_s5_protest_flyer",
-          "title": "집회 전단지",
-          "lines": [
-            "벽에 붙어 있다가 뜯긴 흔적이 남아 있다.",
-            "전단 일부: '기록을 돌려주세요. 우리 가족은 어디 있습니까?'",
-            "집회는 단순 민원이 아니었다."
-          ],
-          "isPuzzle": false, "hiddenContent": "", "correctAnswer": "", "flagIDOnSolve": ""
-        },
-        {
-          "id": "clue_s5_b12_sealed",
-          "title": "B-12 구역 봉쇄 확인",
-          "lines": [
-            "집회 이후 B-12 구역은 외부 접근이 완전히 차단되었다.",
-            "기록은 회수되고 구역은 봉쇄됐다. 은폐가 가속되고 있다."
-          ],
-          "isPuzzle": false, "hiddenContent": "", "correctAnswer": "", "flagIDOnSolve": ""
-        }
-      ]
+      "locationName": "loc_family_rally",
+      "condition": { "type": "always", "value": "" }
     },
     {
-      "locationID": "loc_last_sighting",
-      "description": "마지막 목격 지점 인근. 집회 뒤 주민들이 드문드문 남아 있다. 촛불 몇 개와 전단지가 정류장 주변에 놓여 있다.",
+      "locationName": "loc_archive_lobby",
+      "condition": { "type": "always", "value": "" }
+    }
+  ],
+  "locations": [
+    {
+      "locationID": "loc_family_rally",
+      "description": "재개발 구역 외곽 광장. 정류장 옆 벽면에 실종자 사진과 피켓이 붙어 있다. 관계 인력이 주변을 감시한다.",
       "npcs": [
         {
-          "id": "npc_convenience_clerk",
-          "npcName": "편의점 직원",
+          "id": "npc_s5_family",
+          "npcName": "유가족",
           "firstLines": [
-            "집회에 사람이 많이 왔더라고요.",
-            "그래도 달라지는 건 없을 것 같아서 무섭네요."
+            "기록에는 없다고 하는데, 그 사람이 없었던 건 아니잖아요."
           ],
-          "repeatLines": ["저는 이 이상 더 말하기 어려워요."],
+          "repeatLines": ["기다리고 있어요. 아직 뭔가 나올 것 같아서."],
           "grantClueID": "",
           "setFlag": "",
           "choices": [
             {
-              "label": "집회 이후 달라진 게 있나요?",
+              "label": "기록이 어떻게 바뀌었나요?",
               "lines": [
-                "차가 좀 더 자주 지나가요.",
-                "그리고 전단 붙이던 사람들 중에 몇 명은 안 보이더라고요."
+                "처음엔 이름이 있었어요.",
+                "그다음엔 사진이 흐려졌고, 나중엔 상태가 '확인 불가'로 바뀌었어요.",
+                "지금은 그 사람이 있었는지조차 기록으로는 증명하기 어려워요."
               ],
-              "grantClueID": "clue_s5_missing_activists", "setFlag": "", "costBonusPay": 0, "isExitChoice": false, "isUniqueChoice": true
+              "grantClueID": "clue_s5_record_damage", "setFlag": "", "costBonusPay": 0, "isExitChoice": false, "isUniqueChoice": true
             },
             {
-              "label": "기록 쪽으로 아는 게 있나요?",
+              "label": "그 사람은 어떤 사람이었나요?",
               "lines": [
-                "저는 잘 모르지만…",
-                "가족 기록 찾으러 다니는 분이 저 쪽에 계세요."
+                "집에 늦어도 연락은 꼭 하던 사람이었어요.",
+                "그런 사람을 기록에서는 관리 대상자라고 부르더군요.",
+                "그 단어 하나로 사람이 완전히 다르게 보이잖아요."
               ],
-              "grantClueID": "", "setFlag": "", "costBonusPay": 0, "isExitChoice": false, "isUniqueChoice": false
+              "grantClueID": "clue_s5_managed_subject", "setFlag": "", "costBonusPay": 0, "isExitChoice": false, "isUniqueChoice": true
+            },
+            {
+              "label": "저도 가족을 찾고 있습니다.",
+              "lines": [
+                "그럼 알겠네요.",
+                "기록에서 이름이 사라지는 게 어떤 기분인지.",
+                "당신 가족 기록도… 사진이 흐려졌나요?"
+              ],
+              "grantClueID": "clue_s5_family_pattern", "setFlag": "", "costBonusPay": 0, "isExitChoice": false, "isUniqueChoice": true
+            },
+            {
+              "label": "기록 열람 비용을 지원한다.",
+              "lines": [
+                "이걸… 왜 도와주는 거예요?",
+                "그럼 이 반려 문서도 봐도 되겠죠."
+              ],
+              "grantClueID": "clue_s5_rejected_docs", "setFlag": "", "costBonusPay": 2, "isExitChoice": false, "isUniqueChoice": true
             },
             {
               "label": "더 묻지 않는다.",
@@ -236,91 +121,226 @@
           ],
           "conditionalFirstLines": [
             {
-              "requiredFlag": "censor_weak_day4",
-              "lines": ["집회에 많이 오셨죠.", "뉴스에 뭔가 남았던데… 그게 맞는 거겠죠?"]
+              "requiredFlag": "censor_heavy_day4",
+              "lines": ["뉴스에서는 우리를 민원인이라고 부르더군요.", "저는 민원을 넣은 게 아니라, 가족 이름을 찾으러 온 건데요."]
             },
             {
-              "requiredFlag": "censor_heavy_day4",
-              "lines": ["집회에 사람이 많이 왔더라고요.", "뉴스엔 별일 아닌 것처럼 나오던데… 제가 본 건 뭘까요?"]
+              "requiredFlag": "censor_mild_day4",
+              "lines": ["그래도 기록 열람 요구라는 말은 남아 있었어요.", "그 한 문장 때문에 사람들이 조금은 들어줬어요."]
+            },
+            {
+              "requiredFlag": "censor_weak_day4",
+              "lines": ["오늘 뉴스에는 실종자라는 말이 남아 있었어요.", "누가 남긴 건지는 몰라도, 그 단어 하나가 우리한텐 필요했어요."]
             }
           ],
           "conditionalChoiceLines": []
         },
         {
-          "id": "npc_s5_family_member",
-          "npcName": "유가족",
+          "id": "npc_s5_activist",
+          "npcName": "시위대 조력자",
           "firstLines": [
-            "여기 자주 와요.",
-            "이 근처에서 마지막으로 봤거든요. 우리 가족을."
+            "당신, 그냥 지나가던 사람은 아니죠.",
+            "오늘 기사에 남은 단어들, 우연처럼 보이지 않았습니다."
           ],
-          "repeatLines": ["기다리고 있어요. 아직 뭔가 나올 것 같아서."],
+          "repeatLines": ["어느 쪽이든 오래 고민할 시간은 없어요."],
           "grantClueID": "",
           "setFlag": "",
           "choices": [
             {
-              "label": "기록 같은 걸 받으신 게 있나요?",
+              "label": "그대로 내보내라는 건가요?",
               "lines": [
-                "줄 수 없다고 했어요.",
-                "그런데 한번은 분류 코드가 적힌 용지를 봤어요.",
-                "거기 있던 번호 중에… 우리 가족 번호가 있었어요."
+                "네.",
+                "실종자, 유가족, 공개, 상위기록실.",
+                "그 단어들이 남아야 합니다.",
+                "다음 문서에서 그 단어들을 지우지 마세요."
               ],
-              "grantClueID": "clue_s5_similar_code", "setFlag": "", "costBonusPay": 0, "isExitChoice": false, "isUniqueChoice": true
+              "grantClueID": "clue_s5_expose_direction", "setFlag": "", "costBonusPay": 0, "isExitChoice": false, "isUniqueChoice": true
             },
             {
-              "label": "가족 분이 무슨 일을 하셨나요?",
+              "label": "검열해서 승급하라는 건가요?",
               "lines": [
-                "기록을 추적하고 있었어요.",
-                "누가 어떤 절차로 이동되는지 연결하려 했대요.",
-                "집회 다음 날이었어요. 그게 마지막이었어요."
+                "당신이 더 안으로 들어갈 수 있다면, 지금은 참는 것도 방법입니다.",
+                "대신 다음 문서는 기준대로 처리해야겠죠.",
+                "그렇게 하면 당신은 의심받지 않고 상위 기록실에 가까워질 수 있어요."
               ],
-              "grantClueID": "clue_s5_family", "setFlag": "", "costBonusPay": 0, "isExitChoice": false, "isUniqueChoice": true
+              "grantClueID": "clue_s5_stealth_direction", "setFlag": "", "costBonusPay": 0, "isExitChoice": false, "isUniqueChoice": true
             },
             {
-              "label": "...",
-              "lines": [],
+              "label": "더 묻지 않는다.",
+              "lines": ["다음 문서가 나가면, 되돌리기 어렵습니다."],
               "grantClueID": "", "setFlag": "", "costBonusPay": 0, "isExitChoice": true, "isUniqueChoice": false
             }
           ],
-          "conditionalFirstLines": [],
+          "conditionalFirstLines": [
+            {
+              "requiredFlag": "censor_heavy_day4",
+              "lines": ["오늘 기사는 너무 깨끗했습니다.", "사람이 사라졌는데, 남은 건 절차뿐이었어요."]
+            },
+            {
+              "requiredFlag": "censor_mild_day4",
+              "lines": ["몇 단어는 남아 있었습니다.", "실수였습니까, 아니면 남긴 겁니까?"]
+            },
+            {
+              "requiredFlag": "censor_weak_day4",
+              "lines": ["실종자라는 말이 남아 있었어요.", "우리에게는 신호처럼 보였습니다."]
+            }
+          ],
           "conditionalChoiceLines": []
         }
       ],
       "clues": [
         {
-          "id": "clue_bus_display",
-          "title": "버스 정류장 전광판",
+          "id": "clue_s5_photo_board",
+          "title": "실종자 사진 보드",
           "lines": [
-            "임시 중단 노선이 늘었다.",
-            "재개발 구역 인근을 지나는 노선 두 개가 추가로 중단 처리되어 있다."
+            "정류장 옆 벽면에 실종자들의 사진이 붙어 있다. 일부는 흐릿하고, 이름 일부는 검게 가려져 있다.",
+            "기록에는 없지만, 우리는 기억합니다."
           ],
           "isPuzzle": false, "hiddenContent": "", "correctAnswer": "", "flagIDOnSolve": ""
         },
         {
-          "id": "clue_life_trace",
-          "title": "실종자의 생활 흔적",
+          "id": "clue_s5_picket",
+          "title": "이름을 돌려주세요 피켓",
           "lines": [
-            "정류장 인근에 실종자 전단이 붙어 있다.",
-            "이름, 사진, 마지막 목격 날짜.",
-            "집회에서 공개 요구의 대상이 된 바로 그 사람들이다."
+            "오래 들고 있었던 듯 손잡이가 닳아 있다.",
+            "피켓 뒷면: '관리 대상자가 아니라, 우리 가족입니다.'"
           ],
           "isPuzzle": false, "hiddenContent": "", "correctAnswer": "", "flagIDOnSolve": ""
         },
         {
-          "id": "clue_s5_missing_activists",
-          "title": "사라진 집회 참가자",
+          "id": "clue_s5_record_damage",
+          "title": "기록 훼손 단계",
           "lines": [
-            "전단을 붙이던 사람들 중 일부가 집회 이후 보이지 않는다.",
-            "집회 참가 자체가 새로운 관리 대상 분류 기준이 되었을 가능성이 있다."
+            "이름 공개 제한 → 사진 노이즈 처리 → 상태 확인 불가.",
+            "훼손 순서가 존재한다."
           ],
           "isPuzzle": false, "hiddenContent": "", "correctAnswer": "", "flagIDOnSolve": ""
         },
         {
-          "id": "clue_s5_family",
+          "id": "clue_s5_managed_subject",
+          "title": "관리 대상자 분류 증언",
+          "lines": [
+            "실종자가 기록상 '관리 대상자'로 분류되며 사람의 정체성이 행정 표현으로 바뀌고 있다."
+          ],
+          "isPuzzle": false, "hiddenContent": "", "correctAnswer": "", "flagIDOnSolve": ""
+        },
+        {
+          "id": "clue_s5_family_pattern",
+          "title": "가족 기록 훼손과 유사한 패턴",
+          "lines": [
+            "플레이어 가족 기록의 훼손 상태가 다른 실종자 기록과 유사하다."
+          ],
+          "isPuzzle": false, "hiddenContent": "", "correctAnswer": "", "flagIDOnSolve": ""
+        },
+        {
+          "id": "clue_s5_rejected_docs",
+          "title": "반려 문서 사본",
+          "lines": [
+            "여러 유가족의 기록 열람 요청이 같은 사유로 반복 거부되고 있다.",
+            "거부 사유: 권한 부족 / 보존 기한 만료 예정 / 식별 정보 제한"
+          ],
+          "isPuzzle": false, "hiddenContent": "", "correctAnswer": "", "flagIDOnSolve": ""
+        },
+        {
+          "id": "clue_s5_expose_direction",
+          "title": "폭로 방향",
+          "lines": [
+            "다음 문서에서 핵심 표현을 남기면 공식 뉴스에 민감 정보가 포함되고 외부 폭로로 이어질 수 있다."
+          ],
+          "isPuzzle": false, "hiddenContent": "", "correctAnswer": "", "flagIDOnSolve": ""
+        },
+        {
+          "id": "clue_s5_stealth_direction",
+          "title": "잠입 방향",
+          "lines": [
+            "다음 문서에서 핵심 표현을 기준대로 검열하면 승급과 상위 기록실 접근으로 이어질 수 있다."
+          ],
+          "isPuzzle": false, "hiddenContent": "", "correctAnswer": "", "flagIDOnSolve": ""
+        }
+      ]
+    },
+    {
+      "locationID": "loc_archive_lobby",
+      "description": "진실보관소 기록 열람실 앞 복도. 권한 인증 단말기와 열람 대기 목록이 있다. 조명은 차갑고, 기록들이 사람보다 더 중요하게 취급되는 공간.",
+      "npcs": [
+        {
+          "id": "npc_colleague",
+          "npcName": "동료",
+          "firstLines": [
+            "여기까지 오면 기록이 아니라 사람을 보게 돼요.",
+            "그래서 다들 오래 못 버팁니다."
+          ],
+          "repeatLines": ["그래요. 그게 나을 수도 있어요."],
+          "grantClueID": "",
+          "setFlag": "",
+          "choices": [
+            {
+              "label": "이 기록들, 왜 이렇게 훼손되어 있나요?",
+              "lines": [
+                "훼손이라고 부르지 않아요.",
+                "여기선 식별 제한, 보존 관리, 접근 조정이라고 부르죠.",
+                "단어만 바꾸면, 책임도 같이 흐려지니까요."
+              ],
+              "grantClueID": "clue_s5_term_conversion", "setFlag": "", "costBonusPay": 0, "isExitChoice": false, "isUniqueChoice": true
+            },
+            {
+              "label": "이상하다고 생각하지 않나요?",
+              "lines": [
+                "이상한 거요? 당연히 있죠.",
+                "근데 밖이라고 더 나아요?",
+                "여기만큼 안정적인 곳도 없어요."
+              ],
+              "grantClueID": "clue_s5_system_logic", "setFlag": "", "costBonusPay": 0, "isExitChoice": false, "isUniqueChoice": true
+            },
+            {
+              "label": "가족 기록도 여기 있을까요?",
+              "lines": [
+                "찾고 있다면… 언젠가는 보게 되겠죠.",
+                "하지만 지금 권한으로는 안 됩니다.",
+                "가족 기록 보고 싶으면, 결국 승급해야 해요."
+              ],
+              "grantClueID": "clue_s5_remain_in_system", "setFlag": "", "costBonusPay": 0, "isExitChoice": false, "isUniqueChoice": true
+            },
+            {
+              "label": "그냥 지나가겠습니다.",
+              "lines": [],
+              "grantClueID": "", "setFlag": "", "costBonusPay": 0, "isExitChoice": true, "isUniqueChoice": false
+            }
+          ],
+          "conditionalFirstLines": [
+            {
+              "requiredFlag": "censor_heavy_day4",
+              "lines": ["잘 적응하고 있네요.", "그게 좋은 건지는 모르겠지만요."]
+            },
+            {
+              "requiredFlag": "censor_mild_day4",
+              "lines": ["당신 문서는 아직 읽히고 있어요.", "정답이 아니라, 의도를 보는 사람들이 있습니다."]
+            },
+            {
+              "requiredFlag": "censor_weak_day4",
+              "lines": ["밖으로 나간 단어는 다시 못 주워 담아요.", "그리고 안쪽은, 그 단어를 남긴 사람을 찾습니다."]
+            }
+          ],
+          "conditionalChoiceLines": []
+        }
+      ],
+      "clues": [
+        {
+          "id": "clue_s5_access_denied",
+          "title": "가족 기록 열람 제한",
+          "lines": [
+            "상위 기록실 접근 권한이 필요합니다. 현재 상태: 1급 검열관 권한 필요",
+            "가족 기록은 상위 권한 없이는 열람할 수 없다."
+          ],
+          "isPuzzle": false, "hiddenContent": "", "correctAnswer": "", "flagIDOnSolve": ""
+        },
+        {
+          "id": "clue_s5_family_partial",
           "title": "가족 기록 일부",
           "lines": [
-            "유가족이 수집한 분류 용지에 플레이어의 가족 번호가 포함되어 있었다.",
-            "가족은 기록의 연결성을 추적하다 관리 대상으로 분류되었을 가능성이 있다.",
-            "이 사건은 단순한 실종이 아니었다."
+            "이름: 비공개 / 사진: 노이즈 처리 / 상태: 확인 불가",
+            "분류 코드: 관리 대상 / 보존 기한: 2일 남음",
+            "검색 결과가 제한적으로 표시됩니다."
           ],
           "isPuzzle": false, "hiddenContent": "", "correctAnswer": "", "flagIDOnSolve": ""
         },
@@ -328,8 +348,34 @@
           "id": "clue_s5_similar_code",
           "title": "유사 분류 코드",
           "lines": [
-            "분류 용지의 코드 체계는 통제소 출입 명부의 관리 번호와 동일하다.",
-            "실종자들과 플레이어의 가족이 같은 분류 구조 안에 있다."
+            "일부 문서의 분류 코드가 가족 기록과 비슷하다.",
+            "여러 실종자 기록과 가족 기록에 유사한 분류 코드가 사용되고 있다."
+          ],
+          "isPuzzle": false, "hiddenContent": "", "correctAnswer": "", "flagIDOnSolve": ""
+        },
+        {
+          "id": "clue_s5_term_conversion",
+          "title": "기록 용어 변환",
+          "lines": [
+            "훼손 → 식별 제한 / 삭제 → 보존 관리 / 검열 → 접근 조정",
+            "단어만 바꾸면, 책임도 같이 흐려진다."
+          ],
+          "isPuzzle": false, "hiddenContent": "", "correctAnswer": "", "flagIDOnSolve": ""
+        },
+        {
+          "id": "clue_s5_system_logic",
+          "title": "체제 안정 논리",
+          "lines": [
+            "이상한 건 맞지만, 여기만큼 안정적인 곳도 없다.",
+            "적어도 여기엔 규칙이 있고, 권한이 있고, 올라갈 길이 있다."
+          ],
+          "isPuzzle": false, "hiddenContent": "", "correctAnswer": "", "flagIDOnSolve": ""
+        },
+        {
+          "id": "clue_s5_remain_in_system",
+          "title": "체제 잔류 논리",
+          "lines": [
+            "가족 기록을 확인하려면 시스템 안에 남아 승급해야 한다."
           ],
           "isPuzzle": false, "hiddenContent": "", "correctAnswer": "", "flagIDOnSolve": ""
         }
@@ -342,79 +388,130 @@
         "cardID": "card_s5_article",
         "requiredClueID": "",
         "title": "STAGE 5 공식 기사",
-        "content": "유가족 집회 및 기록 열람 요구 사건. 관계 기관은 집회를 해산하고 기록을 내부 처리하겠다고 밝혔다."
+        "content": "가족들, 실종자 이름과 사진 공개 요구. 관계 기관은 즉각적인 공개는 어렵다고 밝혔다."
       },
       {
-        "cardID": "card_s5_protest_flyer",
-        "requiredClueID": "clue_s5_protest_flyer",
-        "title": "집회 전단지",
-        "content": "'기록을 돌려주세요. 우리 가족은 어디 있습니까?' 집회는 단순 민원이 아니었다."
+        "cardID": "card_s4_ref",
+        "requiredClueID": "clue_cctv_off",
+        "title": "STAGE 4 구조 확인",
+        "content": "실종은 단순 연락두절이 아니었다. 누군가의 절차 안에서 이동되고 있었다."
       },
       {
-        "cardID": "card_s5_log_removed",
-        "requiredClueID": "clue_s5_log_removed",
-        "title": "명부 회수 확인",
-        "content": "집회 이후 통제소 명부 전량 회수. 기록은 더 안쪽으로 이동했다."
+        "cardID": "card_s5_record_damage",
+        "requiredClueID": "clue_s5_record_damage",
+        "title": "기록 훼손 단계",
+        "content": "이름 공개 → 사진 노이즈 처리 → 상태 확인 불가. 훼손에는 순서가 있었다."
       },
       {
-        "cardID": "card_s5_b12_sealed",
-        "requiredClueID": "clue_s5_b12_sealed",
-        "title": "B-12 구역 봉쇄",
-        "content": "집회 이후 B-12 구역 외부 접근 차단. 기록 은폐가 가속되고 있다."
-      },
-      {
-        "cardID": "card_s5_missing_activists",
-        "requiredClueID": "clue_s5_missing_activists",
-        "title": "사라진 집회 참가자",
-        "content": "전단을 붙이던 이들 일부가 집회 이후 보이지 않는다. 집회 참가가 새로운 분류 기준이 됐을 수 있다."
-      },
-      {
-        "cardID": "card_s5_family",
-        "requiredClueID": "clue_s5_family",
+        "cardID": "card_s5_family_partial",
+        "requiredClueID": "clue_s5_family_partial",
         "title": "가족 기록 일부",
-        "content": "플레이어의 가족이 기록 연결성을 추적하다 관리 대상으로 분류되었을 가능성이 있다."
+        "content": "이름: 비공개 / 사진: 노이즈 처리 / 상태: 확인 불가 / 보존 기한: 2일 남음"
       },
       {
         "cardID": "card_s5_similar_code",
         "requiredClueID": "clue_s5_similar_code",
         "title": "유사 분류 코드",
-        "content": "실종자들과 플레이어의 가족이 같은 분류 구조 안에 있다."
+        "content": "실종자 기록과 가족 기록에 유사한 분류 코드가 사용되고 있다."
+      },
+      {
+        "cardID": "card_s5_access_denied",
+        "requiredClueID": "clue_s5_access_denied",
+        "title": "가족 기록 열람 제한",
+        "content": "가족 기록은 1급 검열관 권한 없이는 열람할 수 없다."
+      },
+      {
+        "cardID": "card_s5_remain_in_system",
+        "requiredClueID": "clue_s5_remain_in_system",
+        "title": "체제 잔류 논리",
+        "content": "가족 기록을 확인하려면 시스템 안에 남아 승급해야 한다."
+      },
+      {
+        "cardID": "card_s5_expose_direction",
+        "requiredClueID": "clue_s5_expose_direction",
+        "title": "폭로 방향",
+        "content": "다음 문서의 핵심 표현을 남기면 외부 폭로로 이어질 수 있다."
+      },
+      {
+        "cardID": "card_s5_stealth_direction",
+        "requiredClueID": "clue_s5_stealth_direction",
+        "title": "잠입 방향",
+        "content": "핵심 표현을 기준대로 검열하면 승급과 상위 기록실 접근으로 이어질 수 있다."
+      },
+      {
+        "cardID": "card_s5_family_pattern",
+        "requiredClueID": "clue_s5_family_pattern",
+        "title": "가족 기록과 유사한 패턴",
+        "content": "플레이어 가족 기록의 훼손 상태가 다른 실종자 기록과 유사하다."
+      },
+      {
+        "cardID": "card_s5_managed_subject",
+        "requiredClueID": "clue_s5_managed_subject",
+        "title": "관리 대상자 분류 증언",
+        "content": "실종자가 기록상 '관리 대상자'로 분류되며 사람의 정체성이 행정 표현으로 바뀌고 있다."
       }
     ],
     "correctConnections": [
       {
-        "fromCardID": "card_s5_log_removed",
-        "toCardID": "card_s5_b12_sealed",
+        "fromCardID": "card_s5_record_damage",
+        "toCardID": "card_s5_family_partial",
         "cardIDs": [],
-        "revealText": "기록이 제거된 것이 아니라, 더 깊은 곳으로 옮겨졌다.\n실종자들의 행방은 상위 기록 체계 안에 있다."
+        "revealText": "가족 기록도 다른 실종자 기록과 같은 방식으로 훼손되고 있다.\n내 가족도 이 구조 안에 있었다."
       },
       {
-        "fromCardID": "card_s5_family",
+        "fromCardID": "card_s5_family_partial",
         "toCardID": "card_s5_similar_code",
         "cardIDs": [],
-        "revealText": "내 가족도 같은 분류 체계 안에 있었다.\n이건 나의 사건이다."
+        "revealText": "가족 기록과 다른 실종자 기록에 같은 계열의 분류 코드가 사용되고 있다."
       },
       {
-        "fromCardID": "card_s5_protest_flyer",
-        "toCardID": "card_s5_missing_activists",
+        "fromCardID": "card_s5_access_denied",
+        "toCardID": "card_s5_remain_in_system",
         "cardIDs": [],
-        "revealText": "집회에서 진실을 요구한 사람들이 새로운 관리 대상이 되고 있다."
+        "revealText": "가족 기록을 확인하려면 결국 시스템의 승급 구조 안으로 들어가야 한다."
+      },
+      {
+        "fromCardID": "card_s5_expose_direction",
+        "toCardID": "card_s5_stealth_direction",
+        "cardIDs": [],
+        "revealText": "다음 문서에서 무엇을 남기고 무엇을 지울지가 이후 루트를 결정한다."
+      },
+      {
+        "fromCardID": "card_s5_managed_subject",
+        "toCardID": "card_s5_family_pattern",
+        "cardIDs": [],
+        "revealText": "기록 속 관리 대상자는 누군가의 가족이었다."
       }
     ]
   },
-  "nextStageHint": "새로운 기록이 투입될 예정입니다.\n\n[ 내부 알림 ]\n승급 심사 일정이 조정되었습니다.",
+  "nextStageHint": "[ 새 문서 도착 ]\n진실보관소 앞 기록 공개 집회 강제 해산",
   "conditionalNextStageHints": [
     {
       "requiredFlag": "censor_heavy_day5",
-      "hint": "상사: \"문서는 안정적으로 처리되었습니다.\"\n??: \"좋습니다. 아직 기준 안에 있군요.\"\n상사: \"다음 기록을 투입할까요?\"\n??: \"예정대로 진행하십시오.\"\n\n[ 내부 알림 ]\n승급 심사 일정이 앞당겨졌습니다."
+      "dialogue": [
+        "상사: \"감정적인 표현을 절차에 맞게 잘 정리했습니다.\"",
+        "??: \"좋습니다. 기준 안에 있군요.\"",
+        "상사: \"다음 문서를 투입할까요?\"",
+        "??: \"예정대로 진행하십시오.\""
+      ],
+      "hint": "[ 새 문서 도착 ]\n진실보관소 앞 기록 공개 집회 강제 해산"
     },
     {
       "requiredFlag": "censor_mild_day5",
-      "hint": "상사: \"일부 표현이 남았습니다.\"\n??: \"실수입니까?\"\n상사: \"아직은 판단하기 어렵습니다.\"\n??: \"다음 기록에서 확인하십시오.\"\n\n[ 내부 알림 ]\n승급 심사 일정이 예정대로 유지됩니다."
+      "dialogue": [
+        "상사: \"일부 표현은 남았지만, 전체 흐름은 기준에서 크게 벗어나지 않았습니다.\"",
+        "??: \"다음 문서에서는 더 명확한 처리를 기대하겠습니다.\""
+      ],
+      "hint": "[ 새 문서 도착 ]\n진실보관소 앞 기록 공개 집회 강제 해산"
     },
     {
       "requiredFlag": "censor_weak_day5",
-      "hint": "상사: \"민감 표현이 외부 문서에 남았습니다.\"\n??: \"반응을 서두를 필요는 없습니다.\"\n상사: \"계속 진행합니까?\"\n??: \"예정대로 두십시오. 아직 끊을 단계는 아닙니다.\"\n\n[ 내부 알림 ]\n승급 심사 조건 검토 중."
+      "dialogue": [
+        "상사: \"가족, 실종자 같은 표현이 그대로 남았습니다.\"",
+        "??: \"의도적인 판단입니까?\"",
+        "상사: \"누구의 입장에서 문서를 보고 있는 겁니까?\""
+      ],
+      "hint": "[ 새 문서 도착 ]\n진실보관소 앞 기록 공개 집회 강제 해산"
     }
   ]
 }

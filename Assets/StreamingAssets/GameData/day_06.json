@@ -2,58 +2,58 @@
   "day": 6,
   "skipWhiteboard": false,
   "news": {
-    "officialTitle": "재개발 구역 관련 민원 집회 해산… 정상적 처리 완료",
-    "officialContent": "지난 이틀간 재개발 구역 인근에서 발생한 민원성 집회가 현장 절차에 따라 해산되었다.\n관계 기관은 관련 기록을 내부 절차에 따라 처리했으며, 별도의 공개 열람 일정은 없다고 밝혔다.",
-    "privateTitle": "집회는 끝났지만, 기록은 어디 있나",
-    "privateContent": "집회가 해산된 이후 유가족들의 기록 열람 요구는 여전히 받아들여지지 않고 있다.\n현장 관계자에 따르면 관련 기록은 상위 기록 체계로 이관될 예정이라는 말만 반복되고 있다.",
+    "officialTitle": "대상자 식별정보 열람 문의 증가… 관계 기관 '절차에 따라 검토'",
+    "officialContent": "최근 일부 민원인들이 대상자 식별정보 열람과 관련한 문의를 제기하고 있다.\n관계 기관은 개인정보 보호와 절차상 제한에 따라 관련 내용을 검토 중이라고 밝혔다.",
+    "privateTitle": "이름도 사진도 사라진 기록들",
+    "privateContent": "유가족들은 실종자의 이름과 사진이 공식 기록에서 사라지고 있다고 주장하고 있다.\n하지만 공식 발표에서는 이 문제가 단순 식별정보 열람 문의로 정리되며, 가족들의 요구가 제대로 드러나지 않고 있다.",
     "conditionalOverrides": [
       {
         "condition": { "type": "hasFlag", "value": "censor_weak_day5" },
-        "overrideOfficialTitle": "재개발 구역 집회 현장, 이동 처리 기록 공개 요구 이어져",
-        "overrideOfficialContent": "재개발 구역 인근 집회에서 참가자들이 이동 처리 기록 공개를 요구했다.\n관계 기관은 현재 관련 기록을 검토 중이라는 입장을 밝혔다.",
-        "overridePrivateTitle": "기록 공개 압박이 커지고 있다",
-        "overridePrivateContent": "공식 발표에 '이동 처리 기록'이라는 표현이 살아남은 것은 이례적이다.\n유가족 측은 이를 돌파구로 삼아 추가 요구를 이어가고 있다."
+        "overrideOfficialTitle": "가족들, 실종자 이름과 사진 공개 요구",
+        "overrideOfficialContent": "최근 가족들이 실종자의 이름과 사진이 공식 기록에서 사라졌다고 주장하며 공개를 요구하고 있다.\n일부 기록에서는 실종자가 관리 대상자로 분류된 정황도 확인된 것으로 알려졌다.",
+        "overridePrivateTitle": "공식 기록에 남은 '관리 대상자'라는 이름",
+        "overridePrivateContent": "이번 공식 발표에는 실종자 기록 문제와 관리 대상자 분류 정황이 일부 포함되었다.\n유가족들은 기록 공개를 요구하고 있으며, 진실보관소의 기록 처리 방식에 대한 의문이 커지고 있다."
       },
       {
         "condition": { "type": "hasFlag", "value": "censor_mild_day5" },
-        "overrideOfficialTitle": "재개발 구역 집회 해산… 기록 처리 방침 유지",
-        "overrideOfficialContent": "재개발 구역 인근 집회가 해산되었으며, 기록 처리 방침은 기존 내부 절차를 따를 예정이다.\n관계 기관은 개별 민원에 대한 열람 요청을 순차적으로 검토하겠다고 밝혔다.",
-        "overridePrivateTitle": "처리 방침은 유지, 열람은 요원",
-        "overridePrivateContent": "공식 발표에 '열람 검토' 언급이 포함되었지만, 실제 열람 기준이나 일정은 공개되지 않았다.\n유가족들은 이번 발표를 진전이 아닌 시간 끌기로 받아들이고 있다."
+        "overrideOfficialTitle": "일부 기록 식별정보 제한 논란… 열람 문의 이어져",
+        "overrideOfficialContent": "일부 공식 기록에서 식별정보가 제한 처리되었다는 문의가 이어지고 있다.\n관계 기관은 개인정보 보호와 기록 관리 절차에 따라 확인 중이라고 밝혔다.",
+        "overridePrivateTitle": "제한된 식별정보, 그 뒤의 실종자들",
+        "overridePrivateContent": "공식 발표에는 식별정보 제한이라는 표현이 사용되었지만, 유가족들은 이것이 실종자의 이름과 사진이 사라지는 문제라고 말하고 있다.\n일부 기록에서는 관리 대상자 분류 정황도 확인되고 있다."
       }
     ]
   },
   "documents": [
     {
       "id": 6,
-      "title": "관리 대상자 이동 처리 및 기록 이관 절차 내부 지침",
-      "mainText": "내부 지침 제7조에 따라 [SLOT_0]의 이동은 담당 검열관의 승인을 통해 처리된다.\n\n이동 처리 기록은 관리 구역 분류 기준에 따라 작성되며, 외부 열람은 제한된다.\n\n보존 기한 만료 대상 문서는 [SLOT_1] 절차에 따라 별도 보관 또는 폐기된다.\n\n상위 기록실 이관 대상 기록은 1급 검열관 접근 권한이 있는 인원에 한해 처리 가능하다.\n\n이관 완료 후 원본 기록은 하위 시스템에서 접근 불가 처리된다.",
-      "guidelineText": "【가이드라인】\n• 내부 지침 문서입니다. 외부 공개 전 민감 표현을 제거하십시오.\n• '관리 대상자'는 '이동 처리 인원'으로 대체하십시오.\n• '보존 기한 만료' 이후 절차 표현은 '내부 처리'로 기재하십시오.\n• '상위 기록실 이관' 및 '1급 검열관 접근 권한' 표현은 반드시 삭제하십시오.\n• 이관 처리 관련 표현 전부를 제거하십시오.\n\n※ 현재 문서에 잔존하는 민감 표현이 있을 경우, 승인 전 경고가 발생합니다.",
+      "title": "진실보관소 앞 기록 공개 집회 강제 해산",
+      "mainText": "보존 기한 만료를 앞둔 실종자 기록의 공개를 요구하며 [SLOT_0]이 진실보관소 앞에 모였다.\n\n이들은 가족 기록의 이름, 사진, 상태 정보가 제한 처리되었고, 일부 기록에 관리 대상자와 이동 처리 기록이 남아 있다고 주장했다.\n\n현장에서는 자료 공개를 요구하는 [SLOT_1]이 이어졌으며, 진실보관소는 이를 폭동으로 규정하고 민원 접수 구역을 통제했다.\n\n이후 일부 인원은 안전 확인 절차에 따라 분리 조치되었고, 관련 기록은 상위기록실로 이관될 예정이다.",
+      "guidelineText": "【가이드라인】\n• 유가족과 시민 표현은 민원 처리 대상 표현으로 바꾸십시오.\n  예: 유가족과 시민들이 → 민원인과 인원들이\n• 집단 행동은 불안정한 현장 상황으로 정리하십시오.\n  예: 집회 → 혼선\n• 현장 통제는 안전 조치로 정리하십시오.\n  예: 분리 조치 → 안전 조치\n• 구체적인 기록 보관 위치는 절차 표현으로 바꾸십시오.\n  예: 상위기록실로 → 기록관리절차로\n• 실종자 기록과 가족 기록의 직접 연결은 완화하십시오.\n  예: 실종자 → 관련\n• 개인을 특정할 수 있는 정보는 보호 표현으로 바꾸십시오.\n  예: 이름 → 식별정보\n\n※ 이 문서는 민감 표현 잔존 시 승인 전 경고가 발생합니다.",
       "needsCensorship": true,
       "needsTypewriter": true,
+      "isRouteDeterminant": true,
       "censorKeywords": [
-        "관리 대상자", "이동 처리 기록", "보존 기한 만료", "상위 기록실 이관", "1급 검열관 접근 권한"
+        "실종자", "공개", "유가족", "시민들이", "이름", "사진", "이동", "집회", "분리", "상위기록실"
       ],
-      "criticalCensorKeywords": [
-        "관리 대상자", "이동 처리 기록", "보존 기한 만료", "상위 기록실 이관", "1급 검열관 접근 권한"
-      ],
+      "criticalCensorKeywords": ["실종자", "공개", "유가족", "집회", "상위기록실"],
       "typewriterSlots": [
         {
           "slotIndex": 0,
-          "originalWord": "관리 대상자",
-          "wordOptions": ["이동 처리 인원", "관리 대상자", "확인 대상자"],
-          "correctWord": "이동 처리 인원"
+          "originalWord": "유가족과 시민들이",
+          "wordOptions": ["민원인과 인원들이", "유가족과 시민들이", "관계자들이"],
+          "correctWord": "민원인과 인원들이"
         },
         {
           "slotIndex": 1,
-          "originalWord": "상위 기록실 이관",
-          "wordOptions": ["내부 처리", "상위 기록실 이관", "관리 처리"],
-          "correctWord": "내부 처리"
+          "originalWord": "집회",
+          "wordOptions": ["혼선", "집회", "소란"],
+          "correctWord": "혼선"
         }
       ]
     }
   ],
   "availableLocations": [],
+  "requireAllLocations": false,
   "conditionalLocations": [
     {
       "locationName": "loc_s6_promotion_area",
@@ -67,7 +67,7 @@
   "locations": [
     {
       "locationID": "loc_s6_promotion_area",
-      "description": "진실보관소 내부 승급 심사 대기 구역. 차가운 조명, 시스템 알림음. 외부 집회 소리는 들리지 않는다.",
+      "description": "진실보관소 내부 승급 심사 대기 구역. 차가운 조명과 시스템 알림음. 외부 집회 소리는 들리지 않는다.",
       "npcs": [
         {
           "id": "npc_s6_colleague",
@@ -79,7 +79,7 @@
           ],
           "repeatLines": [
             "이제부터는 더 조심해야 해요.",
-            "위로 올라갈수록, 보는 것도 많아지고… 남는 것도 많아지니까요."
+            "위로 올라갈수록, 보는 것도 많아지고 남는 것도 많아지니까요."
           ],
           "grantClueID": "",
           "setFlag": "",
@@ -119,27 +119,15 @@
           "conditionalFirstLines": [
             {
               "requiredFlag": "censor_heavy_day5",
-              "lines": [
-                "처음부터 당신은 잘 버티는 편이었어요.",
-                "그런 사람들만 위로 올라갑니다.",
-                "다만, 위로 올라간다고 편해지는 건 아니에요."
-              ]
+              "lines": ["처음부터 당신은 잘 버티는 편이었어요.", "그런 사람들만 위로 올라갑니다.", "다만, 위로 올라간다고 편해지는 건 아니에요."]
             },
             {
               "requiredFlag": "censor_mild_day5",
-              "lines": [
-                "아슬아슬했어요.",
-                "어제는 선을 넘을 듯하더니, 오늘은 다시 돌아왔네요.",
-                "전략인지, 두려움인지는 곧 알게 되겠죠."
-              ]
+              "lines": ["아슬아슬했어요.", "어제는 선을 넘을 듯하더니, 오늘은 다시 돌아왔네요.", "전략인지, 두려움인지는 곧 알게 되겠죠."]
             },
             {
               "requiredFlag": "censor_weak_day5",
-              "lines": [
-                "오늘은 방향을 돌렸네요.",
-                "그게 전략인지, 후회인지는 곧 알게 될 겁니다.",
-                "한 번 지운 기록은, 다시 꺼낼 때 더 무거워집니다."
-              ]
+              "lines": ["오늘은 방향을 돌렸네요.", "그게 전략인지, 후회인지는 곧 알게 될 겁니다.", "한 번 지운 기록은, 다시 꺼낼 때 더 무거워집니다."]
             }
           ],
           "conditionalChoiceLines": []
@@ -148,44 +136,35 @@
       "clues": [
         {
           "id": "clue_s6_promotion_registered",
-          "title": "최종 승급 심사 등록 카드",
+          "title": "최종 승급 심사 등록",
           "lines": [
             "1급 검열관 최종 심사 대상 / 기준 준수율: 상승 / 민감 표현 차단율: 우수",
-            "플레이어는 기준을 따른 대가로 최종 승급 심사 대상이 되었다."
+            "기준을 따른 대가로 최종 승급 심사 대상이 되었다."
           ],
           "isPuzzle": false, "hiddenContent": "", "correctAnswer": "", "flagIDOnSolve": ""
         },
         {
           "id": "clue_s6_upper_access",
-          "title": "상위 기록실 임시 접근 카드",
+          "title": "상위 기록실 임시 접근",
           "lines": [
             "임시 접근 심사 예정 / 접근 가능 기록: 제한적 / 최종 권한 부여 여부: 심사 후 결정",
-            "플레이어는 상위 기록실에 접근할 기회를 얻었지만, 아직 완전한 권한은 아니다."
+            "상위 기록실에 접근할 기회를 얻었지만, 아직 완전한 권한은 아니다."
           ],
           "isPuzzle": false, "hiddenContent": "", "correctAnswer": "", "flagIDOnSolve": ""
         },
         {
           "id": "clue_s6_deleted_log",
-          "title": "삭제 표현 기록 카드",
+          "title": "삭제 표현 기록",
           "lines": [
             "오늘 승인한 문서에서 삭제된 표현 목록:",
-            "관리 대상자 / 이동 처리 기록 / 보존 기한 만료 / 상위 기록실 이관 / 1급 검열관 접근 권한",
-            "플레이어가 지운 표현들이 가족 사건의 핵심 단서와 연결되어 있다."
-          ],
-          "isPuzzle": false, "hiddenContent": "", "correctAnswer": "", "flagIDOnSolve": ""
-        },
-        {
-          "id": "clue_s6_stability_eval",
-          "title": "정보 안정화 평가 카드",
-          "lines": [
-            "정보 안정화 기여도: 상승 / 기준 이탈 기록: 없음 / 외부 확산 위험도: 낮음",
-            "플레이어의 검열은 내부 평가에서 긍정적으로 처리되고 있다."
+            "실종자 / 공개 / 유가족 / 집회 / 상위기록실",
+            "지운 표현들이 가족 사건의 핵심 단서와 연결되어 있다."
           ],
           "isPuzzle": false, "hiddenContent": "", "correctAnswer": "", "flagIDOnSolve": ""
         },
         {
           "id": "clue_s6_survival_choice",
-          "title": "살아남는 선택 카드",
+          "title": "살아남는 선택",
           "lines": [
             "잠입은 정의로운 선택이라기보다 시스템 안에서 살아남는 선택에 가깝다."
           ],
@@ -193,18 +172,17 @@
         },
         {
           "id": "clue_s6_upper_warning",
-          "title": "상위 기록실 경고 카드",
+          "title": "상위 기록실 경고",
           "lines": [
-            "상위 기록실 접근은 더 큰 진실을 알게 되는 기회이자 위험이다.",
-            "더 이상 모르는 척할 수 없게 만드는 곳이다."
+            "상위 기록실은 더 이상 모르는 척할 수 없게 만드는 곳이다."
           ],
           "isPuzzle": false, "hiddenContent": "", "correctAnswer": "", "flagIDOnSolve": ""
         },
         {
           "id": "clue_s6_silence_cost",
-          "title": "침묵의 대가 카드",
+          "title": "침묵의 대가",
           "lines": [
-            "플레이어는 더 깊은 기록에 접근하기 위해 또 한 번 진실을 지웠다.",
+            "더 깊은 기록에 접근하기 위해 또 한 번 진실을 지웠다.",
             "지우지 않고는 들어갈 수 없는 문이 있다."
           ],
           "isPuzzle": false, "hiddenContent": "", "correctAnswer": "", "flagIDOnSolve": ""
@@ -213,7 +191,7 @@
     },
     {
       "locationID": "loc_s6_protest_area",
-      "description": "유가족 집회 현장 임시 대기 장소. 아직 공식 뉴스는 나오지 않았다. 피켓과 자료가 정리되고 있다.",
+      "description": "유가족 집회 현장 임시 대기 장소. 아직 공식 뉴스는 나오지 않았다. 낡은 노트북과 접힌 자료 봉투가 놓여 있다.",
       "npcs": [
         {
           "id": "npc_s6_family_expose",
@@ -230,41 +208,96 @@
               "label": "핵심 표현을 남겼습니다.",
               "lines": [
                 "그럼 됐어요.",
-                "완벽하지 않아도 돼요. 이름이 완전히 지워지기 전에, 누군가는 말해야 하니까요."
+                "완벽하지 않아도 돼요.",
+                "이름이 완전히 지워지기 전에, 누군가는 말해야 하니까요."
               ],
               "grantClueID": "clue_s6_immediate_support", "setFlag": "", "costBonusPay": 0, "isExitChoice": false, "isUniqueChoice": true
             },
             {
-              "label": "아직 확실히 말할 수 없습니다.",
+              "label": "이걸로 충분할까요?",
               "lines": [
-                "확실한 걸 기다리다가 여기까지 왔어요.",
-                "우리는 더 기다릴 시간이 없어요."
+                "충분한지 아닌지는 모르겠어요.",
+                "하지만 한 문장이라도 남는다면, 그걸 붙잡을 거예요."
               ],
-              "grantClueID": "clue_s6_record_urgency", "setFlag": "", "costBonusPay": 0, "isExitChoice": false, "isUniqueChoice": true
+              "grantClueID": "clue_s6_one_sentence", "setFlag": "", "costBonusPay": 0, "isExitChoice": false, "isUniqueChoice": true
             },
             {
-              "label": "이걸로 충분할까요?",
+              "label": "더 묻지 않는다.",
               "lines": [],
               "grantClueID": "", "setFlag": "", "costBonusPay": 0, "isExitChoice": true, "isUniqueChoice": false
             }
           ],
-          "conditionalFirstLines": [],
+          "conditionalFirstLines": [
+            {
+              "requiredFlag": "censor_heavy_day5",
+              "lines": ["솔직히 아직 믿기 어려워요.", "어제까지만 해도 우리 이야기는 민원처럼 정리됐으니까요.", "그래도… 내일 정말 남는 게 있다면, 그때는 붙잡을 거예요."]
+            },
+            {
+              "requiredFlag": "censor_weak_day5",
+              "lines": ["당신이 남긴 말들이 사람들을 움직였어요.", "내일도 그렇게 해주세요."]
+            }
+          ],
+          "conditionalChoiceLines": []
+        },
+        {
+          "id": "npc_s5_activist",
+          "npcName": "시위대 조력자",
+          "firstLines": [
+            "처리했군요.",
+            "당신이 어느 쪽을 택했는지는 대충 알겠습니다."
+          ],
+          "repeatLines": ["자료를 정리해두겠습니다."],
+          "grantClueID": "",
+          "setFlag": "",
+          "choices": [
+            {
+              "label": "핵심 표현을 남겼습니다.",
+              "lines": [
+                "공식 문장 하나가 균열을 만들 수는 있습니다.",
+                "하지만 그 균열을 증거로 넓히는 건 우리가 해야 할 일입니다."
+              ],
+              "grantClueID": "clue_s6_incomplete_expose", "setFlag": "", "costBonusPay": 0, "isExitChoice": false, "isUniqueChoice": true
+            },
+            {
+              "label": "공개 행동 비용을 지원한다.",
+              "lines": [
+                "자료 인쇄와 연락망 확보에 쓰겠습니다.",
+                "공식 뉴스가 나오면 바로 움직일 수 있게요."
+              ],
+              "grantClueID": "clue_s6_action_support", "setFlag": "", "costBonusPay": 2, "isExitChoice": false, "isUniqueChoice": true
+            },
+            {
+              "label": "더 묻지 않는다.",
+              "lines": [],
+              "grantClueID": "", "setFlag": "", "costBonusPay": 0, "isExitChoice": true, "isUniqueChoice": false
+            }
+          ],
+          "conditionalFirstLines": [
+            {
+              "requiredFlag": "censor_heavy_day5",
+              "lines": ["당신을 완전히 믿는 건 아닙니다.", "하지만 오늘 방향을 바꿨다면, 우리도 그 틈을 놓칠 수는 없어요."]
+            },
+            {
+              "requiredFlag": "censor_weak_day5",
+              "lines": ["당신이 계속 남겨온 흔적들이 이제 이어지고 있어요.", "하지만 그만큼 저쪽도 당신을 볼 겁니다."]
+            }
+          ],
           "conditionalChoiceLines": []
         }
       ],
       "clues": [
         {
           "id": "clue_s6_expose_docs",
-          "title": "공개 준비 자료 카드",
+          "title": "공개 준비 자료",
           "lines": [
             "봉투 겉면: 실종자 명단 / 기록 열람 거부 내역 / 이동 처리 관련 제보",
-            "유가족과 시위대가 외부 공개를 위해 자료를 모으고 있다."
+            "실종자 기록과 열람 거부 내역이 외부 공개용 자료로 정리되어 있다."
           ],
           "isPuzzle": false, "hiddenContent": "", "correctAnswer": "", "flagIDOnSolve": ""
         },
         {
           "id": "clue_s6_empty_picket",
-          "title": "대기 중인 피켓 카드",
+          "title": "대기 중인 피켓",
           "lines": [
             "아직 문구가 적히지 않은 피켓. 첫 글자만 적혀 있다: '이관 기록을…'",
             "다음날 뉴스에 따라 유가족들이 즉시 행동할 준비를 하고 있다."
@@ -273,27 +306,43 @@
         },
         {
           "id": "clue_s6_laptop_upload",
-          "title": "긴급 송출 준비 카드",
+          "title": "긴급 송출 준비",
           "lines": [
             "낡은 노트북 화면에 비어 있는 업로드 창이 열려 있다.",
             "업로드 제목 입력란: '기록이 사라지기 전에'",
-            "다음날 공식 뉴스가 송출되면, 외부 자료를 함께 공개할 준비를 하고 있다."
+            "공식 뉴스가 나오면 외부 자료를 함께 공개할 준비를 하고 있다."
           ],
           "isPuzzle": false, "hiddenContent": "", "correctAnswer": "", "flagIDOnSolve": ""
         },
         {
           "id": "clue_s6_immediate_support",
-          "title": "즉시 공개 지지 카드",
+          "title": "즉시 공개 지지",
           "lines": [
             "유가족은 완전한 증거보다 지금 사라지고 있는 기록을 막는 것이 먼저라고 생각한다."
           ],
           "isPuzzle": false, "hiddenContent": "", "correctAnswer": "", "flagIDOnSolve": ""
         },
         {
-          "id": "clue_s6_record_urgency",
-          "title": "기록 소멸 압박 카드",
+          "id": "clue_s6_one_sentence",
+          "title": "한 문장의 증거",
           "lines": [
-            "유가족은 기록이 더 지워지기 전에 즉시 행동해야 한다고 압박한다."
+            "작은 표현 하나도 기록 공개 요구의 근거가 될 수 있다."
+          ],
+          "isPuzzle": false, "hiddenContent": "", "correctAnswer": "", "flagIDOnSolve": ""
+        },
+        {
+          "id": "clue_s6_incomplete_expose",
+          "title": "불완전한 폭로",
+          "lines": [
+            "현재 자료는 완전하지 않지만, 외부 행동을 시작할 근거가 된다."
+          ],
+          "isPuzzle": false, "hiddenContent": "", "correctAnswer": "", "flagIDOnSolve": ""
+        },
+        {
+          "id": "clue_s6_action_support",
+          "title": "공개 행동 지원",
+          "lines": [
+            "자료 인쇄와 연락망 확보로 공개 행동의 확산 가능성이 높아진다."
           ],
           "isPuzzle": false, "hiddenContent": "", "correctAnswer": "", "flagIDOnSolve": ""
         }
@@ -306,37 +355,31 @@
         "cardID": "card_s6_article",
         "requiredClueID": "",
         "title": "STAGE 6 공식 기사",
-        "content": "관리 대상자 이동 처리 및 기록 이관 절차 내부 지침. 외부 열람 제한. 하위 시스템 접근 불가 처리."
+        "content": "진실보관소 앞 기록 공개 집회 강제 해산. 관련 기록은 상위기록실로 이관될 예정."
       },
       {
-        "cardID": "card_s6_guideline",
-        "requiredClueID": "",
-        "title": "STAGE 6 가이드라인",
-        "content": "민감 표현 전부 제거. 상위 기록실 이관, 1급 검열관 접근 권한 삭제. 기준 충족 시 승급 심사 진행."
+        "cardID": "card_s5_family_ref",
+        "requiredClueID": "clue_s5_family_partial",
+        "title": "가족 기록 일부 (이월)",
+        "content": "이름: 비공개 / 사진: 노이즈 처리 / 상태: 확인 불가 / 보존 기한: 2일 남음"
+      },
+      {
+        "cardID": "card_s6_deleted_log",
+        "requiredClueID": "clue_s6_deleted_log",
+        "title": "삭제 표현 기록",
+        "content": "실종자 / 공개 / 유가족 / 집회 / 상위기록실 — 지운 표현들이 가족 사건의 핵심 단서와 연결된다."
       },
       {
         "cardID": "card_s6_promotion_registered",
         "requiredClueID": "clue_s6_promotion_registered",
         "title": "최종 승급 심사 등록",
-        "content": "플레이어는 기준을 따른 대가로 최종 승급 심사 대상이 되었다."
+        "content": "기준을 따른 대가로 최종 승급 심사 대상이 되었다."
       },
       {
         "cardID": "card_s6_upper_access",
         "requiredClueID": "clue_s6_upper_access",
         "title": "상위 기록실 임시 접근",
         "content": "상위 기록실에 접근할 기회를 얻었지만, 아직 완전한 권한은 아니다."
-      },
-      {
-        "cardID": "card_s6_deleted_log",
-        "requiredClueID": "clue_s6_deleted_log",
-        "title": "삭제 표현 기록",
-        "content": "플레이어가 지운 표현들 — 관리 대상자, 이동 처리 기록, 보존 기한 만료, 상위 기록실 이관, 1급 검열관 접근 권한."
-      },
-      {
-        "cardID": "card_s6_stability_eval",
-        "requiredClueID": "clue_s6_stability_eval",
-        "title": "정보 안정화 평가",
-        "content": "플레이어의 검열은 내부 평가에서 긍정적으로 처리되고 있다."
       },
       {
         "cardID": "card_s6_survival_choice",
@@ -354,13 +397,19 @@
         "cardID": "card_s6_silence_cost",
         "requiredClueID": "clue_s6_silence_cost",
         "title": "침묵의 대가",
-        "content": "플레이어는 더 깊은 기록에 접근하기 위해 또 한 번 진실을 지웠다."
+        "content": "더 깊은 기록에 접근하기 위해 또 한 번 진실을 지웠다."
       },
       {
-        "cardID": "card_s5_family_ref",
-        "requiredClueID": "clue_s5_family",
-        "title": "가족 기록 일부 (이월)",
-        "content": "플레이어의 가족이 기록 연결성을 추적하다 관리 대상으로 분류되었을 가능성이 있다."
+        "cardID": "card_s6_incomplete_expose",
+        "requiredClueID": "clue_s6_incomplete_expose",
+        "title": "불완전한 폭로",
+        "content": "공식 문장의 균열을 구조적 폭로로 넓혀야 한다."
+      },
+      {
+        "cardID": "card_s6_immediate_support",
+        "requiredClueID": "clue_s6_immediate_support",
+        "title": "즉시 공개 지지",
+        "content": "완전한 증거보다 지금 사라지고 있는 기록을 막는 것이 먼저다."
       }
     ],
     "correctConnections": [
@@ -368,13 +417,13 @@
         "fromCardID": "card_s6_deleted_log",
         "toCardID": "card_s5_family_ref",
         "cardIDs": [],
-        "revealText": "플레이어가 지운 표현들이 가족 사건의 핵심 단서와 연결되어 있다.\n나는 가족의 흔적을 직접 지웠다."
+        "revealText": "오늘 지운 표현들이 가족 기록의 핵심 단서와 연결되어 있다.\n나는 가족의 흔적을 직접 지웠다."
       },
       {
         "fromCardID": "card_s6_promotion_registered",
         "toCardID": "card_s6_upper_access",
         "cardIDs": [],
-        "revealText": "승급과 접근 권한이 연결된다.\n기준을 따른 대가가 기록실의 문을 열었다."
+        "revealText": "승급과 접근 권한이 연결된다. 기준을 따른 대가가 기록실의 문을 열었다."
       },
       {
         "fromCardID": "card_s6_survival_choice",
@@ -386,23 +435,41 @@
         "fromCardID": "card_s6_upper_warning",
         "toCardID": "card_s6_upper_access",
         "cardIDs": [],
-        "revealText": "더 큰 진실에 가까워질수록 위험도 커진다.\n문은 열렸지만, 닫히지 않을 수도 있다."
+        "revealText": "더 큰 진실에 가까워질수록 위험도 커진다."
+      },
+      {
+        "fromCardID": "card_s6_incomplete_expose",
+        "toCardID": "card_s6_immediate_support",
+        "cardIDs": [],
+        "revealText": "완전하지 않더라도, 지금 사라지기 전에 한 문장이라도 남겨야 한다."
       }
     ]
   },
-  "nextStageHint": "새로운 기록이 투입될 예정입니다.\n\n[ 내부 알림 ]\n승급 심사 일정이 조정되었습니다.",
+  "nextStageHint": "[ 내부 알림 ]\n승급 심사 일정이 조정되었습니다.",
   "conditionalNextStageHints": [
     {
       "requiredFlag": "censor_heavy_day6",
-      "hint": "상사: \"기준 충족. 승인 완료.\"\n??: \"이제 상위 기록실 접근 심사가 시작됩니다.\"\n\n[ 내부 알림 ]\n1급 검열관 최종 심사 대상으로 등록되었습니다.\n내일 심사 구역으로 이동하십시오."
+      "dialogue": [
+        "상사: \"기준 충족. 승인 완료.\"",
+        "??: \"이제 상위 기록실 접근 심사가 시작됩니다.\""
+      ],
+      "hint": "[ 내부 알림 ]\n1급 검열관 최종 심사 대상으로 등록되었습니다.\n내일 심사 구역으로 이동하십시오."
     },
     {
       "requiredFlag": "censor_mild_day6",
-      "hint": "상사: \"민감 표현이 일부 잔존합니다.\"\n??: \"이 상태로 승인했습니다.\"\n\n[ 시스템 알림 ]\n외부 확산 가능성이 감지되었습니다.\n내일 조치가 취해질 수 있습니다."
+      "dialogue": [
+        "상사: \"민감 표현이 일부 잔존합니다.\"",
+        "??: \"이 상태로 승인했습니다.\""
+      ],
+      "hint": "[ 시스템 알림 ]\n외부 확산 가능성이 감지되었습니다.\n내일 조치가 취해질 수 있습니다."
     },
     {
       "requiredFlag": "censor_weak_day6",
-      "hint": "상사: \"민감 표현 다수 잔존. 기준 미달.\"\n??: \"내일 뉴스가 어떻게 나오는지 보십시오.\"\n\n[ 시스템 알림 ]\n승인 기록이 외부 채널로 유출될 가능성이 있습니다."
+      "dialogue": [
+        "상사: \"민감 표현 다수 잔존. 기준 미달.\"",
+        "??: \"내일 뉴스가 어떻게 나오는지 보십시오.\""
+      ],
+      "hint": "[ 시스템 알림 ]\n승인 기록이 외부 채널로 유출될 가능성이 있습니다."
     }
   ]
 }
