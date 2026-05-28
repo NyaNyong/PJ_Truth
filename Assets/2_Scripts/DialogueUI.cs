@@ -341,4 +341,29 @@ public class DialogueUI : MonoBehaviour
             onFinished?.Invoke();
         });
     }
+
+    /// <summary>암시 씬 전용 — NPC 없이 라인만 표시, 완료 후 onComplete 호출</summary>
+    public void ShowStandaloneLines(List<string> lines, Action onComplete)
+    {
+        currentLines = lines ?? new List<string>();
+        currentLineIndex = 0;
+        pendingChoices = null;
+        onChoiceSelected = null;
+        onFinished = onComplete;
+        isShowingChoices = false;
+        closeAfterCurrentLines = false;
+        usedChoiceIndices.Clear();
+
+        if (speakerNameText != null) speakerNameText.text = "";
+
+        if (currentLines.Count > 0)
+        {
+            ShowPanel();
+            ShowLine(currentLines[0]);
+        }
+        else
+        {
+            onComplete?.Invoke();
+        }
+    }
 }

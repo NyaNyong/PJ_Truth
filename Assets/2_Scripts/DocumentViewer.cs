@@ -550,6 +550,9 @@ public class DocumentViewer : MonoBehaviour
 
     public void OnClickApproveButton()
     {
+        SetTool(ToolMode.None);  // ★ 블랙마커/타자기 즉시 해제
+        typewriterSystem?.Close();
+
         ConfirmPopupUI.Instance?.Open(
             "검열이 완료되었습니까?",
             "",

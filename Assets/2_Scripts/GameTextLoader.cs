@@ -122,6 +122,19 @@ public class GameTextLoader : MonoBehaviour
         return currentData.nextStageHint ?? "";
     }
 
+    public List<string> GetNextStageDialogue()
+    {
+        if (currentData == null) return null;
+        foreach (var c in currentData.conditionalNextStageHints)
+        {
+            if (c.dialogue != null && c.dialogue.Count > 0 &&
+                GameFlags.Instance?.HasFlag(c.requiredFlag) == true)
+                return c.dialogue;
+        }
+        return currentData.nextStageDialogue?.Count > 0
+            ? currentData.nextStageDialogue : null;
+    }
+
     public List<string> GetAvailableLocations() => currentData?.availableLocations;
 
     public List<ConditionalLocationData> GetConditionalLocations() =>

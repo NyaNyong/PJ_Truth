@@ -120,18 +120,15 @@ public class GameManager : MonoBehaviour
         HideImmediate(privatePanelCG);
         HideImmediate(dayHeaderCG);
         HideImmediate(blackoutCG);
-        HideImmediate(nextStagePanelCG);
-
-        // ★ 기본 "New Text" 제거 + 완전 비활성화
+        HideImmediate(nextStagePanelCG);          // alpha=0으로 숨김
         if (nextStageHintText != null) nextStageHintText.text = "";
-        if (nextStagePanelCG != null) nextStagePanelCG.gameObject.SetActive(false);
-
+        // ★ nextStagePanelCG.SetActive(false) 제거 — SetActive 사용 금지
         if (guidelineButton != null) guidelineButton.SetActive(false);
-        if (morningNewsButton != null) morningNewsButton.SetActive(false);
         if (dayPhaseBG != null) dayPhaseBG.SetActive(false);
         if (stampCG != null) { stampCG.alpha = 0f; stampCG.gameObject.SetActive(false); }
         if (morningNewsButton != null)
         {
+            morningNewsButton.SetActive(false);
             var img = morningNewsButton.GetComponent<Image>();
             if (img != null) img.alphaHitTestMinimumThreshold = 0.1f;
         }
@@ -481,43 +478,44 @@ public class GameManager : MonoBehaviour
 
         blackoutCG.DOFade(1f, blackoutFadeDuration).SetEase(Ease.InQuad).OnComplete(() =>
         {
-            if (nextStagePanelCG == null) { StartDay(currentDay + 1); return; }
+            var dialogue = GameTextLoader.Instance?.GetNextStageDialogue();
+            Debug.Log($"[Transition] dialogue={dialogue?.Count ?? -1} / DialogueUI={DialogueUI.Instance != null}");
+            if (dialogue != null && dialogue.Count > 0)
+                DialogueUI.Instance?.ShowStandaloneLines(dialogue, ShowNextStageHintPanel); // ★ 대사 먼저
+            else
+                ShowNextStageHintPanel(); // ★ 대사 없으면 바로 암시
+        });
+    }
 
-            // ★ 텍스트 먼저 세팅, 패널은 비활성 유지
-            if (nextStageHintText != null)
-                nextStageHintText.text = GetNextStageHint();
+    private void ShowNextStageHintPanel()
+    {
+        if (nextStagePanelCG == null) { StartDay(currentDay + 1); return; }
 
-            nextStagePanelCG.gameObject.SetActive(true);
-            nextStagePanelCG.alpha = 0f;
-            nextStagePanelCG.interactable = false;
-            nextStagePanelCG.blocksRaycasts = false;
+        if (nextStageHintText != null)
+            nextStageHintText.text = GetNextStageHint();
 
-            // ★ 1프레임 대기 → TMP 메시 갱신 완료 후 페이드 시작
-            DOVirtual.DelayedCall(0f, () =>
-            {
-                nextStagePanelCG.DOFade(1f, 0.4f).OnComplete(() =>
-                {
-                    nextStagePanelCG.interactable = true;
-                    nextStagePanelCG.blocksRaycasts = true;
-                });
-            });
+        // ★ SetActive 없이 alpha만으로 제어 (깜빡임 원천 차단)
+        nextStagePanelCG.DOKill();
+        nextStagePanelCG.alpha = 0f;
+        nextStagePanelCG.interactable = false;
+        nextStagePanelCG.blocksRaycasts = false;
+        nextStagePanelCG.DOFade(1f, 0.4f).OnComplete(() =>
+        {
+            nextStagePanelCG.interactable = true;
+            nextStagePanelCG.blocksRaycasts = true;
         });
     }
 
     /// <summary>암시 팝업 확인 버튼 onClick</summary>
     public void OnClickNextStageConfirm()
     {
-        if (nextStagePanelCG != null)
+        nextStagePanelCG.interactable = false;
+        nextStagePanelCG.blocksRaycasts = false;
+        nextStagePanelCG.DOFade(0f, 0.3f).OnComplete(() =>
         {
-            nextStagePanelCG.interactable = false;
-            nextStagePanelCG.blocksRaycasts = false;
-            nextStagePanelCG.DOFade(0f, 0.3f).OnComplete(() =>
-            {
-                nextStagePanelCG.gameObject.SetActive(false);
-                FadeOutBlackout(() => StartDay(currentDay + 1));
-            });
-        }
-        else FadeOutBlackout(() => StartDay(currentDay + 1));
+            // ★ SetActive(false) 제거
+            FadeOutBlackout(() => StartDay(currentDay + 1));
+        });
     }
 
     private void FadeOutBlackout(System.Action onComplete)

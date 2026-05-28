@@ -17,6 +17,7 @@ public class DayTextData
     public string nextStageHint;                                      // ★
     public List<ConditionalNextStageHintData> conditionalNextStageHints; // ★
     public bool skipWhiteboard; // ★ true면 밤 종료 후 화이트보드 건너뜀
+    public List<string> nextStageDialogue; // ★ 기본 대사 라인
 }
 
 // ─── 뉴스 ────────────────────────────────────
@@ -179,4 +180,5 @@ public class ConditionalNextStageHintData
 {
     public string requiredFlag;
     public string hint;
+    public List<string> dialogue; // ★ 조건부 대사 라인
 }
