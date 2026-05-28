@@ -18,7 +18,7 @@ MonoBehaviour:
   hasPrivateNews: 0
   privateNewsTitle: 
   privateNewsContent: 
-  documentToProcess: {fileID: 11400000, guid: 740ceb8264a515148bb36e793591f101, type: 2}
+  documentToProcess: {fileID: 11400000, guid: 7294c9626c9fd9b4885a772da6425907, type: 2}
   availableLocations: []
   requireAllLocations: 0
   conditionalLocations: []

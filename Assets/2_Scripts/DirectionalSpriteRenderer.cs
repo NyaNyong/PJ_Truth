@@ -1,24 +1,61 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class DirectionalSpriteRenderer : MonoBehaviour
 {
+    // ── 방향별 5프레임 묶음 ────────────────────────────────────────────────
+    [System.Serializable]
+    public class DirectionalFrames
+    {
+        [Tooltip("0: 정지  /  1~4: 걷기 프레임")]
+        public Sprite[] frames = new Sprite[5];
+
+        public Sprite GetFrame(int index)
+        {
+            if (frames == null || frames.Length == 0) return null;
+            return frames[Mathf.Clamp(index, 0, frames.Length - 1)];
+        }
+    }
+
     public enum Direction { N, NE, E, SE, S, SW, W, NW }
 
-    [Header("���� ��������Ʈ (8����)")]
-    [SerializeField] private Sprite maleN, maleNE, maleE, maleSE;
-    [SerializeField] private Sprite maleS, maleSW, maleW, maleNW;
+    // ── 남성 스프라이트 (8방향 × 5프레임) ──────────────────────────────────
+    [Header("남성 — 각 방향 5프레임 (0=정지, 1~4=걷기)")]
+    [SerializeField] private DirectionalFrames maleS;
+    [SerializeField] private DirectionalFrames maleSW;
+    [SerializeField] private DirectionalFrames maleW;
+    [SerializeField] private DirectionalFrames maleNW;
+    [SerializeField] private DirectionalFrames maleN;
+    [SerializeField] private DirectionalFrames maleNE;
+    [SerializeField] private DirectionalFrames maleE;
+    [SerializeField] private DirectionalFrames maleSE;
 
-    [Header("���� ��������Ʈ (8����)")]
-    [SerializeField] private Sprite femaleN, femaleNE, femaleE, femaleSE;
-    [SerializeField] private Sprite femaleS, femaleSW, femaleW, femaleNW;
+    // ── 여성 스프라이트 (8방향 × 5프레임) ──────────────────────────────────
+    [Header("여성 — 각 방향 5프레임 (0=정지, 1~4=걷기)")]
+    [SerializeField] private DirectionalFrames femaleS;
+    [SerializeField] private DirectionalFrames femaleSW;
+    [SerializeField] private DirectionalFrames femaleW;
+    [SerializeField] private DirectionalFrames femaleNW;
+    [SerializeField] private DirectionalFrames femaleN;
+    [SerializeField] private DirectionalFrames femaleNE;
+    [SerializeField] private DirectionalFrames femaleE;
+    [SerializeField] private DirectionalFrames femaleSE;
 
-    [Header("�⺻ ����")]
+    // ── 애니메이션 설정 ───────────────────────────────────────────────────
+    [Header("애니메이션 설정")]
+    [SerializeField] private float walkFPS = 8f;
     [SerializeField] private Direction defaultDirection = Direction.S;
 
+    // ── 런타임 상태 ───────────────────────────────────────────────────────
     private SpriteRenderer sr;
     private Direction currentDirection;
     private bool isMale = true;
+    private bool isMoving = false;
 
+    // 걷기 프레임 (1~4) 순환용
+    private int walkFrameIndex = 1;
+    private float frameTimer = 0f;
+
+    // ─────────────────────────────────────────────────────────────────────
     private void Awake()
     {
         sr = GetComponent<SpriteRenderer>();
@@ -26,28 +63,66 @@ public class DirectionalSpriteRenderer : MonoBehaviour
 
     private void Start()
     {
-        // PlayerData���� ���� �б�
         isMale = PlayerData.Instance == null || PlayerData.Instance.IsMale;
-        SetDirection(defaultDirection);
+        currentDirection = defaultDirection;
+        ApplyFrame(0);
     }
 
-    /// <summary>PlayerController�� �� ������ ȣ��</summary>
+    private void Update()
+    {
+        if (!isMoving)
+        {
+            // 정지 상태: 항상 0번 프레임
+            walkFrameIndex = 1;
+            frameTimer = 0f;
+            ApplyFrame(0);
+            return;
+        }
+
+        // 걷기 애니메이션: 1~4 프레임 순환
+        frameTimer += Time.deltaTime;
+        float interval = 1f / Mathf.Max(walkFPS, 1f);
+        if (frameTimer >= interval)
+        {
+            frameTimer -= interval;
+            walkFrameIndex++;
+            if (walkFrameIndex > 4) walkFrameIndex = 1;
+            ApplyFrame(walkFrameIndex);
+        }
+    }
+
+    /// <summary>PlayerController가 매 프레임 호출 — input이 zero면 정지 처리</summary>
     public void UpdateDirection(Vector2 input)
     {
-        if (input.sqrMagnitude < 0.01f) return;
-        Direction dir = InputToDirection(input);
-        if (dir == currentDirection) return;
-        SetDirection(dir);
+        bool moving = input.sqrMagnitude > 0.01f;
+
+        if (moving)
+        {
+            Direction dir = InputToDirection(input);
+            if (dir != currentDirection)
+            {
+                currentDirection = dir;
+                // 방향 바뀌면 걷기 프레임 리셋
+                walkFrameIndex = 1;
+                frameTimer = 0f;
+                ApplyFrame(walkFrameIndex); // ★ 방향 전환 즉시 반영
+            }
+        }
+
+        isMoving = moving;
     }
 
-    private void SetDirection(Direction dir)
+    // ── 내부 헬퍼 ────────────────────────────────────────────────────────
+    private void ApplyFrame(int frameIndex)
     {
-        currentDirection = dir;
         if (sr == null) return;
-        sr.sprite = GetSprite(dir);
+        DirectionalFrames df = GetDirectionalFrames(currentDirection);
+        if (df == null) return;
+        Sprite s = df.GetFrame(frameIndex);
+        if (s != null) sr.sprite = s;
     }
 
-    private Sprite GetSprite(Direction dir)
+    private DirectionalFrames GetDirectionalFrames(Direction dir)
     {
         if (isMale)
         {

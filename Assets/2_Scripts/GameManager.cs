@@ -577,12 +577,19 @@ public class GameManager : MonoBehaviour
         GameFlags.Instance?.SetFlag(GetCensorIntensityFlag(score.grade, currentDay, typewriter));
 
         // ★ Day 6 잠입 루트 분기: censor_heavy_day6이면 route_stealth 확정
+        // ★ Day 6 루트 분기 플래그 세팅 (기존 코드 교체)
         if (currentDay == 6)
         {
             if (GameFlags.Instance?.HasFlag("censor_heavy_day6") == true)
+            {
                 GameFlags.Instance?.SetFlag("route_stealth");
+                GameFlags.Instance?.RemoveFlag("route_expose");
+            }
             else
+            {
                 GameFlags.Instance?.RemoveFlag("route_stealth");
+                GameFlags.Instance?.SetFlag("route_expose"); // ★ 폭로 루트 구현 시 사용
+            }
         }
 
         if (resultScreenUI != null)
