@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 260458493d739464c86cb22263abe48b, type: 3}
+  m_Name: DocumentData_06
+  m_EditorClassIdentifier: 
+  documentID: 6
+  documentTitle: "[\uD14C\uC2A4\uD2B8] \uBB38\uC11C \uC81C\uBAA9"
+  mainText: "\uBB38\uC11C \uBCF8\uBB38\uC785\uB2C8\uB2E4. [SLOT_0]\uC774 \uD3EC\uD568\uB41C
+    \uBB38\uC7A5\uC785\uB2C8\uB2E4."
+  guidelineText: "[\uAC00\uC774\uB4DC\uB77C\uC778]\n\u2022 \uD14C\uC2A4\uD2B8 \uC9C0\uCE68
+    1\n\u2022 \uD14C\uC2A4\uD2B8 \uC9C0\uCE68 2"
+  needsCensorship: 0
+  targetCensorKeywords: []
+  criticalCensorKeywords: []
+  needsTypewriter: 1
+  typewriterSlots:
+  - slotIndex: 0
+    originalWord: "\uC6D0\uBCF8 \uB2E8\uC5B4"
+    wordOptions:
+    - "\uC624\uB2F5 \uB2E8\uC5B4A"
+    - "\uC815\uB2F5 \uB2E8\uC5B4"
+    - "\uC624\uB2F5 \uB2E8\uC5B4B"
+    correctWord: "\uC815\uB2F5 \uB2E8\uC5B4"
+    insertedWord: 

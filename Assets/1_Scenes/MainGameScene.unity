@@ -20256,6 +20256,7 @@ MonoBehaviour:
   nextStageHintText: {fileID: 558743749}
   defaultNextStageHint: "...\uC9C4\uC2E4\uC740 \uB354 \uAE4A\uC740 \uACF3\uC5D0 \uC788\uB2E4."
   blackoutFadeDuration: 0.8
+  endingScreenUI: {fileID: 0}
 --- !u!1 &1774436925
 GameObject:
   m_ObjectHideFlags: 0

@@ -16,6 +16,7 @@ public class DayTextData
     public WhiteboardData whiteboard;
     public string nextStageHint;                                      // ★
     public List<ConditionalNextStageHintData> conditionalNextStageHints; // ★
+    public bool skipWhiteboard; // ★ true면 밤 종료 후 화이트보드 건너뜀
 }
 
 // ─── 뉴스 ────────────────────────────────────
@@ -127,6 +128,8 @@ public class DialogueChoiceData
     public int costBonusPay; // ★ 필요 성과금 (0이면 무료)
     public bool isExitChoice; // ★ 대화/조사 종료 선택지
     // conditionalLines 삭제
+    public bool isUniqueChoice;                           // ★ 1회 선택 후 영구 비활성
+    [System.NonSerialized] public int runtimeIndex = -1;  // ★ 런타임 인덱스 (JSON 비직렬화)
 }
 
 [System.Serializable]

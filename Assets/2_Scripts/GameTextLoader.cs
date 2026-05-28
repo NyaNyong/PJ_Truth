@@ -103,6 +103,7 @@ public class GameTextLoader : MonoBehaviour
     }
 
     public WhiteboardData GetWhiteboard() => currentData?.whiteboard;
+    public bool GetSkipWhiteboard() => currentData?.skipWhiteboard ?? false; // ★
     public string GetNextStageHint()
     {
         if (currentData == null) return "";

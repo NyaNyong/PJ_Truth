@@ -97,7 +97,8 @@ public class NPCInteractable : MonoBehaviour, IInteractable
             GameFlags.Instance?.AddClue(choice.grantClueID);
         if (!string.IsNullOrEmpty(choice.setFlag))
             GameFlags.Instance?.SetFlag(choice.setFlag);
-
+        if (choice.isUniqueChoice && choice.runtimeIndex >= 0)  // ★
+            persistentUsedIndices.Add(choice.runtimeIndex);     // ★ 선택 즉시 영구 비활성
         if (choice.isExitChoice)
             pendingExitClose = true;
         // 일반 선택지는 DialogueUI의 usedChoiceIndices가 추적 → 종료 시 병합
@@ -201,7 +202,9 @@ public class NPCInteractable : MonoBehaviour, IInteractable
                 setFlag = c.setFlag,
                 costBonusPay = c.costBonusPay,
                 isExitChoice = c.isExitChoice,
-                lines = resolvedLines
+                isUniqueChoice = c.isUniqueChoice, // ★
+                lines = resolvedLines,
+                runtimeIndex = i                 // ★
             });
         }
         return resolved;
