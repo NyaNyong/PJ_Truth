@@ -1,55 +1,59 @@
-using DG.Tweening;
+ï»¿using DG.Tweening;
 using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
 /// <summary>
-/// ¿£µù È­¸é ÄÄÆ÷³ÍÆ®.
-/// GameManager.ShowEnding(key) ¡æ Show(key, onConfirm) È£Ãâ.
-/// Inspector: panelCG, endingTitleUI, newsTitleUI, newsContentUI ¿¬°á.
-/// È®ÀÎ ¹öÆ° onClick ¡æ OnClickConfirm().
+/// ì—”ë”© í™”ë©´ ì»´í¬ë„ŒíŠ¸.
+/// GameManager.ShowEnding(key) â†’ Show(key, onConfirm) í˜¸ì¶œ.
+/// Inspector: panelCG, endingTitleUI, newsTitleUI, newsContentUI ì—°ê²°.
+/// í™•ì¸ ë²„íŠ¼ onClick â†’ OnClickConfirm().
 /// </summary>
 public class EndingScreenUI : MonoBehaviour
 {
     [Header("UI")]
     [SerializeField] private CanvasGroup panelCG;
-    [SerializeField] private TextMeshProUGUI endingTitleUI;   // ¿£µù¸í (¿¹: "³ª¸¸ÀÇ Áø½Ç")
-    [SerializeField] private TextMeshProUGUI newsTitleUI;     // °ø½Ä ´º½º Çìµå¶óÀÎ
-    [SerializeField] private TextMeshProUGUI newsContentUI;   // °ø½Ä ´º½º º»¹®
+    [SerializeField] private TextMeshProUGUI endingTitleUI;   // ì—”ë”©ëª… (ì˜ˆ: "ë‚˜ë§Œì˜ ì§„ì‹¤")
+    [SerializeField] private TextMeshProUGUI newsTitleUI;     // ê³µì‹ ë‰´ìŠ¤ í—¤ë“œë¼ì¸
+    [SerializeField] private TextMeshProUGUI newsContentUI;   // ê³µì‹ ë‰´ìŠ¤ ë³¸ë¬¸
 
-    [Header("ÆäÀÌµå ¼³Á¤")]
+    [Header("í˜ì´ë“œ ì„¤ì •")]
     [SerializeField] private float fadeDuration = 0.5f;
 
     private Action pendingCallback;
 
-    // ¦¡¦¡ ¿£µù µ¥ÀÌÅÍ (key ¡æ ¿£µù¸í / ´º½º Á¦¸ñ / ´º½º º»¹®) ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // â”€â”€ ì—”ë”© ë°ì´í„° (key â†’ ì—”ë”©ëª… / ë‰´ìŠ¤ ì œëª© / ë‰´ìŠ¤ ë³¸ë¬¸) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // EndingScreenUI.cs â€” EndingTable ë”•ì…”ë„ˆë¦¬ êµì²´
     private static readonly Dictionary<string, (string title, string newsTitle, string newsContent)>
         EndingTable = new Dictionary<string, (string, string, string)>
         {
-            ["ending_expose_stealth"] = (
-            "¸ğµç Áø½ÇÀº ´ë°¡¸¦ ¿ä±¸ÇÑ´Ù",
-            "Æ¯º° Á¶»ç Âø¼ö¡¦ Á¤º¸°ü¸®±â°ü Àü¸é °¨»ç",
-            "ÃÖ±Ù °ø°³µÈ ³»ºÎ ±â·Ï°ú ½ÇÁ¾ »ç°Ç °ü·Ã ÀÚ·á·Î ÀÎÇØ\n°ü°è ±â°ü Àü¹İ¿¡ ´ëÇÑ Æ¯º° Á¶»ç°¡ ½ÃÀÛµÇ¾ú´Ù.\n´Ù¼ö Ã¥ÀÓÀÚ°¡ Á÷¹« Á¤ÁöµÈ °ÍÀ¸·Î ¾Ë·ÁÁ³´Ù."
-        ),
-            ["ending_family"] = (
-            "³ª¸¸ÀÇ Áø½Ç",
-            "½ÇÁ¾ »ç°Ç Ãß°¡ ´Ü¼­ ¾ø¾î¡¦ ±âÁ¸ Á¶»ç À¯Áö",
-            "ÃÖ±Ù È®»êµÈ ¿©·¯ Á¦º¸¿¡µµ ºÒ±¸ÇÏ°í\n½ÇÁ¾ »ç°Ç°ú °ü·ÃÇÑ »õ·Î¿î »ç½ÇÀº È®ÀÎµÇÁö ¾Ê¾Ò´Ù°í °ü°è ´ç±¹Àº ¹àÇû´Ù.\n¼ö»ç´Â ±âÁ¸ ÀıÂ÷¿¡ µû¶ó ÁøÇàµÉ ¿¹Á¤ÀÌ´Ù."
-        ),
-            ["ending_system"] = (
-            "±â·ÏÀ» ´Ù·ç´Â ÀÚ",
-            "±â·Ï°ü¸® Ã¼°è °íµµÈ­¡¦ 1±Ş °Ë¿­°ü Ãæ¿ø",
-            "Áø½Çº¸°ü¼Ò´Â »óÀ§ ±â·Ï °ü¸® Ã¼°è¸¦ °­È­ÇÏ°í\n°íµî±Ş °Ë¿­ ÀÎ·ÂÀ» Ãæ¿øÇÒ °èÈ¹ÀÌ¶ó°í ¹àÇû´Ù.\n±â·ÏÀÇ ¾ÈÁ¤Àû °ü¸®¸¦ À§ÇÑ ³»ºÎ ÀıÂ÷µµ Á¤ºñµÉ ¿¹Á¤ÀÌ´Ù."
-        ),
+            // â”€â”€ ì ì… ë£¨íŠ¸ ì—”ë”© â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+            ["ending_stealth_expose"] = (
+                "ì•ˆì—ì„œ ë¬´ë„ˆëœ¨ë¦¬ë‹¤",
+                "ìƒìœ„ê¸°ë¡ì‹¤ ì›ë³¸ ê¸°ë¡ ì™¸ë¶€ ìœ ì¶œâ€¦ ì •ë³´ê´€ë¦¬ ì²´ê³„ ì „ë©´ ì¤‘ë‹¨",
+                "ì§„ì‹¤ë³´ê´€ì†Œ ìƒìœ„ê¸°ë¡ì‹¤ì— ë³´ê´€ëœ ì›ë³¸ ê¸°ë¡ ë‹¤ìˆ˜ê°€ ì™¸ë¶€ë¡œ ìœ ì¶œë˜ì—ˆë‹¤.\nê´€ë ¨ ê¸°ê´€ì€ ì¦‰ê° ì •ë³´ê´€ë¦¬ ì²´ê³„ ìš´ì˜ì„ ì „ë©´ ì¤‘ë‹¨í•˜ê³  ë‚´ë¶€ ì¡°ì‚¬ì— ì°©ìˆ˜í–ˆë‹¤ê³  ë°í˜”ë‹¤.\nìœ ì¶œëœ ê¸°ë¡ì˜ ê·œëª¨ì™€ ê²½ìœ„ëŠ” ì•„ì§ í™•ì¸ë˜ì§€ ì•Šì•˜ë‹¤."
+            ),
+            ["ending_family_only"] = (
+                "ë‚˜ë§Œì˜ ì§„ì‹¤",
+                "ì‹¤ì¢… ì‚¬ê±´ ì¶”ê°€ ë‹¨ì„œ ì—†ì–´â€¦ ê¸°ì¡´ ì¡°ì‚¬ ìœ ì§€",
+                "ìµœê·¼ í™•ì‚°ëœ ì—¬ëŸ¬ ì œë³´ì—ë„ ë¶ˆêµ¬í•˜ê³ \nì‹¤ì¢… ì‚¬ê±´ê³¼ ê´€ë ¨í•œ ìƒˆë¡œìš´ ì‚¬ì‹¤ì€ í™•ì¸ë˜ì§€ ì•Šì•˜ë‹¤ê³  ê´€ê³„ ë‹¹êµ­ì€ ë°í˜”ë‹¤.\nìˆ˜ì‚¬ëŠ” ê¸°ì¡´ ì ˆì°¨ì— ë”°ë¼ ì§„í–‰ë  ì˜ˆì •ì´ë‹¤."
+            ),
+            ["ending_new_manager"] = (
+                "ìƒˆë¡œìš´ ê´€ë¦¬ì",
+                "ì •ë³´ ì•ˆì •í™” ì •ì±… í™•ëŒ€ ì‹œí–‰â€¦ ê²€ì¦ ì²´ê³„ ê°•í™”",
+                "ì§„ì‹¤ë³´ê´€ì†ŒëŠ” ì •ë³´ ì•ˆì •í™” ì •ì±…ì„ í™•ëŒ€ ì‹œí–‰í•˜ê³  ë‚´ë¶€ ê²€ì¦ ì²´ê³„ë¥¼ ê°•í™”í•œë‹¤ê³  ë°í˜”ë‹¤.\nê³ ë“±ê¸‰ ê²€ì—´ ì¸ë ¥ì´ ì¶©ì›ë  ì˜ˆì •ì´ë©°, ìƒìœ„ ê¸°ë¡ ê´€ë¦¬ ì ˆì°¨ë„ ì •ë¹„ë  ì˜ˆì •ì´ë‹¤."
+            ),
+
+            // â”€â”€ í­ë¡œ ë£¨íŠ¸ ì—”ë”© (ì¤€ë¹„ ì¤‘) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             ["route_expose_placeholder"] = (
-            "Æø·Î ·çÆ® (ÁØºñ Áß)",
-            "ÀÌ ·çÆ®´Â ÃßÈÄ °ø°³µË´Ï´Ù",
-            "Æø·Î ·çÆ®´Â ÇöÀç °³¹ß ÁßÀÔ´Ï´Ù.\n´Ù½Ã ÇÃ·¹ÀÌÇÏ¿© ÀáÀÔ ·çÆ®¸¦ ¼±ÅÃÇØ º¸¼¼¿ä."
-        ),
+                "í­ë¡œ ë£¨íŠ¸ (ì¤€ë¹„ ì¤‘)",
+                "ì´ ë£¨íŠ¸ëŠ” ì¶”í›„ ê³µê°œë©ë‹ˆë‹¤",
+                "í­ë¡œ ë£¨íŠ¸ëŠ” í˜„ì¬ ê°œë°œ ì¤‘ì…ë‹ˆë‹¤.\në‹¤ì‹œ í”Œë ˆì´í•˜ì—¬ ì ì… ë£¨íŠ¸ë¥¼ ì„ íƒí•´ ë³´ì„¸ìš”."
+            ),
         };
 
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     private void Awake()
     {
         if (panelCG == null) return;
@@ -59,7 +63,7 @@ public class EndingScreenUI : MonoBehaviour
         panelCG.gameObject.SetActive(false);
     }
 
-    /// <summary>GameManager¿¡¼­ È£Ãâ. ¾ÏÀü ÈÄ ÀÌ ÆĞ³ÎÀÌ Ç¥½ÃµÈ´Ù.</summary>
+    /// <summary>GameManagerì—ì„œ í˜¸ì¶œ. ì•”ì „ í›„ ì´ íŒ¨ë„ì´ í‘œì‹œëœë‹¤.</summary>
     public void Show(string key, Action onConfirm)
     {
         pendingCallback = onConfirm;
@@ -72,7 +76,7 @@ public class EndingScreenUI : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning($"[EndingScreenUI] ¾Ë ¼ö ¾ø´Â ¿£µù Å°: {key}");
+            Debug.LogWarning($"[EndingScreenUI] ì•Œ ìˆ˜ ì—†ëŠ” ì—”ë”© í‚¤: {key}");
             if (endingTitleUI != null) endingTitleUI.text = key;
         }
 
@@ -87,7 +91,7 @@ public class EndingScreenUI : MonoBehaviour
         });
     }
 
-    /// <summary>È®ÀÎ ¹öÆ° onClick ¡æ ÆĞ³Î ÆäÀÌµå¾Æ¿ô ÈÄ Äİ¹é</summary>
+    /// <summary>í™•ì¸ ë²„íŠ¼ onClick â†’ íŒ¨ë„ í˜ì´ë“œì•„ì›ƒ í›„ ì½œë°±</summary>
     public void OnClickConfirm()
     {
         if (panelCG == null)

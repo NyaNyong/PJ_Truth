@@ -21,6 +21,9 @@ public class DocumentData : ScriptableObject
     public List<string> targetCensorKeywords;
     public List<string> criticalCensorKeywords; // ★ 추가
 
+    [Header("루트 분기 문서")]
+    public bool isRouteDeterminant; // ★ true면 mild 케이스에 경고 팝업 표시
+
     [Header("타자기 시스템")]
     public bool                     needsTypewriter;
     public List<TypewriterSlotData> typewriterSlots;

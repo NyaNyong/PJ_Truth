@@ -1,0 +1,204 @@
+{
+  "day": 7,
+  "skipWhiteboard": true,
+  "news": {
+    "officialTitle": "기록관리 체계 정비… 상위 기록 접근 절차 강화",
+    "officialContent": "진실보관소는 상위 기록 접근 절차를 강화하고 내부 기록 관리 체계를 정비한다고 밝혔다.\n관계 기관은 기록의 안전한 보존과 체계적 관리를 위해 절차를 고도화하는 중이라고 전했다.",
+    "privateTitle": "상위기록실에 무엇이 있는가",
+    "privateContent": "내부 관계자에 따르면 상위기록실에는 실종자와 관련된 원본 기록이 보관되어 있다고 한다.\n이 기록들은 일반 열람 대상에서 제외되어 있으며, 일부는 '처리 완료' 표시와 함께 잠금 처리되었다고 전해진다.",
+    "conditionalOverrides": []
+  },
+  "documents": [],
+  "availableLocations": [],
+  "requireAllLocations": false,
+  "conditionalLocations": [
+    {
+      "locationName": "loc_upper_archive",
+      "condition": { "type": "hasFlag", "value": "route_stealth" }
+    }
+  ],
+  "locations": [
+    {
+      "locationID": "loc_upper_archive",
+      "description": "진실보관소 상위기록실. 형광등 하나가 깜박인다. 서랍과 열람 단말기가 늘어선 좁고 조용한 공간. 문은 잠겨 있었지만 오늘 당신에게 열려 있다.",
+      "npcs": [
+        {
+          "id": "npc_s7_archivist",
+          "npcName": "기록관리원",
+          "firstLines": [
+            "여기까지 올라온 사람은 드물어요.",
+            "열람할 기록 번호를 말씀해 주시겠어요?",
+            "시간은 많지 않습니다."
+          ],
+          "repeatLines": [
+            "더 필요한 기록이 있으시면 말씀해 주세요.",
+            "서두르시는 게 좋을 것 같습니다."
+          ],
+          "grantClueID": "",
+          "setFlag": "",
+          "choices": [
+            {
+              "label": "관리대상자분류체계 열람",
+              "lines": [
+                "관리대상자분류체계 기록을 출력합니다.",
+                "1등급 관리대상자는 '이송 완료' 처리 이후 기록이 봉인됩니다.",
+                "해당 분류에 포함된 인원의 현황은 공개 대상에서 제외되어 있습니다."
+              ],
+              "grantClueID": "clue_s7_classification_system",
+              "setFlag": "",
+              "costBonusPay": 0,
+              "isExitChoice": false,
+              "isUniqueChoice": true
+            },
+            {
+              "label": "이송처리원본 열람",
+              "lines": [
+                "이송처리원본 기록을 출력합니다.",
+                "이 기록은 서명란이 모두 코드로 처리되어 있습니다.",
+                "다만 날짜와 장소 일부는 남아 있습니다."
+              ],
+              "grantClueID": "clue_s7_transfer_log",
+              "setFlag": "",
+              "costBonusPay": 0,
+              "isExitChoice": false,
+              "isUniqueChoice": true
+            },
+            {
+              "label": "기록훼손로그 열람",
+              "lines": [
+                "기록훼손로그를 출력합니다.",
+                "삭제 및 수정된 기록 목록입니다.",
+                "가장 최근 항목에는 오늘 날짜가 찍혀 있습니다."
+              ],
+              "grantClueID": "clue_s7_tamper_log",
+              "setFlag": "",
+              "costBonusPay": 0,
+              "isExitChoice": false,
+              "isUniqueChoice": true
+            },
+            {
+              "label": "가족기록원본 열람",
+              "lines": [
+                "가족기록원본 기록을 출력합니다.",
+                "이름, 사진, 연락처가 봉인되지 않고 남아 있습니다.",
+                "공식 기록에서 삭제된 정보가 여기 그대로 있습니다."
+              ],
+              "grantClueID": "clue_s7_family_record",
+              "setFlag": "",
+              "costBonusPay": 0,
+              "isExitChoice": false,
+              "isUniqueChoice": true
+            },
+            {
+              "label": "상위관리자승인로그 열람",
+              "lines": [
+                "상위관리자승인로그를 출력합니다.",
+                "기록 봉인과 삭제에는 모두 상위 관리자의 승인이 있었습니다.",
+                "서명은 코드로 처리되어 있지만, 반복되는 패턴이 보입니다."
+              ],
+              "grantClueID": "clue_s7_approval_log",
+              "setFlag": "",
+              "costBonusPay": 0,
+              "isExitChoice": false,
+              "isUniqueChoice": true
+            }
+          ],
+          "conditionalFirstLines": []
+        },
+        {
+          "id": "npc_s7_final_choice",
+          "npcName": "시스템 단말기",
+          "firstLines": [
+            "[기록재분류절차 열람 가능]",
+            "[가족기록 외부 전송 포트 감지됨]",
+            "[현재 위치: 내부 네트워크 연결 상태]"
+          ],
+          "repeatLines": [
+            "선택하지 않으면 이 창은 자동으로 닫힙니다.",
+            "기록은 당신이 떠난 후에도 남아 있습니다."
+          ],
+          "grantClueID": "",
+          "setFlag": "",
+          "choices": [
+            {
+              "label": "기록재분류절차를 역이용해 기록을 외부로 유출한다",
+              "lines": [
+                "전송이 시작됩니다.",
+                "이 선택은 되돌릴 수 없습니다.",
+                "기록은 이제 당신의 손을 떠났습니다."
+              ],
+              "grantClueID": "",
+              "setFlag": "choice_stealth_expose",
+              "costBonusPay": 0,
+              "isExitChoice": true,
+              "isUniqueChoice": true
+            },
+            {
+              "label": "가족기록만 확보해 외부로 가져간다",
+              "lines": [
+                "가족기록 파일을 저장합니다.",
+                "시스템에는 흔적이 남지 않습니다.",
+                "당신만이 이 기록의 존재를 알게 됩니다."
+              ],
+              "grantClueID": "",
+              "setFlag": "choice_family_only",
+              "costBonusPay": 0,
+              "isExitChoice": true,
+              "isUniqueChoice": true
+            },
+            {
+              "label": "아무것도 가져가지 않는다. 이 자리에 남는다.",
+              "lines": [
+                "당신은 기록을 닫습니다.",
+                "문은 뒤에서 잠깁니다.",
+                "내일도 이 자리에서 기록을 다루게 될 것입니다."
+              ],
+              "grantClueID": "",
+              "setFlag": "choice_remain",
+              "costBonusPay": 0,
+              "isExitChoice": true,
+              "isUniqueChoice": true
+            }
+          ],
+          "conditionalFirstLines": [
+            {
+              "condition": { "type": "hasClue", "value": "clue_s7_family_record" },
+              "lines": [
+                "[가족기록원본 열람 이력 감지됨]",
+                "[외부 전송 포트 활성화 가능]"
+              ]
+            }
+          ]
+        }
+      ],
+      "clues": [
+        {
+          "id": "clue_s7_classification_system",
+          "title": "관리대상자분류체계",
+          "description": "1등급 관리대상자는 이송 완료 처리 후 기록이 봉인된다. 해당 인원의 현황은 공개 대상에서 영구 제외된다."
+        },
+        {
+          "id": "clue_s7_transfer_log",
+          "title": "이송처리원본",
+          "description": "서명란은 코드로 처리되어 있으나 날짜와 일부 장소명이 남아 있다. 실종 시점과 일치하는 항목이 포함되어 있다."
+        },
+        {
+          "id": "clue_s7_tamper_log",
+          "title": "기록훼손로그",
+          "description": "삭제 및 수정된 기록 목록. 가장 최근 항목에는 오늘 날짜가 찍혀 있다."
+        },
+        {
+          "id": "clue_s7_family_record",
+          "title": "가족기록원본",
+          "description": "공식 기록에서 삭제된 이름과 사진이 이곳에 남아 있다. 봉인되지 않은 유일한 원본이다."
+        },
+        {
+          "id": "clue_s7_approval_log",
+          "title": "상위관리자승인로그",
+          "description": "모든 기록 봉인과 삭제에 상위 관리자의 승인이 존재한다. 서명 코드의 반복 패턴으로 동일 인물임을 알 수 있다."
+        }
+      ]
+    }
+  ],
+  "conditionalNextStageHints": []
+}

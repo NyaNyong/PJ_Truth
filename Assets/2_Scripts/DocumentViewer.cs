@@ -550,24 +550,50 @@ public class DocumentViewer : MonoBehaviour
 
     public void OnClickApproveButton()
     {
-        SetTool(ToolMode.None);  // ★ 블랙마커/타자기 즉시 해제
+        SetTool(ToolMode.None);
         typewriterSystem?.Close();
+
+        // ★ mild 케이스 경고 팝업 (isRouteDeterminant 문서에만)
+        if (currentDocument != null && currentDocument.isRouteDeterminant && IsMildCensorStatus())
+        {
+            ConfirmPopupUI.Instance?.Open(
+                "민감 표현이 문서에 남아 있습니다.\n이 상태로 승인할 경우 외부 확산 가능성이 있습니다.",
+                "[그대로 승인한다]",
+                "[가이드라인에 맞춰 다시 수정한다]",
+                onConfirm: () => ProceedApprove(),   // 폭로 루트로 진행
+                onCancel: () => { /* 문서로 복귀 — 팝업만 닫힘 */ },
+                confirmText: "그대로 승인한다",
+                cancelText: "다시 수정한다"
+            );
+            return;
+        }
 
         ConfirmPopupUI.Instance?.Open(
             "검열이 완료되었습니까?",
-            "",
-            "",
-            onConfirm: () =>
-            {
-                CheckAnswer();
-                Debug.Log("서류 승인 → " + (isAllMaskedCorrectly ? "[정답]" : "[오답]"));
-                isDocumentActive = false;
-                currentTool = ToolMode.None;
-                typewriterSystem?.Close();
-                onApproveClicked?.Raise();
-            },
+            "", "",
+            onConfirm: () => ProceedApprove(),
             confirmText: "예", cancelText: "아니요"
         );
+    }
+
+    /// <summary>실제 승인 처리 — 두 경로에서 공통 호출</summary>
+    private void ProceedApprove()
+    {
+        CheckAnswer();
+        Debug.Log("서류 승인 → " + (isAllMaskedCorrectly ? "[정답]" : "[오답]"));
+        isDocumentActive = false;
+        currentTool = ToolMode.None;
+        typewriterSystem?.Close();
+        onApproveClicked?.Raise();
+    }
+
+    /// <summary>mild 검열 상태 판별: criticalKeyword 중 일부만 처리된 경우</summary>
+    private bool IsMildCensorStatus()
+    {
+        var criticals = currentDocument?.criticalCensorKeywords;
+        if (criticals == null || criticals.Count == 0) return false;
+        int censored = criticals.Count(k => WasKeywordCensored(k));
+        return censored > 0 && censored < criticals.Count; // 일부만 검열
     }
 
     /// <summary>GameManager가 결과창 표시 전 호출 — 검열/타자기 점수 반환</summary>

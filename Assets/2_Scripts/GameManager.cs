@@ -425,15 +425,33 @@ public class GameManager : MonoBehaviour
     }
 
     // ★ 엔딩 분기 판정 ─────────────────────────────────────────────────────
+    // 기존 코드 (428~437줄) 교체
     private void TryShowEnding()
     {
         if (GameFlags.Instance == null) { ShowNextStageTransition(); return; }
 
-        if (GameFlags.Instance.HasFlag("ending_expose_stealth")) ShowEnding("ending_expose_stealth");
-        else if (GameFlags.Instance.HasFlag("ending_family")) ShowEnding("ending_family");
-        else if (GameFlags.Instance.HasFlag("ending_system")) ShowEnding("ending_system");
-        else if (!GameFlags.Instance.HasFlag("route_stealth")) ShowEnding("route_expose_placeholder");
-        else ShowNextStageTransition(); // 예상 외 fallback
+        string key = ResolveEndingKey();
+        ShowEnding(key);
+    }
+
+    private string ResolveEndingKey()
+    {
+        var flags = GameFlags.Instance;
+
+        // 잠입 루트: choice 플래그 우선순위 expose > family_only > remain
+        if (flags.HasFlag("route_stealth"))
+        {
+            if (flags.HasFlag("choice_stealth_expose")) return "ending_stealth_expose";
+            if (flags.HasFlag("choice_family_only")) return "ending_family_only";
+            if (flags.HasFlag("choice_remain")) return "ending_new_manager";
+            return "ending_new_manager"; // fallback
+        }
+
+        // 폭로 루트 (추후 구현)
+        if (flags.HasFlag("route_expose"))
+            return "route_expose_placeholder";
+
+        return "ending_new_manager";
     }
 
     // ★ 엔딩 표시 ──────────────────────────────────────────────────────────
@@ -591,9 +609,16 @@ public class GameManager : MonoBehaviour
         }
 
         if (resultScreenUI != null)
-            resultScreenUI.Show(score, kpiProgress, totalDocs, () => ChangePhase(GamePhase.Night));
+            resultScreenUI.Show(score, kpiProgress, totalDocs, () =>
+            {
+                if (currentDay >= 7) TryShowEnding();
+                else ChangePhase(GamePhase.Night);
+            });
         else
-            ChangePhase(GamePhase.Night);
+        {
+            if (currentDay >= 7) TryShowEnding();
+            else ChangePhase(GamePhase.Night);
+        }
     }
 
     private string GetCensorIntensityFlag(Grade grade, int day, float typewriterScore = 0f)
@@ -644,4 +669,6 @@ public class GameManager : MonoBehaviour
         cg.DOFade(0f, panelFadeDuration).SetEase(Ease.OutQuad)
             .OnComplete(() => { onComplete?.Invoke(); });
     }
+
+    
 }

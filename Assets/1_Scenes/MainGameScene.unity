@@ -2791,7 +2791,6 @@ Transform:
   - {fileID: 1956210832}
   - {fileID: 853744390}
   - {fileID: 1018745917}
-  - {fileID: 1194336656}
   - {fileID: 470506651}
   m_Father: {fileID: 619072936}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -14400,7 +14399,8 @@ Transform:
   m_LocalPosition: {x: -14.77, y: -8.4, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1194336656}
   m_Father: {fileID: 251288341}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1027830423
@@ -16056,17 +16056,17 @@ MonoBehaviour:
   - locationName: loc_control_post
     displayName: "\uC7AC\uAC1C\uBC1C \uAD6C\uC5ED \uC678\uACFD \uD1B5\uC81C\uC18C"
     description: .
-    mapRoot: {fileID: 946646059}
-    mapBoundary: {fileID: 1210680408}
-    spawnPoint: {fileID: 26602239}
+    mapRoot: {fileID: 251288340}
+    mapBoundary: {fileID: 470506652}
+    spawnPoint: {fileID: 1018745917}
     mapButtonPosition: {x: 0, y: 50}
     requiredClueIDs: []
   - locationName: loc_last_sighting
     displayName: "\uB9C8\uC9C0\uB9C9 \uBAA9\uACA9 \uC9C0\uC810"
     description: "\uD14C\uC2A4\uD2B8\uAD6C\uC5EDb"
-    mapRoot: {fileID: 2055096331}
-    mapBoundary: {fileID: 2061509500}
-    spawnPoint: {fileID: 1297474047}
+    mapRoot: {fileID: 412677427}
+    mapBoundary: {fileID: 1283039201}
+    spawnPoint: {fileID: 1309420574}
     mapButtonPosition: {x: 50, y: -50}
     requiredClueIDs: []
   selectedLocation: {fileID: 11400000, guid: c9e81a1b406f2b94aa8a2e59d42a34cd, type: 2}
@@ -16235,8 +16235,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1194336655}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 14.77, y: 8.4, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -16245,7 +16245,7 @@ Transform:
   - {fileID: 1908491852}
   - {fileID: 333494452}
   - {fileID: 559982979}
-  m_Father: {fileID: 251288341}
+  m_Father: {fileID: 1018745917}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1203697306
 GameObject:

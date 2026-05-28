@@ -32,7 +32,7 @@
       "needsCensorship": true,
       "needsTypewriter": true,
       "censorKeywords": [
-        "실종자", "이름", "사진", "공개", "사라졌다고", "비공개", "노이즈", "확인 불가"
+        "가족들", "실종자", "이름", "사진", "공개", "사라졌다고", "비공개", "노이즈", "관리", "대상자로"
       ],
       "criticalCensorKeywords": ["실종자", "비공개", "노이즈"],
       "typewriterSlots": [
