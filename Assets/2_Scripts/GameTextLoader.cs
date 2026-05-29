@@ -71,6 +71,9 @@ public class GameTextLoader : MonoBehaviour
         return news;
     }
 
+    public string GetGeneralNewsTitle()
+    => currentData?.generalNewsTitle ?? "";
+
     public DocumentTextData GetDocument(int documentID) =>
         currentData?.documents?.Find(d => d.id == documentID);
 
@@ -207,6 +210,7 @@ public class GameTextLoader : MonoBehaviour
 
         data.documentTitle = d.title;
         data.mainText = d.mainText;
+        data.backText = d.backText ?? "";   // ★
         data.guidelineText = d.guidelineText;
         data.needsCensorship = d.needsCensorship;
         data.needsTypewriter = d.needsTypewriter;

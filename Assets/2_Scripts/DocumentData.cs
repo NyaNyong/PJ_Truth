@@ -12,6 +12,9 @@ public class DocumentData : ScriptableObject
     [TextArea(5, 10)]
     public string mainText;
 
+    [TextArea(5, 10)]
+    public string backText; // ★ 뒷면 텍스트. 비어있으면 뒤집기 버튼 숨김
+
     [Header("업무 지침 (가이드라인)")]
     [TextArea(3, 5)]
     public string guidelineText;

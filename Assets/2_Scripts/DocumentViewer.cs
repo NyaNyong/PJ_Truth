@@ -19,6 +19,11 @@ public class DocumentViewer : MonoBehaviour
     [SerializeField] private Button blackMarkerButton;
     [SerializeField] private Button typewriterButton;
 
+    // ★ 앞뒤 전환
+    [Header("UI - 페이지 전환")]
+    [SerializeField] private Button              flipButton;        // 뒤집기 버튼
+    [SerializeField] private TextMeshProUGUI     pageIndicatorText; // "앞면" / "뒷면" 표시 (옵션)
+
     [Header("버튼 색상")]
     [SerializeField] private Color buttonActiveColor   = new Color(0.3f, 0.7f, 0.3f);
     [SerializeField] private Color buttonInactiveColor = Color.white;
@@ -30,68 +35,81 @@ public class DocumentViewer : MonoBehaviour
     [SerializeField] private ScriptableEventNoParam onApproveClicked;
 
     [Header("블랙마커 재질 - 3분할")]
-    [Tooltip("왼쪽 끝 캡 스프라이트 (BlackMarkerFront)")]
     [SerializeField] private Sprite markerFrontSprite;
-    [Tooltip("가운데 늘어나는 스프라이트 (BlackMarkerMiddle)")]
     [SerializeField] private Sprite markerMiddleSprite;
-    [Tooltip("오른쪽 끝 캡 스프라이트 (BlackMarkerEnd)")]
     [SerializeField] private Sprite markerEndSprite;
-    [Tooltip("좌우 캡 고정 너비(px). 0이면 스프라이트 원본 너비 사용.")]
-    [SerializeField] private float markerCapWidth = 0f;
-    [Tooltip("단어 경계에 추가할 여백(px)")]
-    [SerializeField] private float markerPaddingX = 6f;
-    [SerializeField] private float markerPaddingY = 4f;
+    [SerializeField] private float  markerCapWidth  = 0f;
+    [SerializeField] private float  markerPaddingX  = 6f;
+    [SerializeField] private float  markerPaddingY  = 4f;
 
     [Header("승인 버튼")]
-    [SerializeField] private Button approveButton; // ★ 추가
+    [SerializeField] private Button approveButton;
 
-    // ─────────────────────────────────────────
-    private DocumentData    currentDocument;
-    private bool            isAllMaskedCorrectly = false;
-    private HashSet<string> maskedKeywords        = new HashSet<string>();
-    private bool            isDocumentActive      = false;
-    private ToolMode        currentTool           = ToolMode.None;
+    // ─────────────────────────────────────────────────────────────────────
+    private DocumentData currentDocument;
+    private bool         isAllMaskedCorrectly = false;
+    private bool         isDocumentActive     = false;
+    private ToolMode     currentTool          = ToolMode.None;
 
-    // 3분할 오버레이 풀 (각 항목 = 컨테이너 RT, 자식: Front/Middle/End)
+    // ★ 페이지 상태
+    private int currentPage = 0; // 0 = 앞면, 1 = 뒷면
+
+    // ★ 페이지별 마스킹 데이터 (2페이지)
+    private readonly Dictionary<string, HashSet<int>>[] _maskedPerPage =
+    {
+        new Dictionary<string, HashSet<int>>(),
+        new Dictionary<string, HashSet<int>>()
+    };
+
+    /// <summary>현재 페이지의 마스킹 딕셔너리 — 기존 코드가 그대로 동작</summary>
+    private Dictionary<string, HashSet<int>> maskedOccurrences => _maskedPerPage[currentPage];
+
+    // 3분할 오버레이 풀
     private readonly List<RectTransform> _overlayPool    = new List<RectTransform>();
     private readonly List<RectTransform> _activeOverlays = new List<RectTransform>();
 
-    // ★ [SLOT_N] 형식으로 수정 (기존 ##SLOTN## → [SLOT_N])
-    private static readonly Regex slotSourceRegex = new Regex(@"\[SLOT_(\d+)\]");
+    private static readonly Regex slotSourceRegex      = new Regex(@"\[SLOT_(\d+)\]");
     private static readonly Regex slotPlaceholderRegex = new Regex(@"\x02(\d+)\x03");
-    private static readonly Regex slotContainsRegex = new Regex(@"SLOT(\d+)");
+    private static readonly Regex slotContainsRegex    = new Regex(@"SLOT(\d+)");
 
-    // ★ 변경: 클릭한 특정 위치의 단어만 검열하도록 (단어텍스트 → 단어별 발생 인덱스 셋)
-    private Dictionary<string, HashSet<int>> maskedOccurrences = new Dictionary<string, HashSet<int>>();
-
-    // 자식 인덱스 상수
     private const int CHILD_FRONT  = 0;
     private const int CHILD_MIDDLE = 1;
     private const int CHILD_END    = 2;
 
-    // ─────────────────────────────────────────
-    // [SerializeField] private Button approveButton; ← 삭제
-
+    // ─────────────────────────────────────────────────────────────────────
     private void Awake()
     {
         if (blackMarkerButton != null)
             blackMarkerButton.onClick.AddListener(OnClickBlackMarkerButton);
         if (typewriterButton != null)
             typewriterButton.onClick.AddListener(OnClickTypewriterButton);
-        // approveButton AddListener ← 삭제
+        if (flipButton != null)
+            flipButton.onClick.AddListener(OnClickFlipButton);
         RefreshToolButtonUI();
     }
 
+    // ─────────────────────────────────────────────────────────────────────
+    // 문서 로드/해제
+    // ─────────────────────────────────────────────────────────────────────
+
     public void ShowDocument(DocumentData docData)
     {
-        currentDocument  = docData;
-        titleText.text   = docData.documentTitle;
-        isDocumentActive = true;
-        currentTool      = ToolMode.None;
+        currentDocument      = docData;
+        titleText.text       = docData.documentTitle;
+        isDocumentActive     = true;
+        currentTool          = ToolMode.None;
+        currentPage          = 0; // ★ 항상 앞면부터
 
-        maskedOccurrences.Clear(); // ★ 기존 maskedKeywords.Clear() 교체
+        // ★ 양면 마스킹 초기화
+        _maskedPerPage[0].Clear();
+        _maskedPerPage[1].Clear();
         isAllMaskedCorrectly = false;
         ClearAllOverlays();
+
+        // ★ 뒷면 존재 여부에 따라 뒤집기 버튼 표시
+        bool hasBack = !string.IsNullOrWhiteSpace(docData.backText);
+        if (flipButton != null) flipButton.gameObject.SetActive(hasBack);
+        UpdatePageIndicator();
 
         if (typewriterButton != null)
             typewriterButton.gameObject.SetActive(docData.needsTypewriter);
@@ -102,7 +120,7 @@ public class DocumentViewer : MonoBehaviour
                 slot.insertedWord = "";
             typewriterSystem.Initialize(docData);
             typewriterSystem.OnWordDropped = OnWordDropped;
-            typewriterSystem.OnClosed = () => SetTool(ToolMode.None);
+            typewriterSystem.OnClosed      = () => SetTool(ToolMode.None);
         }
 
         typewriterSystem?.Close();
@@ -115,17 +133,51 @@ public class DocumentViewer : MonoBehaviour
     {
         isDocumentActive = false;
         currentTool      = ToolMode.None;
+        currentPage      = 0;
         typewriterSystem?.Close();
         ClearAllOverlays();
         RefreshToolButtonUI();
+        if (flipButton != null) flipButton.gameObject.SetActive(false);
     }
 
-    // ─────────────────────────────────────────
+    // ─────────────────────────────────────────────────────────────────────
+    // ★ 페이지 전환
+    // ─────────────────────────────────────────────────────────────────────
+
+    public void OnClickFlipButton()
+    {
+        if (!isDocumentActive || currentDocument == null) return;
+
+        // 타자기는 앞면 전용 — 뒷면으로 갈 때 닫기
+        if (currentPage == 0)
+        {
+            typewriterSystem?.Close();
+            SetTool(ToolMode.None);
+        }
+
+        currentPage = 1 - currentPage; // 0↔1 토글
+        ClearAllOverlays();
+        UpdatePageIndicator();
+        RefreshToolButtonUI();
+        RenderDocument();
+
+        AudioManager.Instance?.PlaySfxDayInteraction();
+        Debug.Log($"[DocumentViewer] 페이지 전환 → {(currentPage == 0 ? "앞면" : "뒷면")}");
+    }
+
+    private void UpdatePageIndicator()
+    {
+        if (pageIndicatorText == null) return;
+        pageIndicatorText.text = currentPage == 0 ? "앞면" : "뒷면";
+    }
+
+    // ─────────────────────────────────────────────────────────────────────
     // 도구 버튼
-    // ─────────────────────────────────────────
+    // ─────────────────────────────────────────────────────────────────────
+
     public void OnClickBlackMarkerButton()
     {
-        AudioManager.Instance?.PlaySfxMarkerToggle(); // ★ SFX
+        AudioManager.Instance?.PlaySfxMarkerToggle();
         if (currentTool == ToolMode.BlackMarker) SetTool(ToolMode.None);
         else { typewriterSystem?.Close(); SetTool(ToolMode.BlackMarker); }
     }
@@ -133,6 +185,7 @@ public class DocumentViewer : MonoBehaviour
     public void OnClickTypewriterButton()
     {
         if (currentDocument == null || !currentDocument.needsTypewriter) return;
+        if (currentPage != 0) return; // ★ 뒷면에서는 타자기 불가
         if (currentTool == ToolMode.Typewriter)
         {
             typewriterSystem?.Close();
@@ -155,6 +208,15 @@ public class DocumentViewer : MonoBehaviour
     {
         SetButtonColor(blackMarkerButton, currentTool == ToolMode.BlackMarker);
         SetButtonColor(typewriterButton,  currentTool == ToolMode.Typewriter);
+
+        // ★ 뒷면에서 타자기 버튼 비활성
+        if (typewriterButton != null)
+        {
+            bool showTypewriter = currentDocument != null &&
+                                  currentDocument.needsTypewriter &&
+                                  currentPage == 0;
+            typewriterButton.gameObject.SetActive(showTypewriter);
+        }
     }
 
     private void SetButtonColor(Button btn, bool active)
@@ -164,9 +226,10 @@ public class DocumentViewer : MonoBehaviour
         if (img != null) img.DOColor(active ? buttonActiveColor : buttonInactiveColor, 0.15f);
     }
 
-    // ─────────────────────────────────────────
-    // 블랙마커 — 클릭 감지
-    // ─────────────────────────────────────────
+    // ─────────────────────────────────────────────────────────────────────
+    // 블랙마커 클릭 감지
+    // ─────────────────────────────────────────────────────────────────────
+
     private void Update()
     {
         if (!isDocumentActive)                   return;
@@ -180,16 +243,15 @@ public class DocumentViewer : MonoBehaviour
         if (!RectTransformUtility.RectangleContainsScreenPoint(
                 contentText.rectTransform, screenPos, null)) return;
 
-        // 감지용 텍스트로 일시 교체
         contentText.text = BuildDetectionText();
         contentText.ForceMeshUpdate();
 
         int wordIndex = GetWordIndexAt(screenPos);
         if (wordIndex < 0) { RenderDocument(); return; }
 
-        string word = contentText.textInfo.wordInfo[wordIndex].GetWord();
-        int firstCharIdx = contentText.textInfo.wordInfo[wordIndex].firstCharacterIndex;
-        string detText = contentText.text;
+        string word          = contentText.textInfo.wordInfo[wordIndex].GetWord();
+        int    firstCharIdx  = contentText.textInfo.wordInfo[wordIndex].firstCharacterIndex;
+        string detText       = contentText.text;
 
         RenderDocument();
 
@@ -197,7 +259,6 @@ public class DocumentViewer : MonoBehaviour
         if (slotContainsRegex.IsMatch(word)) return;
         if (IsInsertedWord(word)) return;
 
-        // ★ 클릭된 단어가 문서 내 몇 번째 발생인지 계산
         int occurrenceIdx = CountWordOccurrencesBefore(detText, word, firstCharIdx);
 
         if (!maskedOccurrences.ContainsKey(word))
@@ -206,20 +267,19 @@ public class DocumentViewer : MonoBehaviour
         if (maskedOccurrences[word].Contains(occurrenceIdx))
         {
             maskedOccurrences[word].Remove(occurrenceIdx);
-            Debug.Log($"마커 제거: '{word}'[{occurrenceIdx}]");
+            Debug.Log($"마커 제거: '{word}'[{occurrenceIdx}] (페이지{currentPage})");
         }
         else
         {
             maskedOccurrences[word].Add(occurrenceIdx);
             AudioManager.Instance?.PlaySfxMarkerDraw();
-            Debug.Log($"마커 칠함: '{word}'[{occurrenceIdx}]");
+            Debug.Log($"마커 칠함: '{word}'[{occurrenceIdx}] (페이지{currentPage})");
         }
 
         RenderDocument();
         CheckAnswer();
     }
 
-    // ★ 신규 헬퍼: beforeCharIdx 이전에 word가 몇 번 등장하는지
     private int CountWordOccurrencesBefore(string text, string word, int beforeCharIdx)
     {
         int count = 0, searchFrom = 0;
@@ -233,25 +293,27 @@ public class DocumentViewer : MonoBehaviour
         return count;
     }
 
-    // ─────────────────────────────────────────
-    // 드랍 위치 슬롯 감지 (WordCard 호출)
-    // ─────────────────────────────────────────
+    // ─────────────────────────────────────────────────────────────────────
+    // 드랍 위치 슬롯 감지 (앞면 전용)
+    // ─────────────────────────────────────────────────────────────────────
+
     public int GetSlotIndexAtScreenPos(Vector2 screenPos)
     {
         if (!isDocumentActive || currentDocument == null) return -1;
+        if (currentPage != 0) return -1; // ★ 뒷면 드랍 무시
+
         if (!RectTransformUtility.RectangleContainsScreenPoint(
                 contentText.rectTransform, screenPos, null)) return -1;
 
         contentText.text = BuildDetectionText();
         contentText.ForceMeshUpdate();
 
-        int wordIndex = GetWordIndexAt(screenPos);
-        string word   = wordIndex >= 0
+        int    wordIndex = GetWordIndexAt(screenPos);
+        string word      = wordIndex >= 0
             ? contentText.textInfo.wordInfo[wordIndex].GetWord()
             : "";
 
         RenderDocument();
-        Debug.Log($"[DocumentViewer] 드랍 위치 단어: '{word}'");
 
         if (string.IsNullOrWhiteSpace(word)) return -1;
 
@@ -259,21 +321,19 @@ public class DocumentViewer : MonoBehaviour
         if (m.Success) return int.Parse(m.Groups[1].Value);
 
         if (currentDocument.needsTypewriter && currentDocument.typewriterSlots != null)
-        {
             for (int i = 0; i < currentDocument.typewriterSlots.Count; i++)
             {
                 var slot = currentDocument.typewriterSlots[i];
-                if (slot.insertedWord == word) return i;
-                if (slot.originalWord  == word) return i;
+                if (slot.insertedWord == word || slot.originalWord == word) return i;
             }
-        }
 
         return -1;
     }
 
-    // ─────────────────────────────────────────
+    // ─────────────────────────────────────────────────────────────────────
     // 렌더링
-    // ─────────────────────────────────────────
+    // ─────────────────────────────────────────────────────────────────────
+
     private void RenderDocument()
     {
         contentText.text = BuildDisplayText();
@@ -281,41 +341,43 @@ public class DocumentViewer : MonoBehaviour
         ApplyMarkerOverlays();
     }
 
-    /// <summary>
-    /// 화면 표시용 텍스트.
-    /// 3분할 스프라이트가 모두 연결된 경우 → 마스킹 단어를 투명(#00000000)으로 처리 (레이아웃 유지, 오버레이가 덮음).
-    /// 스프라이트 미연결 시 → mark 태그 폴백.
-    /// </summary>
+    /// <summary>★ 현재 페이지에 맞는 표시 텍스트 생성</summary>
     private string BuildDisplayText()
     {
         if (currentDocument == null) return "";
 
+        // ★ 뒷면
+        if (currentPage == 1)
+            return BuildDisplayTextFromRaw(currentDocument.backText ?? "", false);
+
+        // 앞면
+        return BuildDisplayTextFromRaw(currentDocument.mainText ?? "", true);
+    }
+
+    private string BuildDisplayTextFromRaw(string rawText, bool processSlots)
+    {
         bool useSprite = markerFrontSprite  != null
                       && markerMiddleSprite != null
                       && markerEndSprite    != null;
 
-        string text = slotSourceRegex.Replace(currentDocument.mainText, m =>
-        {
-            int idx = int.Parse(m.Groups[1].Value);
-            return $"\x02{idx}\x03";
-        });
+        string text = processSlots
+            ? slotSourceRegex.Replace(rawText, m => $"\x02{m.Groups[1].Value}\x03")
+            : rawText;
 
-        // ★ 기존 foreach(string kw in maskedKeywords) 블록 전체를 아래로 교체
+        // 현재 페이지의 마스킹 적용
         foreach (var kvp in maskedOccurrences)
         {
-            string kw = kvp.Key;
-            var occSet = kvp.Value;
+            string kw     = kvp.Key;
+            var    occSet = kvp.Value;
             if (occSet == null || occSet.Count == 0) continue;
 
-            // 발생 위치를 역순으로 수집 후 교체 (인덱스 보존)
             var ranges = new List<(int start, int len)>();
             int pos = 0, occ = 0;
             while (true)
             {
                 int idx = text.IndexOf(kw, pos, System.StringComparison.Ordinal);
                 if (idx < 0) break;
-                if (occSet.Contains(occ))
-                    ranges.Add((idx, kw.Length));
+                if (occSet.Contains(occ)) ranges.Add((idx, kw.Length));
                 pos = idx + kw.Length;
                 occ++;
             }
@@ -331,32 +393,39 @@ public class DocumentViewer : MonoBehaviour
             }
         }
 
-        text = slotPlaceholderRegex.Replace(text, m =>
+        // 슬롯 치환 (앞면 전용)
+        if (processSlots)
         {
-            int idx = int.Parse(m.Groups[1].Value);
-            if (currentDocument.typewriterSlots != null &&
-                idx < currentDocument.typewriterSlots.Count)
+            text = slotPlaceholderRegex.Replace(text, m =>
             {
-                string inserted = currentDocument.typewriterSlots[idx].insertedWord;
-                if (!string.IsNullOrEmpty(inserted))
-                    return $"<color=#4488FF><u>{inserted}</u></color>";
-
-                string original = currentDocument.typewriterSlots[idx].originalWord;
-                return string.IsNullOrEmpty(original)
-                    ? $" SLOT{idx} "
-                    : $"<color=#999999>{original}</color>";
-            }
-            return m.Value;
-        });
+                int idx = int.Parse(m.Groups[1].Value);
+                if (currentDocument.typewriterSlots != null &&
+                    idx < currentDocument.typewriterSlots.Count)
+                {
+                    string inserted = currentDocument.typewriterSlots[idx].insertedWord;
+                    if (!string.IsNullOrEmpty(inserted))
+                        return $"<color=#4488FF><u>{inserted}</u></color>";
+                    string original = currentDocument.typewriterSlots[idx].originalWord;
+                    return string.IsNullOrEmpty(original)
+                        ? $" SLOT{idx} "
+                        : $"<color=#999999>{original}</color>";
+                }
+                return m.Value;
+            });
+        }
 
         return text;
     }
 
-    /// <summary>감지용 plain 텍스트 (rich text 태그 없음).</summary>
     private string BuildDetectionText()
     {
         if (currentDocument == null) return "";
 
+        // ★ 뒷면은 plain text 그대로
+        if (currentPage == 1)
+            return currentDocument.backText ?? "";
+
+        // 앞면: 슬롯 처리
         return slotSourceRegex.Replace(currentDocument.mainText, m =>
         {
             int idx = int.Parse(m.Groups[1].Value);
@@ -365,21 +434,16 @@ public class DocumentViewer : MonoBehaviour
             {
                 string inserted = currentDocument.typewriterSlots[idx].insertedWord;
                 if (!string.IsNullOrEmpty(inserted)) return $" {inserted} ";
-                string original = currentDocument.typewriterSlots[idx].originalWord;
                 return $" SLOT{idx} ";
             }
             return m.Value;
         });
     }
 
-    // ─────────────────────────────────────────
+    // ─────────────────────────────────────────────────────────────────────
     // 3분할 마커 오버레이
-    // ─────────────────────────────────────────
+    // ─────────────────────────────────────────────────────────────────────
 
-    /// <summary>
-    /// maskedKeywords에 해당하는 TMP 단어 위치를 읽어
-    /// [Front | Middle(stretch) | End] 3분할 Image 조합을 배치한다.
-    /// </summary>
     private void ApplyMarkerOverlays()
     {
         foreach (var rt in _activeOverlays)
@@ -408,10 +472,8 @@ public class DocumentViewer : MonoBehaviour
             if (!maskedOccurrences.TryGetValue(word, out var occSet)) continue;
             if (!occSet.Contains(occIdx)) continue;
 
-            // 바운딩 박스
-            float minX = float.MaxValue, minY = float.MaxValue;
-            float maxX = float.MinValue, maxY = float.MinValue;
-            bool hasVisible = false;
+            // ★ 글자를 줄(lineNumber)별로 그룹핑
+            var lineSegs = new Dictionary<int, (float minX, float minY, float maxX, float maxY)>();
 
             for (int ci = wordInfo.firstCharacterIndex;
                  ci < wordInfo.firstCharacterIndex + wordInfo.characterCount; ci++)
@@ -420,81 +482,80 @@ public class DocumentViewer : MonoBehaviour
                 var ch = info.characterInfo[ci];
                 if (!ch.isVisible) continue;
 
-                minX = Mathf.Min(minX, ch.bottomLeft.x);
-                minY = Mathf.Min(minY, ch.bottomLeft.y);
-                maxX = Mathf.Max(maxX, ch.topRight.x);
-                maxY = Mathf.Max(maxY, ch.topRight.y);
-                hasVisible = true;
+                int ln = ch.lineNumber;
+                if (!lineSegs.ContainsKey(ln))
+                    lineSegs[ln] = (float.MaxValue, float.MaxValue, float.MinValue, float.MinValue);
+
+                var (x0, y0, x1, y1) = lineSegs[ln];
+                lineSegs[ln] = (
+                    Mathf.Min(x0, ch.bottomLeft.x),
+                    Mathf.Min(y0, ch.bottomLeft.y),
+                    Mathf.Max(x1, ch.topRight.x),
+                    Mathf.Max(y1, ch.topRight.y)
+                );
             }
 
-            if (!hasVisible) continue;
+            if (lineSegs.Count == 0) continue;
 
-            float totalW = (maxX - minX) + markerPaddingX * 2f;
-            float totalH = (maxY - minY) + markerPaddingY * 2f;
-            float posX = (minX + maxX) * 0.5f;
-            float posY = (minY + maxY) * 0.5f;
+            // ★ 줄마다 오버레이 하나씩 생성
+            foreach (var seg in lineSegs.Values)
+            {
+                var (lMinX, lMinY, lMaxX, lMaxY) = seg;
+                float totalW = (lMaxX - lMinX) + markerPaddingX * 2f;
+                float totalH = (lMaxY - lMinY) + markerPaddingY * 2f;
+                float posX = (lMinX + lMaxX) * 0.5f;
+                float posY = (lMinY + lMaxY) * 0.5f;
 
-            var container = GetOrCreateOverlayContainer();
-            // ★ 교체
-            container.SetParent(contentText.transform.parent, false);
-            container.pivot = new Vector2(0.5f, 0.5f);
-            container.anchorMin = new Vector2(0.5f, 0.5f);
-            container.anchorMax = new Vector2(0.5f, 0.5f);
-            container.sizeDelta = new Vector2(totalW, totalH);
-            // TMP 로컬 좌표 → 월드 좌표로 변환하여 설정 (localPosition 직접 사용 시 부모 피벗 오프셋 발생)
-            container.position = contentText.transform.TransformPoint(new Vector3(posX, posY, 0f));
-            container.gameObject.SetActive(true);
-            _activeOverlays.Add(container);
+                var container = GetOrCreateOverlayContainer();
+                container.SetParent(contentText.transform.parent, false);
+                container.pivot = new Vector2(0.5f, 0.5f);
+                container.anchorMin = new Vector2(0.5f, 0.5f);
+                container.anchorMax = new Vector2(0.5f, 0.5f);
+                container.sizeDelta = new Vector2(totalW, totalH);
+                container.position = contentText.transform.TransformPoint(
+                                          new Vector3(posX, posY, 0f));
+                container.gameObject.SetActive(true);
+                _activeOverlays.Add(container);
 
-            // Front
-            var frontRT = container.GetChild(CHILD_FRONT) as RectTransform;
-            var frontImg = frontRT.GetComponent<Image>();
-            frontImg.sprite = markerFrontSprite;
-            frontImg.color = Color.black;
-            frontRT.anchorMin = new Vector2(0f, 0f);
-            frontRT.anchorMax = new Vector2(0f, 1f);
-            frontRT.pivot = new Vector2(0f, 0.5f);
-            frontRT.anchoredPosition = Vector2.zero;
-            frontRT.sizeDelta = new Vector2(capW, 0f);
+                // Front / Middle / End 스프라이트 설정 (기존 코드 그대로)
+                var frontRT = container.GetChild(CHILD_FRONT) as RectTransform;
+                var middleRT = container.GetChild(CHILD_MIDDLE) as RectTransform;
+                var endRT = container.GetChild(CHILD_END) as RectTransform;
 
-            // Middle
-            var middleRT = container.GetChild(CHILD_MIDDLE) as RectTransform;
-            var middleImg = middleRT.GetComponent<Image>();
-            middleImg.sprite = markerMiddleSprite;
-            middleImg.color = Color.black;
-            middleRT.anchorMin = new Vector2(0f, 0f);
-            middleRT.anchorMax = new Vector2(1f, 1f);
-            middleRT.offsetMin = new Vector2(capW, 0f);
-            middleRT.offsetMax = new Vector2(-capW, 0f);
+                var frontImg = frontRT.GetComponent<Image>();
+                var middleImg = middleRT.GetComponent<Image>();
+                var endImg = endRT.GetComponent<Image>();
 
-            // End
-            var endRT = container.GetChild(CHILD_END) as RectTransform;
-            var endImg = endRT.GetComponent<Image>();
-            endImg.sprite = markerEndSprite;
-            endImg.color = Color.black;
-            endRT.anchorMin = new Vector2(1f, 0f);
-            endRT.anchorMax = new Vector2(1f, 1f);
-            endRT.pivot = new Vector2(1f, 0.5f);
-            endRT.anchoredPosition = Vector2.zero;
-            endRT.sizeDelta = new Vector2(capW, 0f);
+                frontImg.sprite = markerFrontSprite; frontImg.color = Color.black;
+                middleImg.sprite = markerMiddleSprite; middleImg.color = Color.black;
+                endImg.sprite = markerEndSprite; endImg.color = Color.black;
+
+                frontRT.anchorMin = new Vector2(0f, 0f); frontRT.anchorMax = new Vector2(0f, 1f);
+                frontRT.pivot = new Vector2(0f, 0.5f);
+                frontRT.anchoredPosition = Vector2.zero;
+                frontRT.sizeDelta = new Vector2(capW, 0f);
+
+                middleRT.anchorMin = new Vector2(0f, 0f); middleRT.anchorMax = new Vector2(1f, 1f);
+                middleRT.offsetMin = new Vector2(capW, 0f);
+                middleRT.offsetMax = new Vector2(-capW, 0f);
+
+                endRT.anchorMin = new Vector2(1f, 0f); endRT.anchorMax = new Vector2(1f, 1f);
+                endRT.pivot = new Vector2(1f, 0.5f);
+                endRT.anchoredPosition = Vector2.zero;
+                endRT.sizeDelta = new Vector2(capW, 0f);
+            }
         }
     }
 
-    /// <summary>
-    /// 풀에서 컨테이너를 재사용하거나 신규 생성한다.
-    /// 자식 구조: [0]=Front  [1]=Middle  [2]=End
-    /// </summary>
     private RectTransform GetOrCreateOverlayContainer()
     {
         foreach (var rt in _overlayPool)
-            if (!rt.gameObject.activeSelf)
-                return rt;
+            if (!rt.gameObject.activeSelf) return rt;
 
         var container = new GameObject("MarkerOverlay",
             typeof(RectTransform)).GetComponent<RectTransform>();
 
-        string[] childNames = { "Front", "Middle", "End" };
-        foreach (string n in childNames)
+        foreach (string n in new[] { "Front", "Middle", "End" })
         {
             var child = new GameObject(n,
                 typeof(RectTransform), typeof(Image)).GetComponent<RectTransform>();
@@ -515,9 +576,10 @@ public class DocumentViewer : MonoBehaviour
         _activeOverlays.Clear();
     }
 
-    // ─────────────────────────────────────────
+    // ─────────────────────────────────────────────────────────────────────
     // 타자기 콜백
-    // ─────────────────────────────────────────
+    // ─────────────────────────────────────────────────────────────────────
+
     private void OnWordDropped(int slotIndex, string word)
     {
         Debug.Log($"[DocumentViewer] 슬롯 {slotIndex} ← '{word}'");
@@ -525,9 +587,10 @@ public class DocumentViewer : MonoBehaviour
         CheckAnswer();
     }
 
-    // ─────────────────────────────────────────
-    // 채점
-    // ─────────────────────────────────────────
+    // ─────────────────────────────────────────────────────────────────────
+    // 채점 — ★ 양면 합산
+    // ─────────────────────────────────────────────────────────────────────
+
     private void CheckAnswer()
     {
         isAllMaskedCorrectly = CheckMarkerAnswer() && CheckTypewriterAnswer();
@@ -536,9 +599,10 @@ public class DocumentViewer : MonoBehaviour
     private bool CheckMarkerAnswer()
     {
         if (!currentDocument.needsCensorship) return true;
+        // ★ 앞면 + 뒷면 합산 검색
         return currentDocument.targetCensorKeywords.All(t =>
-            maskedOccurrences.Any(kvp =>
-                kvp.Key.Contains(t) && kvp.Value != null && kvp.Value.Count > 0));
+            _maskedPerPage[0].Any(kvp => kvp.Key.Contains(t) && kvp.Value?.Count > 0) ||
+            _maskedPerPage[1].Any(kvp => kvp.Key.Contains(t) && kvp.Value?.Count > 0));
     }
 
     private bool CheckTypewriterAnswer()
@@ -548,55 +612,35 @@ public class DocumentViewer : MonoBehaviour
         return currentDocument.typewriterSlots.All(s => s.insertedWord == s.correctWord);
     }
 
+    // ─────────────────────────────────────────────────────────────────────
+    // 승인
+    // ─────────────────────────────────────────────────────────────────────
+
     public void OnClickApproveButton()
     {
         SetTool(ToolMode.None);
         typewriterSystem?.Close();
 
-        // ★ mild 케이스 경고 팝업 (isRouteDeterminant 문서에만)
-        if (currentDocument != null && currentDocument.isRouteDeterminant && IsMildCensorStatus())
-        {
-            ConfirmPopupUI.Instance?.Open(
-                "민감 표현이 문서에 남아 있습니다.\n이 상태로 승인할 경우 외부 확산 가능성이 있습니다.",
-                "[그대로 승인한다]",
-                "[가이드라인에 맞춰 다시 수정한다]",
-                onConfirm: () => ProceedApprove(),   // 폭로 루트로 진행
-                onCancel: () => { /* 문서로 복귀 — 팝업만 닫힘 */ },
-                confirmText: "그대로 승인한다",
-                cancelText: "다시 수정한다"
-            );
-            return;
-        }
-
         ConfirmPopupUI.Instance?.Open(
             "검열이 완료되었습니까?",
             "", "",
-            onConfirm: () => ProceedApprove(),
+            onConfirm: () =>
+            {
+                CheckAnswer();
+                Debug.Log("서류 승인 → " + (isAllMaskedCorrectly ? "[정답]" : "[오답]"));
+                isDocumentActive = false;
+                currentTool      = ToolMode.None;
+                typewriterSystem?.Close();
+                onApproveClicked?.Raise();
+            },
             confirmText: "예", cancelText: "아니요"
         );
     }
 
-    /// <summary>실제 승인 처리 — 두 경로에서 공통 호출</summary>
-    private void ProceedApprove()
-    {
-        CheckAnswer();
-        Debug.Log("서류 승인 → " + (isAllMaskedCorrectly ? "[정답]" : "[오답]"));
-        isDocumentActive = false;
-        currentTool = ToolMode.None;
-        typewriterSystem?.Close();
-        onApproveClicked?.Raise();
-    }
+    // ─────────────────────────────────────────────────────────────────────
+    // 점수 계산 / 키워드 확인 — ★ 양면 합산
+    // ─────────────────────────────────────────────────────────────────────
 
-    /// <summary>mild 검열 상태 판별: criticalKeyword 중 일부만 처리된 경우</summary>
-    private bool IsMildCensorStatus()
-    {
-        var criticals = currentDocument?.criticalCensorKeywords;
-        if (criticals == null || criticals.Count == 0) return false;
-        int censored = criticals.Count(k => WasKeywordCensored(k));
-        return censored > 0 && censored < criticals.Count; // 일부만 검열
-    }
-
-    /// <summary>GameManager가 결과창 표시 전 호출 — 검열/타자기 점수 반환</summary>
     public (float censorScore, float typewriterScore) CalculateScore()
     {
         float censor = 50f, typewriter = 50f;
@@ -605,9 +649,10 @@ public class DocumentViewer : MonoBehaviour
             currentDocument.targetCensorKeywords?.Count > 0)
         {
             int total   = currentDocument.targetCensorKeywords.Count;
-            int correct = currentDocument.targetCensorKeywords
-             .Count(kw => maskedOccurrences.Any(kvp =>
-               kvp.Key.Contains(kw) && kvp.Value != null && kvp.Value.Count > 0)); // ★
+            int correct = currentDocument.targetCensorKeywords.Count(kw =>
+                // ★ 양면 합산
+                _maskedPerPage[0].Any(kvp => kvp.Key.Contains(kw) && kvp.Value?.Count > 0) ||
+                _maskedPerPage[1].Any(kvp => kvp.Key.Contains(kw) && kvp.Value?.Count > 0));
             censor = ((float)correct / total) * 50f;
         }
 
@@ -623,14 +668,17 @@ public class DocumentViewer : MonoBehaviour
         return (censor, typewriter);
     }
 
-    /// <summary>특정 키워드가 검열됐는지 여부 반환</summary>
     public bool WasKeywordCensored(string keyword)
     {
-        return maskedOccurrences.Any(kvp =>
-            kvp.Key.Contains(keyword) && kvp.Value != null && kvp.Value.Count > 0);
+        // ★ 양면 합산
+        return _maskedPerPage[0].Any(kvp => kvp.Key.Contains(keyword) && kvp.Value?.Count > 0) ||
+               _maskedPerPage[1].Any(kvp => kvp.Key.Contains(keyword) && kvp.Value?.Count > 0);
     }
 
-    // ─────────────────────────────────────────
+    // ─────────────────────────────────────────────────────────────────────
+    // 헬퍼
+    // ─────────────────────────────────────────────────────────────────────
+
     private int GetWordIndexAt(Vector2 screenPos)
     {
         int idx = TMP_TextUtilities.FindIntersectingWord(contentText, screenPos, null);

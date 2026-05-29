@@ -10,6 +10,7 @@ public class DayTextData
     public int day;
     public bool requireAllLocations; // ★ 추가
     public NewsData news;
+    public string generalNewsTitle; // ★ 아침 뉴스 하단 고정 한 줄
     public List<DocumentTextData> documents;
     public List<LocationTextData> locations;
     public List<string> availableLocations;
@@ -66,6 +67,7 @@ public class DocumentTextData
     public int id;
     public string title;
     public string mainText;
+    public string backText;       // ★ 뒷면 텍스트
     public string guidelineText;
     public bool needsCensorship;
     public bool needsTypewriter;

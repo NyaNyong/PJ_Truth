@@ -9,35 +9,40 @@ public class DialogueUI : MonoBehaviour
 {
     public static DialogueUI Instance { get; private set; }
 
-    [Header("UI 연결")]
+    [Header("대화 패널")]
     [SerializeField] private CanvasGroup dialoguePanelCG;
     [SerializeField] private TextMeshProUGUI speakerNameText;
     [SerializeField] private TextMeshProUGUI dialogueBodyText;
     [SerializeField] private GameObject nextIndicator;
+
+    // ★ NPC 초상화
+    [Header("NPC 초상화")]
+    [SerializeField] private CanvasGroup portraitCG;
+    [SerializeField] private Image portraitImage;
 
     [Header("선택지 UI")]
     [SerializeField] private CanvasGroup choicePanelCG;
     [SerializeField] private Transform choiceContainer;
     [SerializeField] private Button choiceButtonPrefab;
 
-    [Header("선택 완료 버튼 색상")]
+    [Header("사용 완료 선택지 색상")]
     [SerializeField] private Color usedChoiceColor = new Color(0.5f, 0.5f, 0.5f, 0.5f);
 
     [Header("DOTween 설정")]
-    [SerializeField] private float fadeInDuration = 0.25f;
+    [SerializeField] private float fadeInDuration  = 0.25f;
     [SerializeField] private float fadeOutDuration = 0.2f;
-    [SerializeField] private float textTypeSpeed = 0.03f;
+    [SerializeField] private float textTypeSpeed   = 0.03f;
 
-    private List<string> currentLines = new List<string>();
-    private int currentLineIndex = 0;
-    private bool isTyping = false;
-    private Action onFinished;
+    private List<string> currentLines    = new List<string>();
+    private int          currentLineIndex = 0;
+    private bool         isTyping         = false;
+    private Action       onFinished;
 
-    private List<DialogueChoiceData> pendingChoices;
-    private Action<DialogueChoiceData> onChoiceSelected;
-    private bool isShowingChoices = false;
-    private HashSet<int> usedChoiceIndices = new HashSet<int>();
-    private bool closeAfterCurrentLines = false;
+    private List<DialogueChoiceData>    pendingChoices;
+    private Action<DialogueChoiceData>  onChoiceSelected;
+    private bool                        isShowingChoices       = false;
+    private HashSet<int>                usedChoiceIndices      = new HashSet<int>();
+    private bool                        closeAfterCurrentLines = false;
 
     private void Awake()
     {
@@ -45,54 +50,54 @@ public class DialogueUI : MonoBehaviour
         Instance = this;
         SetCGHidden(dialoguePanelCG);
         SetCGHidden(choicePanelCG);
+        SetCGHidden(portraitCG);
     }
 
     private void SetCGHidden(CanvasGroup cg)
     {
         if (cg == null) return;
         cg.alpha = 0f;
-        cg.interactable = false;
+        cg.interactable   = false;
         cg.blocksRaycasts = false;
         cg.gameObject.SetActive(false);
     }
 
     private void Update()
     {
-        if (dialoguePanelCG == null || !dialoguePanelCG.gameObject.activeSelf || dialoguePanelCG.alpha < 0.5f) return;
+        if (dialoguePanelCG == null ||
+            !dialoguePanelCG.gameObject.activeSelf ||
+            dialoguePanelCG.alpha < 0.5f) return;
         if (isShowingChoices) return;
 
-        bool advance = Input.GetKeyDown(KeyCode.Space) ||
+        bool advance = Input.GetKeyDown(KeyCode.Space)  ||
                        Input.GetKeyDown(KeyCode.Return) ||
-                       Input.GetKeyDown(KeyCode.E) ||
+                       Input.GetKeyDown(KeyCode.E)      ||
                        Input.GetMouseButtonDown(0);
         if (!advance) return;
 
         if (isTyping) SkipTyping();
-        else AdvanceLine();
+        else          AdvanceLine();
     }
 
     // ─────────────────────────────────────────────────────────────────────
-    // 공개 API
-    // ─────────────────────────────────────────────────────────────────────
-
     public void StartDialogue(string speakerName, List<string> lines, Action onFinished = null)
-        => StartDialogue(speakerName, lines, null, null, onFinished, null);
+        => StartDialogue(speakerName, lines, null, null, onFinished, null, null);
 
-    /// <param name="preUsedIndices">이전 세션에서 이미 사용한 선택지 인덱스 (재대화 시 전달)</param>
     public void StartDialogue(
-        string speakerName,
-        List<string> lines,
-        List<DialogueChoiceData> choices,
+        string                     speakerName,
+        List<string>               lines,
+        List<DialogueChoiceData>   choices,
         Action<DialogueChoiceData> onChoiceSelected,
-        Action onFinished = null,
-        HashSet<int> preUsedIndices = null)
+        Action                     onFinished     = null,
+        HashSet<int>               preUsedIndices = null,
+        Sprite                     portrait       = null)
     {
-        currentLines = lines ?? new List<string>();
-        currentLineIndex = 0;
-        pendingChoices = choices;
-        this.onChoiceSelected = onChoiceSelected;
-        this.onFinished = onFinished;
-        isShowingChoices = false;
+        currentLines           = lines ?? new List<string>();
+        currentLineIndex       = 0;
+        pendingChoices         = choices;
+        this.onChoiceSelected  = onChoiceSelected;
+        this.onFinished        = onFinished;
+        isShowingChoices       = false;
         closeAfterCurrentLines = false;
 
         usedChoiceIndices.Clear();
@@ -101,6 +106,7 @@ public class DialogueUI : MonoBehaviour
                 usedChoiceIndices.Add(idx);
 
         if (speakerNameText != null) speakerNameText.text = speakerName;
+        SetPortrait(portrait);
 
         if (currentLines.Count > 0)
         {
@@ -117,84 +123,94 @@ public class DialogueUI : MonoBehaviour
         }
     }
 
+    // ★ 암시 전용 — 화자 이름 포함
+    public void ShowStandaloneLines(string speakerName, List<string> lines, Action onComplete)
+    {
+        currentLines           = lines ?? new List<string>();
+        currentLineIndex       = 0;
+        pendingChoices         = null;
+        onChoiceSelected       = null;
+        onFinished             = onComplete;
+        isShowingChoices       = false;
+        closeAfterCurrentLines = false;
+        usedChoiceIndices.Clear();
+
+        if (speakerNameText != null) speakerNameText.text = speakerName;
+        SetPortrait(null); // 암시는 초상화 없음
+
+        if (currentLines.Count > 0) { ShowPanel(); ShowLine(currentLines[0]); }
+        else onComplete?.Invoke();
+    }
+
+    // 기존 호환용 (이름 없이 호출)
+    public void ShowStandaloneLines(List<string> lines, Action onComplete)
+        => ShowStandaloneLines("", lines, onComplete);
+
     public bool IsOpen() => dialoguePanelCG != null &&
                             dialoguePanelCG.gameObject.activeSelf &&
                             dialoguePanelCG.alpha > 0.5f;
 
     public HashSet<int> GetUsedChoiceIndices() => new HashSet<int>(usedChoiceIndices);
+    public void Close() => CloseDialogue();
 
     // ─────────────────────────────────────────────────────────────────────
+    private void SetPortrait(Sprite sprite)
+    {
+        if (portraitCG == null || portraitImage == null) return;
+        if (sprite != null)
+        {
+            portraitImage.sprite = sprite;
+            portraitCG.gameObject.SetActive(true);
+            portraitCG.DOFade(1f, fadeInDuration);
+        }
+        else
+        {
+            portraitCG.alpha = 0f;
+            portraitCG.gameObject.SetActive(false);
+        }
+    }
 
+    private bool HasAvailableChoices()
+    {
+        if (pendingChoices == null) return false;
+        for (int i = 0; i < pendingChoices.Count; i++)
+        {
+            var c = pendingChoices[i];
+            if (c.isExitChoice) return true;
+            if (usedChoiceIndices.Contains(i)) continue;
+            if (!string.IsNullOrEmpty(c.blockIfFlag) &&
+                GameFlags.Instance != null &&
+                GameFlags.Instance.HasFlag(c.blockIfFlag)) continue;
+            return true;
+        }
+        return false;
+    }
+
+    private bool WillShowChoicesNext()
+        => !closeAfterCurrentLines &&
+           pendingChoices != null &&
+           HasAvailableChoices() &&
+           currentLineIndex >= currentLines.Count - 1;
+
+    // ─────────────────────────────────────────────────────────────────────
     private void AdvanceLine()
     {
         currentLineIndex++;
         if (currentLineIndex >= currentLines.Count)
         {
-            if (closeAfterCurrentLines)
-            {
-                closeAfterCurrentLines = false;
-                CloseDialogue();
-                return;
-            }
-            // ★ 표시할 선택지(비종료 미사용 or 종료)가 있으면 선택지 패널, 없으면 종료
-            if (pendingChoices != null && HasAvailableChoices())
-                ShowChoices();
-            else
-                CloseDialogue();
+            if (closeAfterCurrentLines) { closeAfterCurrentLines = false; CloseDialogue(); return; }
+            if (pendingChoices != null && HasAvailableChoices()) ShowChoices();
+            else CloseDialogue();
             return;
         }
         AudioManager.Instance?.PlaySfxDialogueNext();
         ShowLine(currentLines[currentLineIndex]);
     }
 
-    // ─────────────────────────────────────────────────────────────────────
-    // 선택지 가용 여부 판별
-    // ─────────────────────────────────────────────────────────────────────
-
-    /// <summary>
-    /// 표시할 선택지가 있는지 확인.
-    /// - 비종료 선택지 중 미사용 & 미차단 항목이 있으면 true
-    /// - 종료 선택지(isExitChoice)가 하나라도 있으면 항상 true
-    /// </summary>
-    private bool HasAvailableChoices()
-    {
-        if (pendingChoices == null) return false;
-
-        for (int i = 0; i < pendingChoices.Count; i++)
-        {
-            var c = pendingChoices[i];
-
-            // 종료 선택지는 항상 표시
-            if (c.isExitChoice) return true;
-
-            // 비종료 선택지: 사용 여부 + blockIfFlag 체크
-            if (usedChoiceIndices.Contains(i)) continue;
-
-            if (!string.IsNullOrEmpty(c.blockIfFlag) &&
-                GameFlags.Instance != null &&
-                GameFlags.Instance.HasFlag(c.blockIfFlag)) continue;
-
-            return true;
-        }
-        return false;
-    }
-
-    /// <summary>nextIndicator 표시용 — 현재 라인이 마지막이고 선택지가 뜰 예정이면 false</summary>
-    private bool WillShowChoicesNext()
-    {
-        return !closeAfterCurrentLines &&
-               pendingChoices != null &&
-               HasAvailableChoices() &&
-               currentLineIndex >= currentLines.Count - 1;
-    }
-
-    // ─────────────────────────────────────────────────────────────────────
-
     private void ShowLine(string line)
     {
         DOTween.Kill("dialogue_type");
         if (nextIndicator != null) nextIndicator.SetActive(false);
-
         isTyping = true;
         if (dialogueBodyText != null) dialogueBodyText.text = "";
 
@@ -203,13 +219,11 @@ public class DialogueUI : MonoBehaviour
             if (dialogueBodyText != null)
                 dialogueBodyText.text = line.Substring(0, Mathf.Min(x, line.Length));
         }, line.Length, textTypeSpeed * line.Length)
-        .SetId("dialogue_type")
-        .SetEase(Ease.Linear)
+        .SetId("dialogue_type").SetEase(Ease.Linear)
         .OnComplete(() =>
         {
             isTyping = false;
             if (dialogueBodyText != null) dialogueBodyText.text = line;
-            // ★ WillShowChoicesNext()로 통합
             if (nextIndicator != null) nextIndicator.SetActive(!WillShowChoicesNext());
         });
     }
@@ -220,25 +234,21 @@ public class DialogueUI : MonoBehaviour
         isTyping = false;
         if (dialogueBodyText != null && currentLineIndex < currentLines.Count)
             dialogueBodyText.text = currentLines[currentLineIndex];
-        // ★ WillShowChoicesNext()로 통합
         if (nextIndicator != null) nextIndicator.SetActive(!WillShowChoicesNext());
     }
 
     // ─────────────────────────────────────────────────────────────────────
-
     private void ShowChoices()
     {
         if (choicePanelCG == null || choiceContainer == null || choiceButtonPrefab == null)
-        {
-            Debug.LogWarning("[DialogueUI] 선택지 UI 미연결"); CloseDialogue(); return;
-        }
+        { Debug.LogWarning("[DialogueUI] 선택지 UI 미연결"); CloseDialogue(); return; }
 
         DOTween.Kill("dialogue_type");
         isTyping = false;
         if (dialogueBodyText != null) dialogueBodyText.text = "";
         if (nextIndicator != null) nextIndicator.SetActive(false);
-
         isShowingChoices = true;
+
         foreach (Transform child in choiceContainer) Destroy(child.gameObject);
 
         for (int i = 0; i < pendingChoices.Count; i++)
@@ -252,28 +262,19 @@ public class DialogueUI : MonoBehaviour
             {
                 string labelText = choice.label;
                 if (choice.costBonusPay > 0)
-                {
-                    int bp = ScoringSystem.Instance?.BonusPay ?? 0;
-                    labelText += $" [{bp}/{choice.costBonusPay}]";
-                }
+                    labelText += $" [{ScoringSystem.Instance?.BonusPay ?? 0}/{choice.costBonusPay}]";
                 label.text = labelText;
             }
 
-            // ★ isUsed: 세션 사용 여부 + blockIfFlag 차단 여부 (종료 선택지 제외)
             bool isBlocked = !string.IsNullOrEmpty(choice.blockIfFlag) &&
                              GameFlags.Instance != null &&
                              GameFlags.Instance.HasFlag(choice.blockIfFlag);
             bool isUsed = !choice.isExitChoice && (usedChoiceIndices.Contains(i) || isBlocked);
-
             bool canAfford = choice.costBonusPay <= 0 ||
                              (ScoringSystem.Instance?.BonusPay ?? 0) >= choice.costBonusPay;
-            btn.interactable = !isUsed && canAfford;
 
-            if (isUsed)
-            {
-                var img = btn.GetComponent<Image>();
-                if (img != null) img.color = usedChoiceColor;
-            }
+            btn.interactable = !isUsed && canAfford;
+            if (isUsed) { var img = btn.GetComponent<Image>(); if (img) img.color = usedChoiceColor; }
 
             btn.onClick.AddListener(() => OnChoiceClicked(capturedIndex, choice));
         }
@@ -306,39 +307,30 @@ public class DialogueUI : MonoBehaviour
     {
         AudioManager.Instance?.PlaySfxDialogueNext();
         onChoiceSelected?.Invoke(choice);
-
-        if (!choice.isExitChoice)
-            usedChoiceIndices.Add(choiceIndex);
-
-        // ★ isUniqueChoice도 isExitChoice와 동일하게 대화 종료
+        if (!choice.isExitChoice) usedChoiceIndices.Add(choiceIndex);
         bool shouldClose = choice.isExitChoice || choice.isUniqueChoice;
 
         HideChoices(() =>
         {
             isShowingChoices = false;
-
             bool hasLines = choice.lines != null && choice.lines.Count > 0;
-
             if (hasLines)
             {
                 currentLines = choice.lines;
                 currentLineIndex = 0;
-                if (shouldClose) closeAfterCurrentLines = true; // ★
+                if (shouldClose) closeAfterCurrentLines = true;
                 ShowLine(currentLines[0]);
             }
             else
             {
-                if (shouldClose) { CloseDialogue(); return; } // ★
-                if (HasAvailableChoices())
-                    ShowChoices();
-                else
-                    CloseDialogue();
+                if (shouldClose) { CloseDialogue(); return; }
+                if (HasAvailableChoices()) ShowChoices();
+                else CloseDialogue();
             }
         });
     }
 
     // ─────────────────────────────────────────────────────────────────────
-
     private void ShowPanel(Action onShown = null)
     {
         dialoguePanelCG.gameObject.SetActive(true);
@@ -358,6 +350,12 @@ public class DialogueUI : MonoBehaviour
         AudioManager.Instance?.PlaySfxDialogueClose();
         DOTween.Kill("dialogue_type");
         closeAfterCurrentLines = false;
+
+        // ★ 초상화 페이드 아웃
+        if (portraitCG != null)
+            portraitCG.DOFade(0f, fadeOutDuration)
+                      .OnComplete(() => portraitCG.gameObject.SetActive(false));
+
         dialoguePanelCG.interactable = false;
         dialoguePanelCG.blocksRaycasts = false;
         dialoguePanelCG.DOFade(0f, fadeOutDuration).OnComplete(() =>
@@ -366,31 +364,4 @@ public class DialogueUI : MonoBehaviour
             onFinished?.Invoke();
         });
     }
-
-    /// <summary>암시 씬 전용 — NPC 없이 라인만 표시, 완료 후 onComplete 호출</summary>
-    public void ShowStandaloneLines(List<string> lines, Action onComplete)
-    {
-        currentLines = lines ?? new List<string>();
-        currentLineIndex = 0;
-        pendingChoices = null;
-        onChoiceSelected = null;
-        onFinished = onComplete;
-        isShowingChoices = false;
-        closeAfterCurrentLines = false;
-        usedChoiceIndices.Clear();
-
-        if (speakerNameText != null) speakerNameText.text = "";
-
-        if (currentLines.Count > 0)
-        {
-            ShowPanel();
-            ShowLine(currentLines[0]);
-        }
-        else
-        {
-            onComplete?.Invoke();
-        }
-    }
-
-    public void Close() => CloseDialogue();
 }

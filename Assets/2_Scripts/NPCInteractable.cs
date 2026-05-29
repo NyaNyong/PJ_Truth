@@ -86,6 +86,21 @@ public class NPCInteractable : MonoBehaviour, IInteractable
             () => OnDialogueFinished(jsonClueID, jsonFlag),
             preUsed
         );
+
+        // ★ Resources/Portraits/{npcID} 에서 초상화 로드 (없으면 null)
+        Sprite portrait = null;
+        if (!string.IsNullOrEmpty(npcID))
+            portrait = Resources.Load<Sprite>($"Portraits/{npcID}");
+
+        DialogueUI.Instance.StartDialogue(
+            resolvedName,
+            linesToShow,
+            useChoices ? choices : null,
+            useChoices ? (Action<DialogueChoiceData>)OnChoiceMade : null,
+            () => OnDialogueFinished(jsonClueID, jsonFlag),
+            preUsed,
+            portrait   // ★
+        );
     }
 
     private void OnChoiceMade(DialogueChoiceData choice)

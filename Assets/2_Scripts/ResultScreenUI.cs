@@ -52,12 +52,12 @@ public class ResultScreenUI : MonoBehaviour
     /// <param name="totalDocuments">누적 처리 문서 수</param>
     /// <param name="onNext">버튼 클릭 시 콜백</param>
     public void Show(DayScore score, float kpiProgressAfter,
-                 int totalDocuments, System.Action onNext)
+                 int todayEarned, System.Action onNext)
     {
         onNextAction = onNext;
 
         if (documentCountText != null)
-            documentCountText.text = totalDocuments.ToString();
+            documentCountText.text = todayEarned > 0 ? $"+{todayEarned}" : "0";
         if (accuracyText != null)
             accuracyText.text = $"{(int)score.totalScore}%";
         if (gradeText != null)

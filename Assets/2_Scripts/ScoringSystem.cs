@@ -48,7 +48,9 @@ public class ScoringSystem : MonoBehaviour
 
     public float TotalKPI { get; private set; } = 0f;
     public float KPIProgress => Mathf.Clamp01(TotalKPI / kpiMax);
-    public int BonusPay { get; private set; } = 0; // ★ 성과금 잔액
+    public int BonusPay { get; private set; } = 0;
+    public int TodayEarned { get; private set; } = 0; // ★ 오늘 획득 성과금
+
 
     private DayScore lastScore;
 
@@ -61,8 +63,10 @@ public class ScoringSystem : MonoBehaviour
 
     public int TotalProcessedDocuments { get; private set; } = 0;
 
+
     public DayScore CalculateAndRecord(float censorScore, float typewriterScore, int day)
     {
+        TodayEarned = 0; // ★ 매 호출마다 초기화
         TotalProcessedDocuments++;
         float total = Mathf.Clamp(censorScore + typewriterScore, 0f, 100f);
         Grade grade = GetGrade(total);
@@ -87,6 +91,7 @@ public class ScoringSystem : MonoBehaviour
             Grade.C => bonusPayC,
             _ => bonusPayF
         };
+        TodayEarned = earned; // ★
         if (earned > 0) EarnBonusPay(earned);
 
         Debug.Log($"[Score] Day{day} — {total:F1}점 / {grade} / KPI: {TotalKPI:F0}/{kpiMax}");
