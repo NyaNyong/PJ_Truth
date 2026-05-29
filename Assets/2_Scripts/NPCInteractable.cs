@@ -30,6 +30,9 @@ public class NPCInteractable : MonoBehaviour, IInteractable
     /// <summary>세션 간 유지되는 사용 완료 선택지 인덱스 (종료 선택지 제외)</summary>
     private HashSet<int> persistentUsedIndices = new HashSet<int>();
 
+    /// <summary>★ isUniqueChoice 선택지 중 하나라도 선택됐으면 true → 나머지 전부 차단</summary>
+    private bool hasSelectedUniqueChoice = false;
+
     private PlayerController cachedPlayer = null;
 
     // ─────────────────────────────────────────────────────────────────────
@@ -60,10 +63,10 @@ public class NPCInteractable : MonoBehaviour, IInteractable
                 break;
 
             case NpcState.ExitedViaChoice:
-                // ★ 빈 라인 전달 → DialogueUI가 패널 열자마자 선택지로 진입
                 linesToShow = new List<string>();
                 useChoices = choices != null && choices.Count > 0;
-                preUsed = persistentUsedIndices; // ★ 이전 세션 선택 상태 전달
+                // ★ persistentUsedIndices + isUniqueChoice 차단 인덱스 합산
+                preUsed = BuildPreUsed(choices);
                 break;
 
             default: // Done
@@ -97,11 +100,18 @@ public class NPCInteractable : MonoBehaviour, IInteractable
             GameFlags.Instance?.AddClue(choice.grantClueID);
         if (!string.IsNullOrEmpty(choice.setFlag))
             GameFlags.Instance?.SetFlag(choice.setFlag);
-        if (choice.isUniqueChoice && choice.runtimeIndex >= 0)  // ★
-            persistentUsedIndices.Add(choice.runtimeIndex);     // ★ 선택 즉시 영구 비활성
-        if (choice.isExitChoice)
+
+        // 일반 non-exit 선택지: 영구 사용 처리
+        if (!choice.isExitChoice && choice.runtimeIndex >= 0)
+            persistentUsedIndices.Add(choice.runtimeIndex);
+
+        // ★ isUniqueChoice: NPC 내 나머지 isUniqueChoice 전부 차단
+        if (choice.isUniqueChoice)
+            hasSelectedUniqueChoice = true;
+
+        // isUniqueChoice 또는 isExitChoice → 대화 종료
+        if (choice.isExitChoice || choice.isUniqueChoice)
             pendingExitClose = true;
-        // 일반 선택지는 DialogueUI의 usedChoiceIndices가 추적 → 종료 시 병합
     }
 
     private void OnDialogueFinished(string clueID, string flagID)
@@ -112,18 +122,26 @@ public class NPCInteractable : MonoBehaviour, IInteractable
         {
             pendingExitClose = false;
 
-            // ★ 이번 세션 사용 인덱스를 영구 저장소에 병합
+            // 세션 사용 인덱스 영구 저장소에 병합
             var sessionUsed = DialogueUI.Instance?.GetUsedChoiceIndices();
             if (sessionUsed != null)
                 foreach (var idx in sessionUsed)
                     persistentUsedIndices.Add(idx);
 
-            // 모든 일반 선택지가 소진됐으면 Done (다음엔 repeatLines)
-            bool allDone = totalNonExitChoices > 0 &&
-                           persistentUsedIndices.Count >= totalNonExitChoices;
+            // ★ isUniqueChoice 선택 시 무조건 Done (repeatLines로)
+            // 일반 선택지 소진 여부도 Done 조건에 포함
+            bool allDone = hasSelectedUniqueChoice ||
+                           (totalNonExitChoices > 0 &&
+                            persistentUsedIndices.Count >= totalNonExitChoices);
             npcState = allDone ? NpcState.Done : NpcState.ExitedViaChoice;
             return;
         }
+
+        // 자연 종료(exit 선택지 없이 선택지 소진) — 세션 인덱스 병합
+        var sessionUsedNatural = DialogueUI.Instance?.GetUsedChoiceIndices();
+        if (sessionUsedNatural != null)
+            foreach (var idx in sessionUsedNatural)
+                persistentUsedIndices.Add(idx);
 
         // 최초 대화 & 선택지 없을 때만 단서/플래그 지급
         if (npcState == NpcState.Idle && !firstConvoHadChoices)
@@ -135,6 +153,21 @@ public class NPCInteractable : MonoBehaviour, IInteractable
         }
 
         npcState = NpcState.Done;
+    }
+
+    // ─────────────────────────────────────────────────────────────────────
+    // ★ persistentUsedIndices + isUniqueChoice 전체 차단 인덱스 합산
+    // ─────────────────────────────────────────────────────────────────────
+    private HashSet<int> BuildPreUsed(List<DialogueChoiceData> choices)
+    {
+        if (!hasSelectedUniqueChoice) return persistentUsedIndices;
+
+        var result = new HashSet<int>(persistentUsedIndices);
+        if (choices != null)
+            for (int i = 0; i < choices.Count; i++)
+                if (choices[i].isUniqueChoice)
+                    result.Add(i);
+        return result;
     }
 
     // ─── 텍스트 리졸브 ────────────────────────────────────────────────────
@@ -197,14 +230,15 @@ public class NPCInteractable : MonoBehaviour, IInteractable
 
             resolved.Add(new DialogueChoiceData
             {
-                label = c.label,
-                grantClueID = c.grantClueID,
-                setFlag = c.setFlag,
+                label        = c.label,
+                grantClueID  = c.grantClueID,
+                setFlag      = c.setFlag,
+                blockIfFlag  = c.blockIfFlag,
                 costBonusPay = c.costBonusPay,
-                isExitChoice = c.isExitChoice,
-                isUniqueChoice = c.isUniqueChoice, // ★
-                lines = resolvedLines,
-                runtimeIndex = i                 // ★
+                isExitChoice  = c.isExitChoice,
+                isUniqueChoice = c.isUniqueChoice,
+                lines        = resolvedLines,
+                runtimeIndex = i
             });
         }
         return resolved;

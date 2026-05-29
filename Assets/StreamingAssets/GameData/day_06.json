@@ -35,7 +35,7 @@
       "censorKeywords": [
         "실종자", "공개", "유가족", "시민들이", "이름", "사진", "이동", "집회", "분리", "상위기록실"
       ],
-      "criticalCensorKeywords": ["실종자", "공개", "유가족", "집회", "상위기록실"],
+      "criticalCensorKeywords": ["실종자", "공개", "상위기록실"],
       "typewriterSlots": [
         {
           "slotIndex": 0,
@@ -90,7 +90,7 @@
                 "맞는 선택이라기보다, 살아남는 선택이죠.",
                 "여기선 맞고 틀리고보다, 남을 수 있느냐가 먼저가 될 때가 많아요."
               ],
-              "grantClueID": "clue_s6_survival_choice", "setFlag": "", "costBonusPay": 0, "isExitChoice": false, "isUniqueChoice": true
+              "grantClueID": "clue_s6_survival_choice", "setFlag": "", "costBonusPay": 0, "isExitChoice": false, "isUniqueChoice": false
             },
             {
               "label": "상위 기록실에 가면 다 알 수 있겠죠?",
@@ -99,7 +99,7 @@
                 "그걸 감당할 수 있을지는 모르지만.",
                 "상위 기록실은 답을 주는 곳이 아니라, 더 이상 모르는 척할 수 없게 만드는 곳이에요."
               ],
-              "grantClueID": "clue_s6_upper_warning", "setFlag": "", "costBonusPay": 0, "isExitChoice": false, "isUniqueChoice": true
+              "grantClueID": "clue_s6_upper_warning", "setFlag": "", "costBonusPay": 0, "isExitChoice": false, "isUniqueChoice": false
             },
             {
               "label": "또 한 번 지운 것 같습니다.",
@@ -108,7 +108,7 @@
                 "하지만 여기선 지우지 않고는 들어갈 수 없는 문도 있어요.",
                 "당신이 오늘 지운 단어들이, 내일은 문을 여는 열쇠가 될 수도 있죠."
               ],
-              "grantClueID": "clue_s6_silence_cost", "setFlag": "", "costBonusPay": 0, "isExitChoice": false, "isUniqueChoice": true
+              "grantClueID": "clue_s6_silence_cost", "setFlag": "", "costBonusPay": 0, "isExitChoice": false, "isUniqueChoice": false
             },
             {
               "label": "고맙습니다.",
@@ -117,6 +117,22 @@
             }
           ],
           "conditionalFirstLines": [
+ {
+    "requiredFlag": "hint_route_stealth",
+    "lines": [
+      "어제 선택을 잘 생각해봤군요.",
+      "기준대로 처리하면, 올라갈 수 있습니다.",
+      "이번 문서는 특히 꼼꼼하게 봐야 해요."
+    ]
+  },
+  {
+    "requiredFlag": "hint_route_expose",
+    "lines": [
+      "그 선택, 기억하고 있어요.",
+      "이번 문서에 그 단어들이 또 나옵니다.",
+      "남길 건지 지울 건지, 이번엔 진짜예요."
+    ]
+  },
             {
               "requiredFlag": "censor_heavy_day5",
               "lines": ["처음부터 당신은 잘 버티는 편이었어요.", "그런 사람들만 위로 올라갑니다.", "다만, 위로 올라간다고 편해지는 건 아니에요."]

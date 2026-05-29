@@ -15,6 +15,11 @@ public class GameManager : MonoBehaviour
     public int currentDay = 1;
     [SerializeField] private int startDay = 4;
 
+    [Header("--- 테스트 전용 (빌드 시 반드시 비활성화) ---")]
+    [SerializeField] private bool enableTestFlags = false;
+    [SerializeField] private List<string> testFlags = new List<string>();
+    // 예: "route_stealth", "censor_heavy_day6", "hint_route_stealth"
+
     [Header("SOAP Variables")]
     [SerializeField] private IntVariable soapCurrentDay;
 
@@ -143,6 +148,17 @@ public class GameManager : MonoBehaviour
 
         nightPhaseManager?.ResetVisited();
         privateNewsViewed = false;
+
+#if UNITY_EDITOR
+        // ★ 테스트 플래그 주입 — 에디터 전용, 빌드에 포함 안 됨
+        if (enableTestFlags && testFlags != null && GameFlags.Instance != null)
+        {
+            foreach (var flag in testFlags)
+                if (!string.IsNullOrEmpty(flag))
+                    GameFlags.Instance.SetFlag(flag);
+            Debug.Log($"[TEST] 플래그 주입: {string.Join(", ", testFlags)}");
+        }
+#endif
 
         LoadTodaysData();
         if (todaysData == null) { Debug.LogWarning($"[GameManager] Day{day} DailyData 없음"); return; }
@@ -275,7 +291,10 @@ public class GameManager : MonoBehaviour
         AudioManager.Instance?.PlayDayPhase();
         if (todaysData == null || todaysData.documentToProcess == null)
         {
-            Debug.LogWarning("[GameManager] Day 페이즈: 문서 없음"); return;
+            // ★ 문서 없는 Day (Day 7 등) → Night 페이즈로 직행
+            Debug.Log("[GameManager] Day 페이즈: 문서 없음 → Night 스킵");
+            ChangePhase(GamePhase.Night);
+            return;
         }
         if (dayPhaseBG != null) dayPhaseBG.SetActive(true);
 

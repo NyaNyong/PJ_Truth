@@ -157,6 +157,46 @@ public class GameTextLoader : MonoBehaviour
 
         if (currentData.availableLocations?.Count > 0)
             data.availableLocations = currentData.availableLocations;
+
+        // ★ requireAllLocations 주입
+        data.requireAllLocations = currentData.requireAllLocations;
+
+        // ★ conditionalLocations 주입 — ConditionalLocationData → ConditionalLocation 변환
+        if (currentData.conditionalLocations?.Count > 0)
+        {
+            data.conditionalLocations = new System.Collections.Generic.List<ConditionalLocation>();
+            foreach (var src in currentData.conditionalLocations)
+            {
+                var entry = new ConditionalLocation { locationName = src.locationName };
+
+                if (src.condition != null)
+                {
+                    switch (src.condition.type)
+                    {
+                        case "always":
+                            entry.condition = UnlockCondition.Always;
+                            break;
+                        case "hasFlag":
+                            entry.condition = UnlockCondition.RequiresFlag;
+                            entry.requiredFlagID = src.condition.value;
+                            break;
+                        case "hasClue":
+                            entry.condition = UnlockCondition.RequiresClue;
+                            entry.requiredClueID = src.condition.value;
+                            break;
+                        case "afterDay":
+                            entry.condition = UnlockCondition.AfterDay;
+                            int.TryParse(src.condition.value, out entry.requiredDay);
+                            break;
+                        default:
+                            entry.condition = UnlockCondition.Always;
+                            break;
+                    }
+                }
+
+                data.conditionalLocations.Add(entry);
+            }
+        }
     }
 
     public void InjectIntoDocument(DocumentData data)

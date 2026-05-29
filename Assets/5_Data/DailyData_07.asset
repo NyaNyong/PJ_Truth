@@ -10,20 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 88f3059482ec9264181047202619fd7f, type: 3}
-  m_Name: Day_002
+  m_Name: DailyData_07
   m_EditorClassIdentifier: 
-  dayNumber: 1
-  officialNewsTitle: fasfad
-  officialNewsContent: dsda
+  dayNumber: 7
+  officialNewsTitle: 
+  officialNewsContent: 
   hasPrivateNews: 0
   privateNewsTitle: 
   privateNewsContent: 
-  documentToProcess: {fileID: 11400000, guid: 414e033ad3f37ed449af6cb379e2c247, type: 2}
-  availableLocations:
-  - "\uC784\uC2DC"
-  conditionalLocations:
-  - locationName: "\uC784\uC2DC\uC784\uC2DC"
-    condition: 1
-    requiredDay: 2
-    requiredClueID: 
-    requiredFlagID: 
+  documentToProcess: {fileID: 11400000, guid: eee8a6ea85f1ccb48a609ad21f94131a, type: 2}
+  availableLocations: []
+  requireAllLocations: 0
+  conditionalLocations: []

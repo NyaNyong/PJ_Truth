@@ -85,7 +85,7 @@
                 "그다음엔 사진이 흐려졌고, 나중엔 상태가 '확인 불가'로 바뀌었어요.",
                 "지금은 그 사람이 있었는지조차 기록으로는 증명하기 어려워요."
               ],
-              "grantClueID": "clue_s5_record_damage", "setFlag": "", "costBonusPay": 0, "isExitChoice": false, "isUniqueChoice": true
+              "grantClueID": "clue_s5_record_damage", "setFlag": "", "costBonusPay": 0, "isExitChoice": false, "isUniqueChoice": false
             },
             {
               "label": "그 사람은 어떤 사람이었나요?",
@@ -94,7 +94,7 @@
                 "그런 사람을 기록에서는 관리 대상자라고 부르더군요.",
                 "그 단어 하나로 사람이 완전히 다르게 보이잖아요."
               ],
-              "grantClueID": "clue_s5_managed_subject", "setFlag": "", "costBonusPay": 0, "isExitChoice": false, "isUniqueChoice": true
+              "grantClueID": "clue_s5_managed_subject", "setFlag": "", "costBonusPay": 0, "isExitChoice": false, "isUniqueChoice": false
             },
             {
               "label": "저도 가족을 찾고 있습니다.",
@@ -103,7 +103,7 @@
                 "기록에서 이름이 사라지는 게 어떤 기분인지.",
                 "당신 가족 기록도… 사진이 흐려졌나요?"
               ],
-              "grantClueID": "clue_s5_family_pattern", "setFlag": "", "costBonusPay": 0, "isExitChoice": false, "isUniqueChoice": true
+              "grantClueID": "clue_s5_family_pattern", "setFlag": "", "costBonusPay": 0, "isExitChoice": false, "isUniqueChoice": false
             },
             {
               "label": "기록 열람 비용을 지원한다.",
@@ -111,7 +111,7 @@
                 "이걸… 왜 도와주는 거예요?",
                 "그럼 이 반려 문서도 봐도 되겠죠."
               ],
-              "grantClueID": "clue_s5_rejected_docs", "setFlag": "", "costBonusPay": 2, "isExitChoice": false, "isUniqueChoice": true
+              "grantClueID": "clue_s5_rejected_docs", "setFlag": "", "costBonusPay": 2, "isExitChoice": false, "isUniqueChoice": false
             },
             {
               "label": "더 묻지 않는다.",
@@ -154,7 +154,7 @@
                 "그 단어들이 남아야 합니다.",
                 "다음 문서에서 그 단어들을 지우지 마세요."
               ],
-              "grantClueID": "clue_s5_expose_direction", "setFlag": "", "costBonusPay": 0, "isExitChoice": false, "isUniqueChoice": true
+              "grantClueID": "clue_s5_expose_direction", "setFlag": "hint_route_expose", "": "hint_route_stealth", "costBonusPay": 0, "isExitChoice": false, "isUniqueChoice": true
             },
             {
               "label": "검열해서 승급하라는 건가요?",
@@ -163,7 +163,7 @@
                 "대신 다음 문서는 기준대로 처리해야겠죠.",
                 "그렇게 하면 당신은 의심받지 않고 상위 기록실에 가까워질 수 있어요."
               ],
-              "grantClueID": "clue_s5_stealth_direction", "setFlag": "", "costBonusPay": 0, "isExitChoice": false, "isUniqueChoice": true
+              "grantClueID": "clue_s5_stealth_direction", "setFlag": "hint_route_stealth", "": "hint_route_expose", "costBonusPay": 0, "isExitChoice": false, "isUniqueChoice": true
             },
             {
               "label": "더 묻지 않는다.",
@@ -281,7 +281,7 @@
                 "여기선 식별 제한, 보존 관리, 접근 조정이라고 부르죠.",
                 "단어만 바꾸면, 책임도 같이 흐려지니까요."
               ],
-              "grantClueID": "clue_s5_term_conversion", "setFlag": "", "costBonusPay": 0, "isExitChoice": false, "isUniqueChoice": true
+              "grantClueID": "clue_s5_term_conversion", "setFlag": "", "costBonusPay": 0, "isExitChoice": false, "isUniqueChoice": false
             },
             {
               "label": "이상하다고 생각하지 않나요?",
@@ -290,7 +290,7 @@
                 "근데 밖이라고 더 나아요?",
                 "여기만큼 안정적인 곳도 없어요."
               ],
-              "grantClueID": "clue_s5_system_logic", "setFlag": "", "costBonusPay": 0, "isExitChoice": false, "isUniqueChoice": true
+              "grantClueID": "clue_s5_system_logic", "setFlag": "", "costBonusPay": 0, "isExitChoice": false, "isUniqueChoice": false
             },
             {
               "label": "가족 기록도 여기 있을까요?",
@@ -299,7 +299,7 @@
                 "하지만 지금 권한으로는 안 됩니다.",
                 "가족 기록 보고 싶으면, 결국 승급해야 해요."
               ],
-              "grantClueID": "clue_s5_remain_in_system", "setFlag": "", "costBonusPay": 0, "isExitChoice": false, "isUniqueChoice": true
+              "grantClueID": "clue_s5_remain_in_system", "setFlag": "", "costBonusPay": 0, "isExitChoice": false, "isUniqueChoice": false
             },
             {
               "label": "그냥 지나가겠습니다.",

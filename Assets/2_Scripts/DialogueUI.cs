@@ -95,7 +95,6 @@ public class DialogueUI : MonoBehaviour
         isShowingChoices = false;
         closeAfterCurrentLines = false;
 
-        // ★ 이전 세션 선택 상태 복원
         usedChoiceIndices.Clear();
         if (preUsedIndices != null)
             foreach (var idx in preUsedIndices)
@@ -108,9 +107,8 @@ public class DialogueUI : MonoBehaviour
             ShowPanel();
             ShowLine(currentLines[0]);
         }
-        else if (pendingChoices != null && pendingChoices.Count > 0)
+        else if (pendingChoices != null && HasAvailableChoices())
         {
-            // ★ 빈 라인 → 패널 열리면 바로 선택지
             ShowPanel(() => ShowChoices());
         }
         else
@@ -123,7 +121,6 @@ public class DialogueUI : MonoBehaviour
                             dialoguePanelCG.gameObject.activeSelf &&
                             dialoguePanelCG.alpha > 0.5f;
 
-    /// <summary>현재 세션에서 사용된 선택지 인덱스 반환 (NPCInteractable이 종료 시 병합용)</summary>
     public HashSet<int> GetUsedChoiceIndices() => new HashSet<int>(usedChoiceIndices);
 
     // ─────────────────────────────────────────────────────────────────────
@@ -139,8 +136,8 @@ public class DialogueUI : MonoBehaviour
                 CloseDialogue();
                 return;
             }
-            // ★ 미사용 일반 선택지가 남아있으면 선택지로, 아니면 종료
-            if (pendingChoices != null && HasAvailableNonExitChoices())
+            // ★ 표시할 선택지(비종료 미사용 or 종료)가 있으면 선택지 패널, 없으면 종료
+            if (pendingChoices != null && HasAvailableChoices())
                 ShowChoices();
             else
                 CloseDialogue();
@@ -150,17 +147,48 @@ public class DialogueUI : MonoBehaviour
         ShowLine(currentLines[currentLineIndex]);
     }
 
-    /// <summary>아직 선택하지 않은 비종료 선택지가 있는지 확인</summary>
-    private bool HasAvailableNonExitChoices()
+    // ─────────────────────────────────────────────────────────────────────
+    // 선택지 가용 여부 판별
+    // ─────────────────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// 표시할 선택지가 있는지 확인.
+    /// - 비종료 선택지 중 미사용 & 미차단 항목이 있으면 true
+    /// - 종료 선택지(isExitChoice)가 하나라도 있으면 항상 true
+    /// </summary>
+    private bool HasAvailableChoices()
     {
         if (pendingChoices == null) return false;
+
         for (int i = 0; i < pendingChoices.Count; i++)
         {
-            if (!pendingChoices[i].isExitChoice && !usedChoiceIndices.Contains(i))
-                return true;
+            var c = pendingChoices[i];
+
+            // 종료 선택지는 항상 표시
+            if (c.isExitChoice) return true;
+
+            // 비종료 선택지: 사용 여부 + blockIfFlag 체크
+            if (usedChoiceIndices.Contains(i)) continue;
+
+            if (!string.IsNullOrEmpty(c.blockIfFlag) &&
+                GameFlags.Instance != null &&
+                GameFlags.Instance.HasFlag(c.blockIfFlag)) continue;
+
+            return true;
         }
         return false;
     }
+
+    /// <summary>nextIndicator 표시용 — 현재 라인이 마지막이고 선택지가 뜰 예정이면 false</summary>
+    private bool WillShowChoicesNext()
+    {
+        return !closeAfterCurrentLines &&
+               pendingChoices != null &&
+               HasAvailableChoices() &&
+               currentLineIndex >= currentLines.Count - 1;
+    }
+
+    // ─────────────────────────────────────────────────────────────────────
 
     private void ShowLine(string line)
     {
@@ -181,12 +209,8 @@ public class DialogueUI : MonoBehaviour
         {
             isTyping = false;
             if (dialogueBodyText != null) dialogueBodyText.text = line;
-
-            bool moreChoices = !closeAfterCurrentLines &&
-                               pendingChoices != null &&
-                               HasAvailableNonExitChoices() &&
-                               currentLineIndex >= currentLines.Count - 1;
-            if (nextIndicator != null) nextIndicator.SetActive(!moreChoices);
+            // ★ WillShowChoicesNext()로 통합
+            if (nextIndicator != null) nextIndicator.SetActive(!WillShowChoicesNext());
         });
     }
 
@@ -196,12 +220,8 @@ public class DialogueUI : MonoBehaviour
         isTyping = false;
         if (dialogueBodyText != null && currentLineIndex < currentLines.Count)
             dialogueBodyText.text = currentLines[currentLineIndex];
-
-        bool moreChoices = !closeAfterCurrentLines &&
-                           pendingChoices != null &&
-                           HasAvailableNonExitChoices() &&
-                           currentLineIndex >= currentLines.Count - 1;
-        if (nextIndicator != null) nextIndicator.SetActive(!moreChoices);
+        // ★ WillShowChoicesNext()로 통합
+        if (nextIndicator != null) nextIndicator.SetActive(!WillShowChoicesNext());
     }
 
     // ─────────────────────────────────────────────────────────────────────
@@ -239,7 +259,12 @@ public class DialogueUI : MonoBehaviour
                 label.text = labelText;
             }
 
-            bool isUsed = !choice.isExitChoice && usedChoiceIndices.Contains(i); // ★ 종료 선택지는 항상 활성
+            // ★ isUsed: 세션 사용 여부 + blockIfFlag 차단 여부 (종료 선택지 제외)
+            bool isBlocked = !string.IsNullOrEmpty(choice.blockIfFlag) &&
+                             GameFlags.Instance != null &&
+                             GameFlags.Instance.HasFlag(choice.blockIfFlag);
+            bool isUsed = !choice.isExitChoice && (usedChoiceIndices.Contains(i) || isBlocked);
+
             bool canAfford = choice.costBonusPay <= 0 ||
                              (ScoringSystem.Instance?.BonusPay ?? 0) >= choice.costBonusPay;
             btn.interactable = !isUsed && canAfford;
@@ -280,16 +305,17 @@ public class DialogueUI : MonoBehaviour
     private void OnChoiceClicked(int choiceIndex, DialogueChoiceData choice)
     {
         AudioManager.Instance?.PlaySfxDialogueNext();
-        // ★ isShowingChoices는 HideChoices 완료 후 해제 (동일 프레임 이중 입력 방지)
         onChoiceSelected?.Invoke(choice);
 
-        // ★ 종료 선택지는 usedChoiceIndices에 추가하지 않음 (항상 활성 유지)
         if (!choice.isExitChoice)
             usedChoiceIndices.Add(choiceIndex);
 
+        // ★ isUniqueChoice도 isExitChoice와 동일하게 대화 종료
+        bool shouldClose = choice.isExitChoice || choice.isUniqueChoice;
+
         HideChoices(() =>
         {
-            isShowingChoices = false; // ★ 페이드 완료 후 해제
+            isShowingChoices = false;
 
             bool hasLines = choice.lines != null && choice.lines.Count > 0;
 
@@ -297,14 +323,13 @@ public class DialogueUI : MonoBehaviour
             {
                 currentLines = choice.lines;
                 currentLineIndex = 0;
-                if (choice.isExitChoice) closeAfterCurrentLines = true;
+                if (shouldClose) closeAfterCurrentLines = true; // ★
                 ShowLine(currentLines[0]);
             }
             else
             {
-                if (choice.isExitChoice) { CloseDialogue(); return; }
-
-                if (HasAvailableNonExitChoices())
+                if (shouldClose) { CloseDialogue(); return; } // ★
+                if (HasAvailableChoices())
                     ShowChoices();
                 else
                     CloseDialogue();
@@ -366,4 +391,6 @@ public class DialogueUI : MonoBehaviour
             onComplete?.Invoke();
         }
     }
+
+    public void Close() => CloseDialogue();
 }

@@ -20,5 +20,5 @@ MonoBehaviour:
   privateNewsContent: 
   documentToProcess: {fileID: 11400000, guid: 142df112cace9a547ae93fe2caba7029, type: 2}
   availableLocations: []
-  requireAllLocations: 0
+  requireAllLocations: 1
   conditionalLocations: []

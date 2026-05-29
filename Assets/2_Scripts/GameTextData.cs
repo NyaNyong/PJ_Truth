@@ -8,6 +8,7 @@
 public class DayTextData
 {
     public int day;
+    public bool requireAllLocations; // ★ 추가
     public NewsData news;
     public List<DocumentTextData> documents;
     public List<LocationTextData> locations;
@@ -126,6 +127,7 @@ public class DialogueChoiceData
     public List<string> lines;
     public string grantClueID;
     public string setFlag;
+    public string blockIfFlag;          // ★ 이 플래그가 세워져 있으면 선택지 비활성
     public int costBonusPay; // ★ 필요 성과금 (0이면 무료)
     public bool isExitChoice; // ★ 대화/조사 종료 선택지
     // conditionalLines 삭제

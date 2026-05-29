@@ -38,9 +38,17 @@ public class GameFlags : MonoBehaviour
 
     // ─────────────────────────────────────────
     // 플래그 관련
-    public void SetFlag(string flagID) => triggeredFlags.Add(flagID);
+    public void SetFlag(string flagID)
+    {
+        triggeredFlags.Add(flagID);
+        Debug.Log($"🚩 플래그 설정: {flagID}");
+    }
     public bool HasFlag(string flagID) => triggeredFlags.Contains(flagID);
-    public void RemoveFlag(string flagID) => triggeredFlags.Remove(flagID); // ★ 추가
+    public void RemoveFlag(string flagID)
+    {
+        triggeredFlags.Remove(flagID);
+        Debug.Log($"🚩 플래그 해제: {flagID}");
+    }
 
     private List<string> collectedTruths = new List<string>();
 
