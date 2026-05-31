@@ -23341,7 +23341,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   currentPhase: 0
   currentDay: 1
-  startDay: 7
+  startDay: 4
   soapCurrentDay: {fileID: 11400000, guid: f07a17e242ea6944c954d05c944a29bd, type: 2}
   onApproveClicked: {fileID: 11400000, guid: cd3bed9ffc7a2ee4b8dcbf4708b3a0f9, type: 2}
   onLocationSelected: {fileID: 11400000, guid: 77ca012ed37b55642ae04520352b83a9, type: 2}
@@ -23385,7 +23385,7 @@ MonoBehaviour:
   blackoutFadeDuration: 0.8
   hintSpeakerName: "\uC554\uC2DC"
   endingScreenUI: {fileID: 1615963537}
-  enableTestFlags: 1
+  enableTestFlags: 0
   testFlags:
   - route_stealth
   - censor_heavy_day6
