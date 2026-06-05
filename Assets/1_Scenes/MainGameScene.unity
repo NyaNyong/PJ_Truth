@@ -3153,6 +3153,7 @@ Transform:
   m_Children:
   - {fileID: 1956210832}
   - {fileID: 853744390}
+  - {fileID: 1194336656}
   - {fileID: 1018745917}
   - {fileID: 470506651}
   m_Father: {fileID: 619072936}
@@ -4997,7 +4998,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: -0.0000038146973}
-  m_SizeDelta: {x: 304.8362, y: 349.0284}
+  m_SizeDelta: {x: 370, y: 370}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &334413152
 MonoBehaviour:
@@ -5019,7 +5020,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -1389183290, guid: f6f435c98517ed241ab950c8b9e0fee1, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 38368b922cf2d78459619a675d669207, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -14383,8 +14384,7 @@ Transform:
   m_LocalPosition: {x: -14.77, y: -8.4, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 1194336656}
+  m_Children: []
   m_Father: {fileID: 251288341}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1027830423
@@ -16458,7 +16458,7 @@ Transform:
   m_GameObject: {fileID: 1194336655}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 14.77, y: 8.4, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -16467,7 +16467,7 @@ Transform:
   - {fileID: 1908491852}
   - {fileID: 333494452}
   - {fileID: 559982979}
-  m_Father: {fileID: 1018745917}
+  m_Father: {fileID: 251288341}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1203697306
 GameObject:
@@ -21586,15 +21586,15 @@ MonoBehaviour:
       m_Calls: []
   m_text: New Text
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 6957c970ed97d254ab528be9b5018f67, type: 2}
+  m_sharedMaterial: {fileID: -3323584690627714959, guid: 6957c970ed97d254ab528be9b5018f67, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
-  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+    rgba: 4278190080
+  m_fontColor: {r: 0, g: 0, b: 0, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -22349,7 +22349,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 2.82, y: 2.82}
+    oldSize: {x: 5.76, y: 6.41}
     newSize: {x: 1, y: 1}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -22399,7 +22399,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: e2b518a734de1b34d933ed3634335ecd, type: 3}
+  m_Sprite: {fileID: -962586435, guid: 3a27794356260a044bcd949425bd0191, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -22815,15 +22815,15 @@ MonoBehaviour:
       m_Calls: []
   m_text: New Text
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 6957c970ed97d254ab528be9b5018f67, type: 2}
+  m_sharedMaterial: {fileID: -3323584690627714959, guid: 6957c970ed97d254ab528be9b5018f67, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
-  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+    rgba: 4278190080
+  m_fontColor: {r: 0, g: 0, b: 0, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -30705,8 +30705,8 @@ MonoBehaviour:
   maleSelectIndicator: {fileID: 2035219943}
   portraitCG: {fileID: 449663959}
   portraitImage: {fileID: 334413152}
-  malePortrait: {fileID: -442181142, guid: 3d67a60273989804b9c4c3d918e1af69, type: 3}
-  femalePortrait: {fileID: -1389183290, guid: f6f435c98517ed241ab950c8b9e0fee1, type: 3}
+  malePortrait: {fileID: 21300000, guid: f7bea639df677464b941f778dc836435, type: 3}
+  femalePortrait: {fileID: 21300000, guid: 38368b922cf2d78459619a675d669207, type: 3}
   nameInputField: {fileID: 548451617}
   confirmButton: {fileID: 1494998494}
   fadeDuration: 0.35
@@ -31727,7 +31727,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 3.68, y: 5.44}
+    oldSize: {x: 2.8159997, y: 5.6319995}
     newSize: {x: 1, y: 1}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -31777,7 +31777,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 71e50c66f732635409e9d6081a9a781f, type: 3}
+  m_Sprite: {fileID: 21300000, guid: c65301fddce4dca4485e64678c777641, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -31801,8 +31801,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   idleFrames:
-  - {fileID: 1461121039, guid: 29dcd895d200bf1478102d90ad2cbf43, type: 3}
-  - {fileID: -502710783, guid: 29dcd895d200bf1478102d90ad2cbf43, type: 3}
+  - {fileID: 21300000, guid: c65301fddce4dca4485e64678c777641, type: 3}
+  - {fileID: 21300000, guid: c65301fddce4dca4485e64678c777641, type: 3}
   fps: 2
   srTarget: {fileID: 0}
   randomStartOffset: 1
