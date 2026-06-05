@@ -59,7 +59,7 @@ public class ClueArrowSystem : MonoBehaviour
     }
 
     // ── 매 프레임 갱신 ────────────────────────
-    private void Update()
+    private void LateUpdate()
     {
         if (playerTransform == null || nightCamera == null) return;
 

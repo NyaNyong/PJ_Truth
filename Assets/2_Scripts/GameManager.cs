@@ -5,6 +5,7 @@ using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -92,6 +93,8 @@ public class GameManager : MonoBehaviour
     // ★ 엔딩 ──────────────────────────────────────────────────────────────
     [Header("엔딩")]
     [SerializeField] private EndingScreenUI endingScreenUI;
+
+   
 
     private DailyData todaysData;
     private bool privateNewsViewed = false;
@@ -492,19 +495,24 @@ public class GameManager : MonoBehaviour
             blackoutCG.blocksRaycasts = true;
             blackoutCG.DOFade(1f, blackoutFadeDuration).OnComplete(() =>
             {
+                // ★ StartDay(startDay) 대신 씬 전체 리로드
                 if (endingScreenUI != null)
-                    endingScreenUI.Show(key, () => FadeOutBlackout(() => StartDay(startDay)));
+                    endingScreenUI.Show(key, () => FadeOutBlackout(ResetGame));
                 else
-                {
-                    Debug.LogWarning("[GameManager] EndingScreenUI 미연결 — 메인으로 복귀");
-                    FadeOutBlackout(() => StartDay(startDay));
-                }
+                    FadeOutBlackout(ResetGame);
+
             });
         }
         else
         {
             endingScreenUI?.Show(key, () => StartDay(startDay));
         }
+    }
+    // GameManager.cs - 메서드 추가 (아무 위치)
+    private void ResetGame()
+    {
+        DOTween.KillAll();
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
     // ── 스테이지 전환 암시 ────────────────────────────────────────────────
@@ -611,9 +619,14 @@ public class GameManager : MonoBehaviour
         GameFlags.Instance?.RemoveFlag($"censor_weak_day{currentDay}");
         GameFlags.Instance?.SetFlag(GetCensorIntensityFlag(score.grade, currentDay, typewriter));
 
+        // GameManager.cs — ShowResultScreen() 내 Day6 분기 수정
         if (currentDay == 6)
         {
-            if (GameFlags.Instance?.HasFlag("censor_heavy_day6") == true)
+            // ★ forceStealthRoute = true 면 조건 없이 stealth 고정
+            bool isHeavy = forceStealthRoute ||
+                           GameFlags.Instance?.HasFlag("censor_heavy_day6") == true;
+
+            if (isHeavy)
             {
                 GameFlags.Instance?.SetFlag("route_stealth");
                 GameFlags.Instance?.RemoveFlag("route_expose");
@@ -686,4 +699,5 @@ public class GameManager : MonoBehaviour
     [Header("--- 테스트 전용 (빌드 시 반드시 비활성화) ---")]
     [SerializeField] private bool enableTestFlags = false;
     [SerializeField] private List<string> testFlags = new List<string>();
+    [SerializeField] private bool forceStealthRoute = false; // ★ 이 줄만 추가
 }

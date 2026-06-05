@@ -50,11 +50,11 @@ public class RedStringRenderer : MonoBehaviour
         Vector3 posA = CardA.GetWorldCenter();
         Vector3 posB = CardB.GetWorldCenter();
 
-        // 중점에 배치
         rt.position = (posA + posB) * 0.5f;
 
-        // 거리만큼 너비 조절
-        float distance = Vector3.Distance(posA, posB);
+        // ★ scaleFactor로 나눠 Canvas unit 기준으로 변환
+        float scaleFactor = parentCanvas != null ? parentCanvas.scaleFactor : 1f;
+        float distance = Vector3.Distance(posA, posB) / scaleFactor;
         rt.sizeDelta = new Vector2(distance, lineWidth);
 
         // 방향 회전

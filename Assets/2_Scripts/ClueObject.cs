@@ -30,6 +30,12 @@ public class ClueObject : MonoBehaviour, IInteractable
     [SerializeField] private bool hideOnCollect = true;
     [SerializeField] private bool canReexamine = false;
 
+    // ClueObject.cs - 필드 추가
+    [Header("상호작용 조건")]
+    [Tooltip("이 단서 조사에 필요한 플래그 (비어있으면 항상 조사 가능)")]
+    [SerializeField] private string requiredFlag = "";
+    [SerializeField] private string lockedMessage = "(아직 접근할 수 없다.)";
+
     private bool isCollected = false;
     private PlayerController cachedPlayer = null;
     private SpriteRenderer sr;
@@ -73,6 +79,16 @@ public class ClueObject : MonoBehaviour, IInteractable
     public void Interact(PlayerController player)
     {
         cachedPlayer = player;
+
+        // ★ requiredFlag 체크
+        if (!string.IsNullOrEmpty(requiredFlag) &&
+            !(GameFlags.Instance?.HasFlag(requiredFlag) ?? false))
+        {
+            DialogueUI.Instance?.StartDialogue("???",
+                new List<string> { lockedMessage },
+                () => cachedPlayer?.NotifyInteractionEnded());
+            return;
+        }
 
         if (isCollected && !canReexamine)
         {

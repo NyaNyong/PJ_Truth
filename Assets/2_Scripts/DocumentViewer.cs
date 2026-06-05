@@ -476,11 +476,15 @@ public class DocumentViewer : MonoBehaviour
             var lineSegs = new Dictionary<int, (float minX, float minY, float maxX, float maxY)>();
 
             for (int ci = wordInfo.firstCharacterIndex;
-                 ci < wordInfo.firstCharacterIndex + wordInfo.characterCount; ci++)
+     ci < wordInfo.firstCharacterIndex + wordInfo.characterCount; ci++)
             {
                 if (ci >= info.characterCount) break;
                 var ch = info.characterInfo[ci];
-                if (!ch.isVisible) continue;
+
+                // ★ isVisible 대신 공백/제어문자만 skip (투명처리된 글자도 위치 계산에 포함)
+                if (ch.character == ' ' || ch.character == '\n' ||
+                    ch.character == '\r' || ch.character == '\t' || ch.character == '\0') continue;
+
 
                 int ln = ch.lineNumber;
                 if (!lineSegs.ContainsKey(ln))
