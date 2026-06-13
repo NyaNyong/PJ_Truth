@@ -45,6 +45,19 @@ public class NPCInteractable : MonoBehaviour, IInteractable
         }
         if (DialogueUI.Instance.IsOpen()) return;
 
+        // ★ JSON requiredFlag 체크
+        if (!string.IsNullOrEmpty(npcID) && GameTextLoader.Instance != null)
+        {
+            var npcData = GameTextLoader.Instance.GetNpc(npcID);
+            if (npcData != null &&
+                !string.IsNullOrEmpty(npcData.requiredFlag) &&
+                !(GameFlags.Instance?.HasFlag(npcData.requiredFlag) ?? false))
+            {
+                Debug.Log($"[NPC] {npcID} 접근 차단 — requiredFlag 미충족: {npcData.requiredFlag}");
+                return;
+            }
+        }
+
         cachedPlayer = player;
         var (resolvedName, firstLines, resolvedRepeat, jsonClueID, jsonFlag, choices) = ResolveTextData();
 

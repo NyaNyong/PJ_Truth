@@ -20,6 +20,7 @@ public class DayTextData
     public List<ConditionalNextStageHintData> conditionalNextStageHints; // ★
     public bool skipWhiteboard; // ★ true면 밤 종료 후 화이트보드 건너뜀
     public List<string> nextStageDialogue; // ★ 기본 대사 라인
+    public ExposeRouteData exposeRoute;  // ★ 추가
 }
 
 // ─── 뉴스 ────────────────────────────────────
@@ -100,6 +101,7 @@ public class NpcTextData
 {
     public string id;
     public string npcName;
+    public string requiredFlag;     // ★ 추가 — 이 플래그 없으면 NPC 접근 차단
     public List<string> firstLines;
     public List<string> repeatLines;
     public string grantClueID;
@@ -185,4 +187,22 @@ public class ConditionalNextStageHintData
     public string requiredFlag;
     public string hint;
     public List<string> dialogue; // ★ 조건부 대사 라인
+}
+
+// ─── Day7 폭로루트 전용 데이터 ──────────────────
+[System.Serializable]
+public class ExposeRouteData
+{
+    public float timerDuration;           // 타이머 초 (기본 180)
+    public string warningSpeaker;          // 경고 화자
+    public List<string> warningLines;            // 경고 대사 라인
+    public string interviewChoiceTitle;    // 팝업 제목
+    public string interviewChoiceMessage;  // 팝업 본문
+    public string interviewChoiceWarning;  // 팝업 경고 텍스트
+    public string interviewConfirmText;    // 확인 버튼 텍스트
+    public string interviewCancelText;     // 취소 버튼 텍스트
+    public string interviewRoomSpeaker;
+    public List<string> interviewRoomLines;
+    public string codeInputCorrect;        // 정답 암호
+    public string codeInputPrompt;         // 입력창 안내문
 }

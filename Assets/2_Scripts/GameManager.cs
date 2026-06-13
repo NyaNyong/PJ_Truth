@@ -4,8 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+using static GameManager;
 
 public class GameManager : MonoBehaviour
 {
@@ -94,7 +95,17 @@ public class GameManager : MonoBehaviour
     [Header("엔딩")]
     [SerializeField] private EndingScreenUI endingScreenUI;
 
-   
+    [Header("Day7 폭로루트 타이머")]
+    [SerializeField] private StageTimerUI stageTimerUI;
+    [SerializeField] private float exposeTimerDuration = 180f; // 3분
+    
+    [SerializeField] private string day7WarningSpeaker = "내부 시스템";
+
+    [Header("면담실 배경")]
+    [SerializeField] private CanvasGroup interviewRoomBGCG;
+    [SerializeField] private float interviewBGFade = 0.4f;
+
+
 
     private DailyData todaysData;
     private bool privateNewsViewed = false;
@@ -412,7 +423,11 @@ public class GameManager : MonoBehaviour
         switch (currentPhase)
         {
             case GamePhase.Morning:
-                ChangePhase(GamePhase.Day);
+                // Day7 폭로루트는 별도 흐름
+                if (currentDay == 7 && (GameFlags.Instance?.HasFlag("route_expose") == true))
+                    ActivateDay7ExposeFlow();
+                else
+                    ChangePhase(GamePhase.Day);
                 break;
 
             case GamePhase.Day:
@@ -420,6 +435,7 @@ public class GameManager : MonoBehaviour
                 break;
 
             case GamePhase.Night:
+                stageTimerUI?.StopTimer(); // ← 추가 (타이머 중이면 중지)
                 if (nightPhaseManager != null)
                 {
                     bool requireAll = todaysData != null && todaysData.requireAllLocations;
@@ -451,9 +467,85 @@ public class GameManager : MonoBehaviour
                 break;
         }
     }
+// ── Day7 폭로루트 흐름 ────────────────────────────────────────────────
+private void ActivateDay7ExposeFlow()
+{
+    var expose = GameTextLoader.Instance?.GetExposeRoute();
+    var speaker = expose?.warningSpeaker ?? "내부 시스템";
+    var lines = expose?.warningLines?.Count > 0
+                  ? expose.warningLines
+                  : new List<string> { "담당 검열관 호출", "지금 즉시 면담실로 오십시오." };
 
-    // ★ 엔딩 분기 판정 ─────────────────────────────────────────────────────
-    private void TryShowEnding()
+    DialogueUI.Instance?.ShowStandaloneLines(speaker, lines, ShowInterviewRoomChoice);
+}
+
+    private void ShowInterviewRoomChoice()
+    {
+        var e = GameTextLoader.Instance?.GetExposeRoute();
+        ConfirmPopupUI.Instance?.Open(
+            title: e?.interviewChoiceTitle ?? "면담실로 가시겠습니까?",
+            message: e?.interviewChoiceMessage ?? "지금이라도 정정할 수 있습니다.",
+            warning: e?.interviewChoiceWarning ?? "송출 기회가 사라집니다",
+            onConfirm: ShowInterviewRoomScene,   // ← 변경
+            onCancel: StartExposeTimer,
+            confirmText: e?.interviewConfirmText ?? "면담실로 간다",
+            cancelText: e?.interviewCancelText ?? "가지 않는다"
+        );
+    }
+
+    private void ShowInterviewRoomScene()
+    {
+        var e = GameTextLoader.Instance?.GetExposeRoute();
+        var speaker = e?.interviewRoomSpeaker ?? "상사";
+        var lines = e?.interviewRoomLines?.Count > 0
+                      ? e.interviewRoomLines
+                      : new List<string>
+                      {
+                      "지금이라도 정정할 수 있습니다.",
+                      "실수로 처리하면 됩니다.",
+                      "당신이 계속 협조한다면 가족 기록 열람 권한은 유지될 수 있습니다."
+                      };
+
+        void RunDialogue()
+        {
+            DialogueUI.Instance?.ShowStandaloneLines(speaker, lines, () =>
+            {
+                if (interviewRoomBGCG != null)
+                    interviewRoomBGCG.DOFade(0f, interviewBGFade)
+                        .OnComplete(() => {
+                            interviewRoomBGCG.gameObject.SetActive(false);
+                            ShowEnding("ending_expose_closed");
+                        });
+                else
+                    ShowEnding("ending_expose_closed");
+            });
+        }
+
+        if (interviewRoomBGCG != null)
+        {
+            interviewRoomBGCG.gameObject.SetActive(true);
+            interviewRoomBGCG.alpha = 0f;
+            interviewRoomBGCG.interactable = false;
+            interviewRoomBGCG.blocksRaycasts = false;
+            interviewRoomBGCG.DOFade(1f, interviewBGFade).OnComplete(RunDialogue);
+        }
+        else
+        {
+            RunDialogue();
+        }
+    }
+
+    private void StartExposeTimer()
+{
+    var expose = GameTextLoader.Instance?.GetExposeRoute();
+    float duration = (expose != null && expose.timerDuration > 0f)
+                     ? expose.timerDuration : exposeTimerDuration;
+
+    stageTimerUI?.StartTimer(duration, () => ShowEnding("ending_late_person"));
+    ChangePhase(GamePhase.Night);
+}
+// ★ 엔딩 분기 판정 ─────────────────────────────────────────────────────
+private void TryShowEnding()
     {
         if (GameFlags.Instance == null) { ShowNextStageTransition(); return; }
 
@@ -469,13 +561,27 @@ public class GameManager : MonoBehaviour
         if (flags.HasFlag("route_stealth"))
         {
             if (flags.HasFlag("choice_stealth_expose")) return "ending_stealth_expose";
-            if (flags.HasFlag("choice_family_only"))    return "ending_family_only";
-            if (flags.HasFlag("choice_remain"))         return "ending_new_manager";
+            if (flags.HasFlag("choice_family_only")) return "ending_family_only";
+            if (flags.HasFlag("choice_remain")) return "ending_new_manager";
             return "ending_new_manager";
         }
 
         if (flags.HasFlag("route_expose"))
-            return "route_expose_placeholder";
+        {
+            if (flags.HasFlag("choice_expose_send"))
+            {
+                bool fullEvidence = flags.HasFlag("censor_weak_day6")
+                                 || flags.HasFlag("censor_weak_day5");
+                bool partialEvidence = flags.HasFlag("censor_mild_day6")
+                                    || flags.HasFlag("censor_mild_day5");
+
+                if (fullEvidence) return "ending_expose_full";
+                if (partialEvidence) return "ending_expose_partial";
+                return "ending_expose_silenced";
+            }
+            // choice_expose_stop 또는 선택 없음
+            return "ending_expose_closed";
+        }
 
         return "ending_new_manager";
     }
@@ -513,6 +619,22 @@ public class GameManager : MonoBehaviour
     {
         DOTween.KillAll();
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
+    private System.Action BuildPostResultAction()
+    {
+        // 2연속 censor_weak → 조기탈락
+        if (currentDay >= 5 && GameFlags.Instance != null)
+        {
+            bool prevWeak = GameFlags.Instance.HasFlag($"censor_weak_day{currentDay - 1}");
+            bool thisWeak = GameFlags.Instance.HasFlag($"censor_weak_day{currentDay}");
+            if (prevWeak && thisWeak)
+            {
+                Debug.Log($"[GameManager] 조기탈락 감지 (Day{currentDay - 1}+Day{currentDay} censor_weak)");
+                return () => ShowEnding("ending_early_out");
+            }
+        }
+        return () => ChangePhase(GamePhase.Night);
     }
 
     // ── 스테이지 전환 암시 ────────────────────────────────────────────────
@@ -641,9 +763,9 @@ public class GameManager : MonoBehaviour
         if (resultScreenUI != null)
             // ★ totalDocuments → todayEarned 로 교체
             resultScreenUI.Show(score, kpiProgress, ScoringSystem.Instance.TodayEarned,
-                                () => ChangePhase(GamePhase.Night));
+                    BuildPostResultAction());
         else
-            ChangePhase(GamePhase.Night);
+            BuildPostResultAction()?.Invoke();
     }
 
     private string GetCensorIntensityFlag(Grade grade, int day, float typewriterScore = 0f)

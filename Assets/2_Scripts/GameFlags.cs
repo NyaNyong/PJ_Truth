@@ -31,6 +31,7 @@ public class GameFlags : MonoBehaviour
     public void AddClue(string clueID)
     {
         collectedClues.Add(clueID);
+        triggeredFlags.Add(clueID); // ★ 추가 — clue 획득 시 동일 ID로 flag도 세팅
         Debug.Log($"🔍 단서 획득: {clueID}");
     }
 

@@ -138,6 +138,8 @@ public class GameTextLoader : MonoBehaviour
             ? currentData.nextStageDialogue : null;
     }
 
+    public ExposeRouteData GetExposeRoute() => currentData?.exposeRoute;
+
     public List<string> GetAvailableLocations() => currentData?.availableLocations;
 
     public List<ConditionalLocationData> GetConditionalLocations() =>
