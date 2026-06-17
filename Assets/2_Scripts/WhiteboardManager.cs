@@ -421,20 +421,23 @@ public class WhiteboardManager : MonoBehaviour
 
     private void HidePanel()
     {
-        // ★ 화이트보드 연결 수 → 증거 신뢰도 플래그
+        // ★ 화이트보드 연결 수 → GameFlags에 누적 후 증거 신뢰도 플래그 판정 (STAGE 4~6 합산)
         if (GameFlags.Instance != null)
         {
-            int revealed = correctConnections.Count(c => c.isRevealed);
+            int revealedToday = correctConnections.Count(c => c.isRevealed);
+            GameFlags.Instance.AddWhiteboardRevealed(revealedToday);
+            int totalRevealed = GameFlags.Instance.GetWhiteboardRevealedTotal();
+
             GameFlags.Instance.RemoveFlag("evidence_low");
             GameFlags.Instance.RemoveFlag("evidence_mid");
             GameFlags.Instance.RemoveFlag("evidence_high");
 
-            if (revealed >= 8) GameFlags.Instance.SetFlag("evidence_high");
-            else if (revealed >= 5) GameFlags.Instance.SetFlag("evidence_mid");
+            if (totalRevealed >= 8) GameFlags.Instance.SetFlag("evidence_high");
+            else if (totalRevealed >= 5) GameFlags.Instance.SetFlag("evidence_mid");
             else GameFlags.Instance.SetFlag("evidence_low");
 
-            Debug.Log($"[Whiteboard] 연결 완료 {revealed}개 → " +
-                      (revealed >= 8 ? "evidence_high" : revealed >= 5 ? "evidence_mid" : "evidence_low"));
+            Debug.Log($"[Whiteboard] 오늘 연결 {revealedToday}개, 누적 {totalRevealed}개 → " +
+                      (totalRevealed >= 8 ? "evidence_high" : totalRevealed >= 5 ? "evidence_mid" : "evidence_low"));
         }
 
         whiteboardPanelCG.interactable = false;

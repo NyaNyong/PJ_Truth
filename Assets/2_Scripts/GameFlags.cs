@@ -40,6 +40,8 @@ public class GameFlags : MonoBehaviour
 
     // ─────────────────────────────────────────
     // 플래그 관련
+    // ─────────────────────────────────────────
+    // 플래그 관련
     public void SetFlag(string flagID)
     {
         triggeredFlags.Add(flagID);
@@ -52,6 +54,20 @@ public class GameFlags : MonoBehaviour
         Debug.Log($"🚩 플래그 해제: {flagID}");
     }
 
+    // ─────────────────────────────────────────
+    // ★ 화이트보드 연결 누적 (STAGE 4~6 합산용, evidence_* 판정에 사용)
+    private int whiteboardRevealedTotal = 0;
+
+    public void AddWhiteboardRevealed(int count)
+    {
+        whiteboardRevealedTotal += count;
+        Debug.Log($"🧵 화이트보드 연결 누적: +{count} (총 {whiteboardRevealedTotal})");
+    }
+
+    public int GetWhiteboardRevealedTotal() => whiteboardRevealedTotal;
+
+    // ... 기존 코드 유지 (collectedTruths, AddTruth, GetAllTruths) ...
+
     private List<string> collectedTruths = new List<string>();
 
     public void AddTruth(string truth)
@@ -60,4 +76,17 @@ public class GameFlags : MonoBehaviour
         Debug.Log($"📖 진실 수집: {truth}");
     }
     public List<string> GetAllTruths() => new List<string>(collectedTruths);
+
+    // ─────────────────────────────────────────
+    // ★ 전체 초기화 (재시도 시 "게임을 켠 상태"로 복원)
+    public void ResetAll()
+    {
+        collectedClues.Clear();
+        triggeredFlags.Clear();
+        collectedTruths.Clear();
+        whiteboardRevealedTotal = 0;
+        Debug.Log("[GameFlags] 전체 초기화 완료 (단서/플래그/누적치 전부 클리어)");
+    }
+
+
 }

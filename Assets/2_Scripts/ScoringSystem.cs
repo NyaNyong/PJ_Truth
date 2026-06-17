@@ -117,6 +117,18 @@ public class ScoringSystem : MonoBehaviour
 
     public DayScore GetLastScore() => lastScore;
 
+    // ─────────────────────────────────────────
+    // ★ 전체 초기화 (재시도 시 "게임을 켠 상태"로 복원)
+    public void ResetAll()
+    {
+        TotalKPI = 0f;
+        BonusPay = 0;
+        TodayEarned = 0;
+        TotalProcessedDocuments = 0;
+        lastScore = null;
+        Debug.Log("[ScoringSystem] 전체 초기화 완료 (KPI/성과금/점수기록 전부 클리어)");
+    }
+
     private Grade GetGrade(float score)
     {
         if (score >= thresholdS) return Grade.S;

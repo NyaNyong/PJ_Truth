@@ -1,8 +1,8 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 /// <summary>
-/// ¾À ÀüÈ¯ ½Ã¿¡µµ À¯ÁöµÇ´Â ÇÃ·¹ÀÌ¾î ±âº» Á¤º¸.
-/// ´ëÈ­Ã¢ ÃÊ»óÈ­, ¹ãÆäÀÌÁî Ä³¸¯ÅÍ ½ºÇÁ¶óÀÌÆ® ±³Ã¼¿¡ »ç¿ëµË´Ï´Ù.
+/// ì”¬ ì „í™˜ ì‹œì—ë„ ìœ ì§€ë˜ëŠ” í”Œë ˆì´ì–´ ê¸°ë³¸ ì •ë³´.
+/// ëŒ€í™”ì°½ ì´ˆìƒí™”, ë°¤í˜ì´ì¦ˆ ìºë¦­í„° ìŠ¤í”„ë¼ì´íŠ¸ êµì²´ì— ì‚¬ìš©ë©ë‹ˆë‹¤.
 /// </summary>
 public class PlayerData : MonoBehaviour
 {
@@ -15,16 +15,25 @@ public class PlayerData : MonoBehaviour
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
-        transform.SetParent(null);        // ¡Ú Ãß°¡
+        transform.SetParent(null);        // â˜… ì¶”ê°€
         DontDestroyOnLoad(gameObject);
     }
 
     public void SetData(string name, bool isMale)
     {
         PlayerName = string.IsNullOrWhiteSpace(name)
-            ? (isMale ? "±èµµÁØ" : "ÀÌ¼ö¾Æ") // ÀÌ¸§ ¹ÌÀÔ·Â ½Ã ±âº»°ª
+            ? (isMale ? "ê¹€ë„ì¤€" : "ì´ìˆ˜ì•„")
             : name.Trim();
         IsMale = isMale;
-        Debug.Log($"[PlayerData] ÀÌ¸§: {PlayerName}, ¼ºº°: {(IsMale ? "³²" : "¿©")}");
+        Debug.Log($"[PlayerData] ì´ë¦„: {PlayerName}, ì„±ë³„: {(IsMale ? "ë‚¨" : "ì—¬")}");
+    }
+
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // â˜… ì „ì²´ ì´ˆê¸°í™” (ì¬ì‹œë„ ì‹œ "ê²Œì„ì„ ì¼  ìƒíƒœ"ë¡œ ë³µì›)
+    public void ResetData()
+    {
+        PlayerName = "";
+        IsMale = true;
+        Debug.Log("[PlayerData] ì´ˆê¸°í™” ì™„ë£Œ (ì´ë¦„/ì„±ë³„ í´ë¦¬ì–´ â€” IDCardUIì—ì„œ ì¬ì…ë ¥)");
     }
 }

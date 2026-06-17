@@ -625,15 +625,23 @@ public class DocumentViewer : MonoBehaviour
         SetTool(ToolMode.None);
         typewriterSystem?.Close();
 
+        // ★ 민감 표현 잔존 경고 (isRouteDeterminant 문서의 critical 키워드 미검열 시)
+        bool hasSensitiveRemaining = currentDocument != null && currentDocument.isRouteDeterminant &&
+            currentDocument.criticalCensorKeywords != null &&
+            currentDocument.criticalCensorKeywords.Any(k => !WasKeywordCensored(k));
+
+        string title = hasSensitiveRemaining ? "민감 표현이 남아 있습니다" : "검열이 완료되었습니까?";
+        string message = hasSensitiveRemaining ? "승인 전 다시 한 번 확인하십시오." : "";
+        string warning = hasSensitiveRemaining ? "⚠ 민감 표현 잔존 — 이대로 승인하면 되돌릴 수 없습니다" : "";
+
         ConfirmPopupUI.Instance?.Open(
-            "검열이 완료되었습니까?",
-            "", "",
+            title, message, warning,
             onConfirm: () =>
             {
                 CheckAnswer();
                 Debug.Log("서류 승인 → " + (isAllMaskedCorrectly ? "[정답]" : "[오답]"));
                 isDocumentActive = false;
-                currentTool      = ToolMode.None;
+                currentTool = ToolMode.None;
                 typewriterSystem?.Close();
                 onApproveClicked?.Raise();
             },

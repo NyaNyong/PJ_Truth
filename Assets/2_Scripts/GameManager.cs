@@ -529,6 +529,12 @@ public class GameManager : MonoBehaviour
     private void ResetGame()
     {
         DOTween.KillAll();
+
+        // ★ 모든 DontDestroyOnLoad 싱글톤 상태 초기화 (씬 재로드해도 살아남는 데이터들)
+        GameFlags.Instance?.ResetAll();
+        ScoringSystem.Instance?.ResetAll();
+        PlayerData.Instance?.ResetData();
+
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
