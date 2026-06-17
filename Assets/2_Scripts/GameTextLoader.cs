@@ -12,6 +12,7 @@ public class GameTextLoader : MonoBehaviour
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
+        transform.SetParent(null);        // ★ 추가
         DontDestroyOnLoad(gameObject);
     }
 
@@ -127,7 +128,10 @@ public class GameTextLoader : MonoBehaviour
 
     public List<string> GetNextStageDialogue()
     {
-        if (currentData == null) return null;
+        // 수정
+        if (currentData.conditionalNextStageHints == null)
+            return currentData.nextStageDialogue?.Count > 0 ? currentData.nextStageDialogue : null;
+
         foreach (var c in currentData.conditionalNextStageHints)
         {
             if (c.dialogue != null && c.dialogue.Count > 0 &&

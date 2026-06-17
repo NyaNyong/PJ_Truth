@@ -23,6 +23,7 @@ public class GameFlags : MonoBehaviour
             return;
         }
         Instance = this;
+        transform.SetParent(null);        // ★ 추가
         DontDestroyOnLoad(gameObject);
     }
 

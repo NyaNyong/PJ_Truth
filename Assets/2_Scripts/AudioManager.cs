@@ -54,6 +54,7 @@ public class AudioManager : MonoBehaviour
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
+        transform.SetParent(null);        // ★ 추가
         DontDestroyOnLoad(gameObject);
 
         if (bgmSource == null) bgmSource = gameObject.AddComponent<AudioSource>();
@@ -66,6 +67,11 @@ public class AudioManager : MonoBehaviour
             sfxSource.loop   = false;
             sfxSource.volume = sfxVolume;
         }
+
+        bgmVolume = PlayerPrefs.GetFloat("BGMVolume", 0.7f); // ★ 추가
+        sfxVolume = PlayerPrefs.GetFloat("SFXVolume", 1.0f); // ★ 추가
+        bgmSource.volume = 0f;
+        sfxSource.volume = sfxVolume;
     }
 
     private void Start()
@@ -126,4 +132,23 @@ public class AudioManager : MonoBehaviour
         if (clip == null) return;
         sfxSource.PlayOneShot(clip, sfxVolume);
     }
+
+    // ── 볼륨 제어 (설정 UI에서 호출) ──────────────────
+    public void SetBGMVolume(float value)
+    {
+        bgmVolume = Mathf.Clamp01(value);
+        bgmSource.DOKill();
+        bgmSource.volume = bgmSource.isPlaying ? bgmVolume : 0f;
+        PlayerPrefs.SetFloat("BGMVolume", bgmVolume);
+    }
+
+    public void SetSFXVolume(float value)
+    {
+        sfxVolume = Mathf.Clamp01(value);
+        sfxSource.volume = sfxVolume;
+        PlayerPrefs.SetFloat("SFXVolume", sfxVolume);
+    }
+
+    public float BGMVolume => bgmVolume;
+    public float SFXVolume => sfxVolume;
 }

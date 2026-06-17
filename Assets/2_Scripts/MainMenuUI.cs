@@ -9,6 +9,7 @@ public class MainMenuUI : MonoBehaviour
 
     [Header("버튼")]
     [SerializeField] private Button gameStartButton;
+    [SerializeField] private Button settingsButton; // ★ 추가
 
     [Header("연결")]
     [SerializeField] private IDCardUI idCardUI;
@@ -19,6 +20,7 @@ public class MainMenuUI : MonoBehaviour
     private void Awake()
     {
         gameStartButton?.onClick.AddListener(OnClickGameStart);
+        settingsButton?.onClick.AddListener(() => SettingsUI.Instance?.Show()); // ★ 추가
     }
 
     private void Start()

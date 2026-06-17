@@ -190,27 +190,32 @@
         {
           "id": "clue_s7_classification_system",
           "title": "관리대상자분류체계",
-          "description": "1등급 관리대상자는 이송 완료 처리 후 기록이 봉인된다. 해당 인원의 현황은 공개 대상에서 영구 제외된다."
+          "lines": ["1등급 관리대상자는 이송 완료 처리 후 기록이 봉인된다. 해당 인원의 현황은 공개 대상에서 영구 제외된다."],
+          "isPuzzle": false, "hiddenContent": "", "correctAnswer": "", "flagIDOnSolve": ""
         },
         {
           "id": "clue_s7_transfer_log",
           "title": "이송처리원본",
-          "description": "서명란은 코드로 처리되어 있으나 날짜와 일부 장소명이 남아 있다. 실종 시점과 일치하는 항목이 포함되어 있다."
+          "lines": ["서명란은 코드로 처리되어 있으나 날짜와 일부 장소명이 남아 있다. 실종 시점과 일치하는 항목이 포함되어 있다."],
+          "isPuzzle": false, "hiddenContent": "", "correctAnswer": "", "flagIDOnSolve": ""
         },
         {
           "id": "clue_s7_tamper_log",
           "title": "기록훼손로그",
-          "description": "삭제 및 수정된 기록 목록. 가장 최근 항목에는 오늘 날짜가 찍혀 있다."
+          "lines": ["삭제 및 수정된 기록 목록. 가장 최근 항목에는 오늘 날짜가 찍혀 있다."],
+          "isPuzzle": false, "hiddenContent": "", "correctAnswer": "", "flagIDOnSolve": ""
         },
         {
           "id": "clue_s7_family_record",
           "title": "가족기록원본",
-          "description": "공식 기록에서 삭제된 이름과 사진이 이곳에 남아 있다. 봉인되지 않은 유일한 원본이다."
+          "lines": ["공식 기록에서 삭제된 이름과 사진이 이곳에 남아 있다. 봉인되지 않은 유일한 원본이다."],
+          "isPuzzle": false, "hiddenContent": "", "correctAnswer": "", "flagIDOnSolve": ""
         },
         {
           "id": "clue_s7_approval_log",
           "title": "상위관리자승인로그",
-          "description": "모든 기록 봉인과 삭제에 상위 관리자의 승인이 존재한다. 서명 코드의 반복 패턴으로 동일 인물임을 알 수 있다."
+          "lines": ["모든 기록 봉인과 삭제에 상위 관리자의 승인이 존재한다. 서명 코드의 반복 패턴으로 동일 인물임을 알 수 있다."],
+          "isPuzzle": false, "hiddenContent": "", "correctAnswer": "", "flagIDOnSolve": ""
         }
       ]
     },
@@ -270,7 +275,78 @@
               "isUniqueChoice": true
             },
             {
+              "label": "가족 기록 원본을 요구한다",
+              "lines": [
+                "흑막이 잠시 멈춘다.",
+                "가족 기록 원본이 화면에 떠오른다.",
+                "이름, 사진, 연결된 기록들이 보인다.",
+                "이제 선택하십시오."
+              ],
+              "grantClueID": "",
+              "setFlag": "choice_expose_family_request",
+              "costBonusPay": 0,
+              "isExitChoice": false,
+              "isUniqueChoice": true
+            },
+            {
               "label": "송출을 멈춘다",
+              "lines": [
+                "포트 연결이 종료됩니다.",
+                "기록은 다시 봉인됩니다."
+              ],
+              "grantClueID": "",
+              "setFlag": "choice_expose_stop",
+              "costBonusPay": 0,
+              "isExitChoice": true,
+              "isUniqueChoice": true
+            }
+          ],
+          "conditionalFirstLines": []
+        },
+        {
+          "id": "npc_e7_family_choice",
+          "npcName": "??",
+          "requiredFlag": "choice_expose_family_request",
+          "firstLines": [
+            "가족 기록 원본이 열려 있다.",
+            "이 기록을 포함할 것인지, 제외할 것인지 결정해야 한다.",
+            "포함하면 기관은 이를 개인적 원한으로 몰아갈 수 있다.",
+            "제외하면 가족 기록은 이곳에 남는다."
+          ],
+          "repeatLines": [
+            "결정하지 않으면 포트가 닫힙니다."
+          ],
+          "grantClueID": "",
+          "setFlag": "",
+          "choices": [
+            {
+              "label": "가족 기록까지 포함해 송출한다",
+              "lines": [
+                "가족 기록이 송출 자료에 추가됩니다.",
+                "이 선택은 되돌릴 수 없습니다.",
+                "기록은 이제 당신의 손을 떠났습니다."
+              ],
+              "grantClueID": "",
+              "setFlag": "choice_expose_include_family",
+              "costBonusPay": 0,
+              "isExitChoice": true,
+              "isUniqueChoice": true
+            },
+            {
+              "label": "가족 기록은 제외하고 송출한다",
+              "lines": [
+                "가족 기록은 제외됩니다.",
+                "나머지 자료가 송출됩니다.",
+                "플레이어 화면 한쪽에 끝내 열리지 않은 가족 기록이 남는다."
+              ],
+              "grantClueID": "",
+              "setFlag": "choice_expose_exclude_family",
+              "costBonusPay": 0,
+              "isExitChoice": true,
+              "isUniqueChoice": true
+            },
+            {
+              "label": "송출을 중단한다",
               "lines": [
                 "포트 연결이 종료됩니다.",
                 "기록은 다시 봉인됩니다."

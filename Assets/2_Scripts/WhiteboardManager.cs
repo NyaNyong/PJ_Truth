@@ -1,10 +1,11 @@
-using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.EventSystems;
-using TMPro;
 using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using TMPro;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class WhiteboardManager : MonoBehaviour
 {
@@ -420,7 +421,24 @@ public class WhiteboardManager : MonoBehaviour
 
     private void HidePanel()
     {
-        whiteboardPanelCG.interactable   = false;
+        // ★ 화이트보드 연결 수 → 증거 신뢰도 플래그
+        if (GameFlags.Instance != null)
+        {
+            int revealed = correctConnections.Count(c => c.isRevealed);
+            GameFlags.Instance.RemoveFlag("evidence_low");
+            GameFlags.Instance.RemoveFlag("evidence_mid");
+            GameFlags.Instance.RemoveFlag("evidence_high");
+
+            if (revealed >= 8) GameFlags.Instance.SetFlag("evidence_high");
+            else if (revealed >= 5) GameFlags.Instance.SetFlag("evidence_mid");
+            else GameFlags.Instance.SetFlag("evidence_low");
+
+            Debug.Log($"[Whiteboard] 연결 완료 {revealed}개 → " +
+                      (revealed >= 8 ? "evidence_high" : revealed >= 5 ? "evidence_mid" : "evidence_low"));
+        }
+
+        whiteboardPanelCG.interactable = false;
+        // ... 기존 코드 유지 ...
         whiteboardPanelCG.blocksRaycasts = false;
         whiteboardPanelCG.DOFade(0f, fadeDuration).OnComplete(() =>
         {
