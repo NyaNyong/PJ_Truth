@@ -97,6 +97,10 @@ public class GameManager : MonoBehaviour
     [SerializeField] private List<string> testFlags = new List<string>();
     [SerializeField] private bool forceStealthRoute = false;
 
+    [Header("면담실 플레이어 Idle (성별별)")]
+    [SerializeField] private GameObject interviewPlayerIdleMale;
+    [SerializeField] private GameObject interviewPlayerIdleFemale;
+
     private DailyData todaysData;
     private bool privateNewsViewed = false;
 
@@ -506,6 +510,10 @@ public class GameManager : MonoBehaviour
         nightPhaseManager?.EnsureHidden();
         Debug.Log($"[GameManager] ShowEnding: {key}");
 
+        // ★ EndingScreen 루트 오브젝트가 평소 비활성 상태이므로 강제 활성화
+        if (endingScreenUI != null)
+            endingScreenUI.gameObject.SetActive(true);
+
         if (blackoutCG != null)
         {
             blackoutCG.gameObject.SetActive(true);
@@ -622,6 +630,11 @@ public class GameManager : MonoBehaviour
     {
         // ★ 면담실로 간 경우 플래그 세팅 (엔딩 분기용)
         GameFlags.Instance?.SetFlag("choice_expose_go_interview");
+
+        // ★ 추가 — 플레이어가 사원증에서 선택한 성별에 맞는 Idle만 활성화
+        bool isMale = PlayerData.Instance?.IsMale ?? true;
+        if (interviewPlayerIdleMale != null) interviewPlayerIdleMale.SetActive(isMale);
+        if (interviewPlayerIdleFemale != null) interviewPlayerIdleFemale.SetActive(!isMale);
 
         var e = GameTextLoader.Instance?.GetExposeRoute();
         var speaker = e?.interviewRoomSpeaker ?? "상사";

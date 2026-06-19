@@ -30,11 +30,20 @@ public class ClueObject : MonoBehaviour, IInteractable
     [SerializeField] private bool hideOnCollect = true;
     [SerializeField] private bool canReexamine = false;
 
-    // ClueObject.cs - 필드 추가
     [Header("상호작용 조건")]
     [Tooltip("이 단서 조사에 필요한 플래그 (비어있으면 항상 조사 가능)")]
     [SerializeField] private string requiredFlag = "";
     [SerializeField] private string lockedMessage = "(아직 접근할 수 없다.)";
+
+    // ★ 추가 — 이 단서를 수집하면 다른 오브젝트를 활성화 (예: 다음 단서 공개)
+    [Header("수집 시 연동 (선택)")]
+    [SerializeField] private GameObject revealOnCollect;
+
+    // ★ 추가 — 조사 완료 후 강제 이동 + 자동 대화 시작 (특수 단서용)
+    [Header("조사 후 강제 이동 (선택)")]
+    [SerializeField] private Transform forcedMoveTarget;
+    [SerializeField] private NPCInteractable forcedMoveTargetNpc;
+    [SerializeField] private float forcedMoveDuration = 1.2f;
 
     private bool isCollected = false;
     private PlayerController cachedPlayer = null;
@@ -80,7 +89,6 @@ public class ClueObject : MonoBehaviour, IInteractable
     {
         cachedPlayer = player;
 
-        // ★ requiredFlag 체크
         if (!string.IsNullOrEmpty(requiredFlag) &&
             !(GameFlags.Instance?.HasFlag(requiredFlag) ?? false))
         {
@@ -110,7 +118,24 @@ public class ClueObject : MonoBehaviour, IInteractable
     {
         if (DialogueUI.Instance != null && DialogueUI.Instance.IsOpen()) return;
         var (title, lines) = ResolveTextData();
-        DialogueUI.Instance?.StartDialogue(title, lines, OnExamineFinished);
+        DialogueUI.Instance?.StartDialogue(title, lines, OnClueLinesFinished); // ★ 수정
+    }
+
+    // ★ 추가 — 본문 다 본 뒤, 독백이 있으면 화자를 플레이어로 바꿔서 한 번 더 보여줌
+    private void OnClueLinesFinished()
+    {
+        var data = GameTextLoader.Instance?.GetClue(clueID);
+        var monologue = data?.monologueLines;
+
+        if (monologue != null && monologue.Count > 0)
+        {
+            string playerName = PlayerData.Instance?.PlayerName ?? "";
+            DialogueUI.Instance?.StartDialogue(playerName, monologue, OnExamineFinished);
+        }
+        else
+        {
+            OnExamineFinished();
+        }
     }
 
     private void OnExamineFinished()
@@ -118,6 +143,19 @@ public class ClueObject : MonoBehaviour, IInteractable
         cachedPlayer?.NotifyInteractionEnded();
         if (isCollected) return;
         Collect();
+
+        // ★ 추가 — 강제 이동 + 도착 후 NPC 활성화 및 자동 대화 시작
+        if (forcedMoveTarget != null && cachedPlayer != null)
+        {
+            cachedPlayer.ForceMoveTo(forcedMoveTarget.position, forcedMoveDuration, () =>
+            {
+                if (forcedMoveTargetNpc != null)
+                {
+                    forcedMoveTargetNpc.gameObject.SetActive(true);
+                    forcedMoveTargetNpc.Interact(cachedPlayer);
+                }
+            });
+        }
     }
 
     // ── UV 퍼즐 ──────────────────────────────
@@ -126,7 +164,6 @@ public class ClueObject : MonoBehaviour, IInteractable
         if (UVPuzzleUI.Instance == null) return;
         if (UVPuzzleUI.Instance.IsOpen()) return;
 
-        // ★ JSON에서 퍼즐 내용 로드
         var data = GameTextLoader.Instance?.GetClue(clueID);
         string hidden = (data != null && !string.IsNullOrEmpty(data.hiddenContent))
                          ? data.hiddenContent : hiddenContent;
@@ -141,8 +178,6 @@ public class ClueObject : MonoBehaviour, IInteractable
             DOVirtual.DelayedCall(0.35f, ShowClueDialogue);
         });
     }
-
-  
 
     private void ShowClueDialogue()
     {
@@ -164,7 +199,8 @@ public class ClueObject : MonoBehaviour, IInteractable
         cachedPlayer?.NotifyClueCollected();
         ClueArrowSystem.Instance?.Unregister(this);
 
-        // ★ Collider 즉시 비활성 → 스케일 축소 중 트리거 이탈 이벤트 중복 방지
+        if (revealOnCollect != null) revealOnCollect.SetActive(true); // ★ 추가
+
         var col = GetComponent<Collider2D>();
         if (col != null) col.enabled = false;
 
@@ -172,9 +208,6 @@ public class ClueObject : MonoBehaviour, IInteractable
         {
             transform.DOKill();
             transform.DOScale(Vector3.zero, 0.3f).SetEase(Ease.InBack).SetDelay(0.2f);
-
-            // ★ SetActive는 DOScale과 분리된 DelayedCall로 처리
-            // → transform.DOKill()에 영향받지 않음
             DOVirtual.DelayedCall(0.55f, () =>
             {
                 if (this != null && gameObject != null)

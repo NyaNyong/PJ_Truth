@@ -200,8 +200,19 @@ public class NightPhaseManager : MonoBehaviour
             .SetEase(Ease.OutBack)
             .OnComplete(() =>
             {
-                playerController.EnableControl(true);
                 if (goHomeButton != null) goHomeButton.SetActive(true);
+
+                // ★ 추가 — 상위 기록실 첫 진입 시 이미지+독백, 끝나야 조작 가능
+                if (locationName == "loc_upper_archive" &&
+                    GameFlags.Instance?.HasFlag("seen_archive_intro") != true)
+                {
+                    GameFlags.Instance?.SetFlag("seen_archive_intro");
+                    MidCutsceneUI.Instance?.Play("stage7_archive_intro", () => playerController.EnableControl(true));
+                }
+                else
+                {
+                    playerController.EnableControl(true);
+                }
             });
     }
 

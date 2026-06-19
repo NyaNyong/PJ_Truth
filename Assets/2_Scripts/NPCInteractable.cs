@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Obvious.Soap; // ★ 추가
 
 public class NPCInteractable : MonoBehaviour, IInteractable
 {
@@ -19,6 +20,13 @@ public class NPCInteractable : MonoBehaviour, IInteractable
     [SerializeField] private string grantClueIDOnFinish = "";
     [SerializeField] private string setFlagOnFinish = "";
 
+    // ★ Day7 폭로루트 최종 선택 NPC 전용 (해당 NPC만 사용, 비워두면 무시됨)
+    [Header("Day7 폭로루트 — 최종 선택 즉시 진행")]
+    [Tooltip("GameManager의 onApproveClicked와 동일한 SOAP 에셋을 연결 — 대화 종료 즉시 페이즈 진행 트리거로 재사용")]
+    [SerializeField] private ScriptableEventNoParam onPhaseAdvanceEvent;
+    [Tooltip("이 목록에 있는 setFlag가 선택되면 대화 종료 즉시 onPhaseAdvanceEvent를 Raise")]
+    [SerializeField] private List<string> endingTriggerFlags = new List<string>();
+
     // ── 상태 ──────────────────────────────────────────────────────────────
     private enum NpcState { Idle, ExitedViaChoice, Done }
     private NpcState npcState = NpcState.Idle;
@@ -26,6 +34,9 @@ public class NPCInteractable : MonoBehaviour, IInteractable
     private bool pendingExitClose = false;
     private bool firstConvoHadChoices = false;
     private int totalNonExitChoices = 0;
+
+    // ★ 이번 선택으로 즉시 엔딩 진행해야 하면 채워짐
+    private string pendingEndingFlag = null;
 
     /// <summary>세션 간 유지되는 사용 완료 선택지 인덱스 (종료 선택지 제외)</summary>
     private HashSet<int> persistentUsedIndices = new HashSet<int>();
@@ -91,15 +102,6 @@ public class NPCInteractable : MonoBehaviour, IInteractable
 
         pendingExitClose = false;
 
-        DialogueUI.Instance.StartDialogue(
-            resolvedName,
-            linesToShow,
-            useChoices ? choices : null,
-            useChoices ? (Action<DialogueChoiceData>)OnChoiceMade : null,
-            () => OnDialogueFinished(jsonClueID, jsonFlag),
-            preUsed
-        );
-
         // ★ Resources/Portraits/{npcID} 에서 초상화 로드 (없으면 null)
         Sprite portrait = null;
         if (!string.IsNullOrEmpty(npcID))
@@ -112,7 +114,7 @@ public class NPCInteractable : MonoBehaviour, IInteractable
             useChoices ? (Action<DialogueChoiceData>)OnChoiceMade : null,
             () => OnDialogueFinished(jsonClueID, jsonFlag),
             preUsed,
-            portrait   // ★
+            portrait
         );
     }
 
@@ -127,7 +129,12 @@ public class NPCInteractable : MonoBehaviour, IInteractable
         if (!string.IsNullOrEmpty(choice.grantClueID))
             GameFlags.Instance?.AddClue(choice.grantClueID);
         if (!string.IsNullOrEmpty(choice.setFlag))
+        {
             GameFlags.Instance?.SetFlag(choice.setFlag);
+            // ★ 이 선택이 엔딩 트리거 목록에 있으면 대화 종료 시 즉시 진행 예약
+            if (endingTriggerFlags.Contains(choice.setFlag))
+                pendingEndingFlag = choice.setFlag;
+        }
 
         // 일반 non-exit 선택지: 영구 사용 처리
         if (!choice.isExitChoice && choice.runtimeIndex >= 0)
@@ -145,6 +152,14 @@ public class NPCInteractable : MonoBehaviour, IInteractable
     private void OnDialogueFinished(string clueID, string flagID)
     {
         cachedPlayer?.NotifyInteractionEnded();
+
+        // ★ Day7 폭로루트 최종 선택 — 대화창이 완전히 닫힌 직후 즉시 엔딩 진행
+        if (!string.IsNullOrEmpty(pendingEndingFlag))
+        {
+            pendingEndingFlag = null;
+            onPhaseAdvanceEvent?.Raise();
+            return;
+        }
 
         if (pendingExitClose)
         {
@@ -258,14 +273,14 @@ public class NPCInteractable : MonoBehaviour, IInteractable
 
             resolved.Add(new DialogueChoiceData
             {
-                label        = c.label,
-                grantClueID  = c.grantClueID,
-                setFlag      = c.setFlag,
-                blockIfFlag  = c.blockIfFlag,
+                label = c.label,
+                grantClueID = c.grantClueID,
+                setFlag = c.setFlag,
+                blockIfFlag = c.blockIfFlag,
                 costBonusPay = c.costBonusPay,
-                isExitChoice  = c.isExitChoice,
+                isExitChoice = c.isExitChoice,
                 isUniqueChoice = c.isUniqueChoice,
-                lines        = resolvedLines,
+                lines = resolvedLines,
                 runtimeIndex = i
             });
         }

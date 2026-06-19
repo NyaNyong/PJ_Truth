@@ -56,17 +56,17 @@ public class WhiteboardManager : MonoBehaviour
 
     [Header("DOTween 설정")]
     [SerializeField] private float fadeDuration = 0.35f;
-    [SerializeField] private float cardStagger  = 0.07f;
+    [SerializeField] private float cardStagger = 0.07f;
 
-    private List<ClueCardData>      pendingCards       = new List<ClueCardData>();
+    private List<ClueCardData> pendingCards = new List<ClueCardData>();
     private List<CorrectConnection> correctConnections = new List<CorrectConnection>();
-    private List<ClueCard>          spawnedCards       = new List<ClueCard>();
-    private List<RedStringRenderer> spawnedStrings     = new List<RedStringRenderer>();
+    private List<ClueCard> spawnedCards = new List<ClueCard>();
+    private List<RedStringRenderer> spawnedStrings = new List<RedStringRenderer>();
 
-    private ClueCard dragSource  = null;
-    private bool     isOpen      = false;
-    private bool     isCurtainDown  = false;
-    private bool     isTruthNoteOpen = false;
+    private ClueCard dragSource = null;
+    private bool isOpen = false;
+    private bool isCurtainDown = false;
+    private bool isTruthNoteOpen = false;
 
     // ── 초기화 ───────────────────────────────
     private void Awake()
@@ -75,8 +75,8 @@ public class WhiteboardManager : MonoBehaviour
         Instance = this;
         HideImmediate();
 
-        if (closeButton       != null) closeButton.onClick.AddListener(CloseBoard);
-        if (truthNoteButton   != null) truthNoteButton.onClick.AddListener(ToggleTruthNote);
+        if (closeButton != null) closeButton.onClick.AddListener(CloseBoard);
+        if (truthNoteButton != null) truthNoteButton.onClick.AddListener(ToggleTruthNote);
         if (detailCloseButton != null) detailCloseButton.onClick.AddListener(HideCardDetail);
 
         if (previewLineRT != null)
@@ -96,12 +96,13 @@ public class WhiteboardManager : MonoBehaviour
             pendingCards.Add(cardData);
     }
 
-    public void AddCorrectConnection(List<string> cardIDs, string revealMessage)
+    public void AddCorrectConnection(List<string> cardIDs, string revealMessage, string cutsceneClip = null)
     {
         correctConnections.Add(new CorrectConnection
         {
             cardIDs = new List<string>(cardIDs),
-            revealMessage = revealMessage
+            revealMessage = revealMessage,
+            cutsceneClip = cutsceneClip // ★ 추가
         });
     }
 
@@ -126,8 +127,8 @@ public class WhiteboardManager : MonoBehaviour
         {
             AddCard(new ClueCardData
             {
-                cardID      = c.cardID,
-                cardTitle   = c.title,
+                cardID = c.cardID,
+                cardTitle = c.title,
                 cardContent = c.content,
                 boardPosition = Vector2.zero
             });
@@ -140,7 +141,7 @@ public class WhiteboardManager : MonoBehaviour
                 var ids = (conn.cardIDs != null && conn.cardIDs.Count >= 2)
                     ? conn.cardIDs
                     : new List<string> { conn.fromCardID, conn.toCardID };
-                AddCorrectConnection(ids, conn.revealText);
+                AddCorrectConnection(ids, conn.revealText, conn.cutsceneClip); // ★ 수정
             }
         }
 
@@ -184,16 +185,16 @@ public class WhiteboardManager : MonoBehaviour
     {
         if (detailPanelCG == null) return;
 
-        if (detailTitleText   != null) detailTitleText.text   = data.cardTitle;
+        if (detailTitleText != null) detailTitleText.text = data.cardTitle;
         if (detailContentText != null) detailContentText.text = data.cardContent;
 
         detailPanelCG.gameObject.SetActive(true);
-        detailPanelCG.alpha          = 0f;
-        detailPanelCG.interactable   = false;
+        detailPanelCG.alpha = 0f;
+        detailPanelCG.interactable = false;
         detailPanelCG.blocksRaycasts = false;
         detailPanelCG.DOFade(1f, fadeDuration).OnComplete(() =>
         {
-            detailPanelCG.interactable   = true;
+            detailPanelCG.interactable = true;
             detailPanelCG.blocksRaycasts = true;
         });
     }
@@ -201,7 +202,7 @@ public class WhiteboardManager : MonoBehaviour
     private void HideCardDetail()
     {
         if (detailPanelCG == null) return;
-        detailPanelCG.interactable   = false;
+        detailPanelCG.interactable = false;
         detailPanelCG.blocksRaycasts = false;
         detailPanelCG.DOFade(0f, fadeDuration)
             .OnComplete(() => detailPanelCG.gameObject.SetActive(false));
@@ -250,7 +251,7 @@ public class WhiteboardManager : MonoBehaviour
         previewLineRT.position = (from + to) * 0.5f;
 
         float scale = GetComponentInParent<Canvas>()?.scaleFactor ?? 1f;
-        float dist  = Vector3.Distance(from, to) / scale;
+        float dist = Vector3.Distance(from, to) / scale;
         previewLineRT.sizeDelta = new Vector2(dist, previewLineWidth);
 
         Vector3 dir = to - from;
@@ -295,8 +296,8 @@ public class WhiteboardManager : MonoBehaviour
             if (conn.isRevealed) continue;
             if (conn.cardIDs == null || conn.cardIDs.Count < 2) continue;
 
-            string root      = Find(parent, conn.cardIDs[0]);
-            bool   allLinked = true;
+            string root = Find(parent, conn.cardIDs[0]);
+            bool allLinked = true;
             for (int i = 1; i < conn.cardIDs.Count; i++)
             {
                 if (!parent.ContainsKey(conn.cardIDs[i]) ||
@@ -304,7 +305,15 @@ public class WhiteboardManager : MonoBehaviour
                 { allLinked = false; break; }
             }
 
-            if (allLinked) { conn.isRevealed = true; RevealTruth(conn.revealMessage); }
+            if (allLinked)
+            {
+                conn.isRevealed = true;
+                RevealTruth(conn.revealMessage);
+
+                // ★ 특정 연결 완성 시 짧은 컷씬 재생 (배경+대사 방식 — MidCutsceneUI)
+                if (!string.IsNullOrEmpty(conn.cutsceneClip))
+                    MidCutsceneUI.Instance?.Play(conn.cutsceneClip, null);
+            }
         }
     }
 
@@ -329,10 +338,13 @@ public class WhiteboardManager : MonoBehaviour
 
         if (revealPanelCG != null && revealText != null)
         {
+            revealPanelCG.DOKill(); // ★ 추가 — 이전 페이드 충돌 방지
             revealText.text = message;
             revealPanelCG.gameObject.SetActive(true);
             revealPanelCG.alpha = 0f;
-            revealPanelCG.DOFade(1f, 0.5f);
+            revealPanelCG.DOFade(1f, 0.5f).OnComplete(() =>
+                revealPanelCG.DOFade(0f, 0.5f).SetDelay(2f) // ★ 추가 — 2초 보여준 뒤 자동으로 사라짐
+                    .OnComplete(() => revealPanelCG.gameObject.SetActive(false)));
         }
 
         if (spawnedStrings.Count > 0)
@@ -362,17 +374,17 @@ public class WhiteboardManager : MonoBehaviour
         foreach (var t in entries)
         {
             var entry = Instantiate(truthEntryPrefab, truthNoteContainer);
-            var tmp   = entry.GetComponentInChildren<TextMeshProUGUI>();
+            var tmp = entry.GetComponentInChildren<TextMeshProUGUI>();
             if (tmp != null) tmp.text = t;
         }
 
         truthNotePanelCG.gameObject.SetActive(true);
-        truthNotePanelCG.alpha          = 0f;
-        truthNotePanelCG.interactable   = false;
+        truthNotePanelCG.alpha = 0f;
+        truthNotePanelCG.interactable = false;
         truthNotePanelCG.blocksRaycasts = false;
         truthNotePanelCG.DOFade(1f, fadeDuration).OnComplete(() =>
         {
-            truthNotePanelCG.interactable   = true;
+            truthNotePanelCG.interactable = true;
             truthNotePanelCG.blocksRaycasts = true;
         });
     }
@@ -381,7 +393,7 @@ public class WhiteboardManager : MonoBehaviour
     {
         if (truthNotePanelCG == null) return;
         isTruthNoteOpen = false;
-        truthNotePanelCG.interactable   = false;
+        truthNotePanelCG.interactable = false;
         truthNotePanelCG.blocksRaycasts = false;
         truthNotePanelCG.DOFade(0f, fadeDuration)
             .OnComplete(() => truthNotePanelCG.gameObject.SetActive(false));
@@ -409,12 +421,12 @@ public class WhiteboardManager : MonoBehaviour
     private void ShowPanel()
     {
         whiteboardPanelCG.gameObject.SetActive(true);
-        whiteboardPanelCG.alpha          = 0f;
-        whiteboardPanelCG.interactable   = false;
+        whiteboardPanelCG.alpha = 0f;
+        whiteboardPanelCG.interactable = false;
         whiteboardPanelCG.blocksRaycasts = false;
         whiteboardPanelCG.DOFade(1f, fadeDuration).OnComplete(() =>
         {
-            whiteboardPanelCG.interactable   = true;
+            whiteboardPanelCG.interactable = true;
             whiteboardPanelCG.blocksRaycasts = true;
         });
     }
@@ -441,7 +453,6 @@ public class WhiteboardManager : MonoBehaviour
         }
 
         whiteboardPanelCG.interactable = false;
-        // ... 기존 코드 유지 ...
         whiteboardPanelCG.blocksRaycasts = false;
         whiteboardPanelCG.DOFade(0f, fadeDuration).OnComplete(() =>
         {
@@ -455,16 +466,16 @@ public class WhiteboardManager : MonoBehaviour
     {
         if (curtainCG == null) return;
         curtainCG.DOKill();
-        curtainCG.alpha          = 0f;
+        curtainCG.alpha = 0f;
         curtainCG.blocksRaycasts = false;
-        curtainCG.interactable   = false;
+        curtainCG.interactable = false;
     }
 
     private void SetCGHidden(CanvasGroup cg)
     {
         if (cg == null) return;
-        cg.alpha          = 0f;
-        cg.interactable   = false;
+        cg.alpha = 0f;
+        cg.interactable = false;
         cg.blocksRaycasts = false;
         cg.gameObject.SetActive(false);
     }
@@ -478,12 +489,12 @@ public class WhiteboardManager : MonoBehaviour
 
     private void ResetBoard()
     {
-        foreach (var c in spawnedCards)   if (c != null) Destroy(c.gameObject);
+        foreach (var c in spawnedCards) if (c != null) Destroy(c.gameObject);
         foreach (var s in spawnedStrings) if (s != null) Destroy(s.gameObject);
         spawnedCards.Clear();
         spawnedStrings.Clear();
-        dragSource      = null;
-        isCurtainDown   = false;
+        dragSource = null;
+        isCurtainDown = false;
         isTruthNoteOpen = false;
         ResetCurtain();
         SetCGHidden(truthNotePanelCG);
@@ -509,7 +520,7 @@ public class WhiteboardManager : MonoBehaviour
         for (int i = 0; i < pendingCards.Count; i++)
         {
             var data = pendingCards[i];
-            var obj  = Instantiate(cardPrefab, cardContainer);
+            var obj = Instantiate(cardPrefab, cardContainer);
             var card = obj.GetComponent<ClueCard>();
             if (card == null) continue;
 
@@ -517,9 +528,9 @@ public class WhiteboardManager : MonoBehaviour
             spawnedCards.Add(card);
 
             var rt = obj.GetComponent<RectTransform>();
-            rt.anchorMin        = new Vector2(0.5f, 0.5f);
-            rt.anchorMax        = new Vector2(0.5f, 0.5f);
-            rt.pivot            = new Vector2(0.5f, 0.5f);
+            rt.anchorMin = new Vector2(0.5f, 0.5f);
+            rt.anchorMax = new Vector2(0.5f, 0.5f);
+            rt.pivot = new Vector2(0.5f, 0.5f);
             rt.anchoredPosition = positions[i];
 
             obj.transform.localScale = Vector3.zero;
@@ -539,13 +550,13 @@ public class WhiteboardManager : MonoBehaviour
         if (w <= 10f) w = 1600f;
         if (h <= 10f) h = 900f;
 
-        float padX   = w * 0.08f;
-        float padY   = h * 0.08f;
+        float padX = w * 0.08f;
+        float padY = h * 0.08f;
         float usableW = w - padX * 2f;
         float usableH = h - padY * 2f;
 
-        int cols  = Mathf.CeilToInt(Mathf.Sqrt(count));
-        int rows  = Mathf.CeilToInt((float)count / cols);
+        int cols = Mathf.CeilToInt(Mathf.Sqrt(count));
+        int rows = Mathf.CeilToInt((float)count / cols);
         float cellW = Mathf.Max(usableW / cols, 280f);
         float cellH = Mathf.Max(usableH / rows, 220f);
         float totalW = cellW * cols;
@@ -556,7 +567,7 @@ public class WhiteboardManager : MonoBehaviour
             int col = i % cols;
             int row = i / cols;
             float x = -totalW * 0.5f + cellW * (col + 0.5f) + Random.Range(-cellW * 0.1f, cellW * 0.1f);
-            float y =  totalH * 0.5f - cellH * (row + 0.5f) + Random.Range(-cellH * 0.1f, cellH * 0.1f);
+            float y = totalH * 0.5f - cellH * (row + 0.5f) + Random.Range(-cellH * 0.1f, cellH * 0.1f);
             positions.Add(new Vector2(x, y));
         }
         return positions;
@@ -578,5 +589,6 @@ public class CorrectConnection
 {
     public List<string> cardIDs;
     public string revealMessage;
+    public string cutsceneClip; // ★ 추가 — StreamingAssets/Cutscenes/{cutsceneClip}.mp4, 비어있으면 컷씬 없음
     [HideInInspector] public bool isRevealed = false;
 }

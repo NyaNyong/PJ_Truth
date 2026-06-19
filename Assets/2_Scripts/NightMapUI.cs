@@ -115,6 +115,24 @@ public class NightMapUI : MonoBehaviour
         string displayName = string.IsNullOrEmpty(info.displayName)
             ? info.locationName : info.displayName;
 
+        // ★ 송출 제어실: 이동 전 암호 입력 필요 (정답이어야만 ConfirmMove 진행)
+        if (info.locationName == "loc_expose_control")
+        {
+            var expose = GameTextLoader.Instance?.GetExposeRoute();
+            string code = expose?.codeInputCorrect ?? "";
+            string prompt = expose?.codeInputPrompt ?? "송출 경로를 입력하십시오.";
+
+            if (string.IsNullOrEmpty(code))
+            {
+                Debug.LogWarning("[NightMapUI] codeInputCorrect 미설정");
+                return;
+            }
+
+            CodeInputUI.Instance?.Show(code, "choice_expose_code_correct",
+                () => ConfirmMove(info.locationName), prompt);
+            return;
+        }
+
         ConfirmPopupUI.Instance?.Open(
             title: displayName,
             message: info.description,

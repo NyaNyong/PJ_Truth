@@ -49,7 +49,7 @@ public class MainMenuUI : MonoBehaviour
         mainMenuPanelCG.DOFade(0f, fadeDuration).OnComplete(() =>
         {
             mainMenuPanelCG.gameObject.SetActive(false);
-            idCardUI?.Show();
+            CutsceneManager.Instance?.Play("mp4_1", () => idCardUI?.Show()); // ¡Ú ¼öÁ¤
         });
     }
 }

@@ -1,6 +1,7 @@
 using UnityEngine;
 using DG.Tweening;
 using Obvious.Soap;
+using System.Collections; // ★ 추가
 
 [RequireComponent(typeof(Rigidbody2D))]
 public class PlayerController : MonoBehaviour
@@ -192,9 +193,41 @@ public class PlayerController : MonoBehaviour
         EnableControl(false);
         onPhaseTransitionRequest?.Raise();
     }
+
+    // ★ 추가 — 특정 위치로 강제 이동 (이동 중 입력 차단, 완료 시 자동 콜백)
+    public void ForceMoveTo(Vector3 targetPosition, float duration, System.Action onComplete = null)
+    {
+        EnableControl(false);
+        StartCoroutine(ForceMoveRoutine(targetPosition, duration, onComplete));
+    }
+
+    private IEnumerator ForceMoveRoutine(Vector3 target, float duration, System.Action onComplete)
+    {
+        Vector3 start = transform.position;
+        Vector2 dir = ((Vector2)target - (Vector2)start).normalized;
+        directionalSprite?.UpdateDirection(dir);
+        animator?.SetBool(animParamIsMoving, true);
+
+        float t = 0f;
+        while (t < duration)
+        {
+            t += Time.deltaTime;
+            float p = Mathf.Clamp01(t / duration);
+            rb.MovePosition(Vector2.Lerp(start, target, p));
+            yield return null;
+        }
+
+        rb.MovePosition(target);
+        animator?.SetBool(animParamIsMoving, false);
+        EnableControl(true);
+        onComplete?.Invoke();
+    }
+
+
 }
 
 public interface IInteractable
 {
     void Interact(PlayerController player);
 }
+

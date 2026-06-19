@@ -155,7 +155,8 @@ public class IDCardUI : MonoBehaviour
         idCardPanelCG.DOFade(0f, fadeDuration).OnComplete(() =>
         {
             idCardPanelCG.gameObject.SetActive(false);
-            FindObjectOfType<GameManager>()?.StartFromBeginning(); // ★
+            CutsceneManager.Instance?.Play("mp4_2", () =>
+                FindObjectOfType<GameManager>()?.StartFromBeginning()); // ★ 수정
         });
     }
 }

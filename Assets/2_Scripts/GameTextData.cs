@@ -121,6 +121,7 @@ public class ClueTextData
     public string hiddenContent;
     public string correctAnswer;
     public string flagIDOnSolve;
+    public List<string> monologueLines; // ★ 추가
 }
 
 // ─── 대화 선택지 ──────────────────────────────
@@ -179,6 +180,7 @@ public class WhiteboardConnectionData
     public string toCardID;
     public List<string> cardIDs;
     public string revealText;
+    public string cutsceneClip; // ★ 추가
 }
 
 [System.Serializable]
@@ -206,3 +208,4 @@ public class ExposeRouteData
     public string codeInputCorrect;        // 정답 암호
     public string codeInputPrompt;         // 입력창 안내문
 }
+

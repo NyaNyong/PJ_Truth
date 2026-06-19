@@ -3,12 +3,18 @@ using UnityEngine.UI;
 using TMPro;
 using DG.Tweening;
 using System.Collections.Generic;
+using System.IO;
+
+// ★ 컷씬 배경 매칭용 JSON 데이터 클래스
+
 
 public class EndingScreenUI : MonoBehaviour
 {
     [Header("컷씬 패널")]
     [SerializeField] private CanvasGroup cutscenePanelCG;
+    [SerializeField] private TextMeshProUGUI speakerNameText; // ★ 추가 — 복제한 Dialogue Panel의 화자 이름 텍스트
     [SerializeField] private TextMeshProUGUI cutsceneText;
+    [SerializeField] private Image cutsceneBackgroundImage; // ★ 추가 — 컷씬 패널 안, 텍스트보다 아래 레이어에 배치
 
     [Header("공식뉴스 패널")]
     [SerializeField] private CanvasGroup panelCG;
@@ -22,12 +28,19 @@ public class EndingScreenUI : MonoBehaviour
     [SerializeField] private float fadeDuration = 0.4f;
     [SerializeField] private float typeSpeed = 0.03f;
 
+
+
     private System.Action onConfirmCallback;
     private List<string> currentCutsceneLines = new List<string>();
     private int cutsceneIndex = 0;
     private bool isTyping = false;
     private string currentNewsTitle;
     private string currentNewsContent;
+    private string currentEndingKey; // ★ 추가
+
+    // ★ 추가 — 엔딩키 → (줄 인덱스 → 배경 파일명)
+    private Dictionary<string, Dictionary<int, string>> cutsceneBackgroundMap
+        = new Dictionary<string, Dictionary<int, string>>();
 
     // ─── 컷씬 라인 ──────────────────────────────────────────────────────────
     private static readonly Dictionary<string, List<string>> CutsceneLines
@@ -201,8 +214,35 @@ public class EndingScreenUI : MonoBehaviour
     private void Awake()
     {
         HideAllImmediate();
+        LoadCutsceneBackgroundData(); // ★ 추가
         if (confirmButton != null)
             confirmButton.onClick.AddListener(OnClickConfirm);
+    }
+
+    // ★ 추가 — StreamingAssets/GameData/ending_backgrounds.json 로드
+    private void LoadCutsceneBackgroundData()
+    {
+        string path = Path.Combine(Application.streamingAssetsPath, "GameData/ending_backgrounds.json");
+        if (!File.Exists(path))
+        {
+            Debug.LogWarning("[EndingScreenUI] ending_backgrounds.json 없음 — 컷씬 배경 전환 비활성");
+            return;
+        }
+
+        string json = File.ReadAllText(path, System.Text.Encoding.UTF8);
+        var data = JsonUtility.FromJson<CutsceneBackgroundFile>(json);
+        if (data?.entries == null) return;
+
+        foreach (var entry in data.entries)
+        {
+            if (string.IsNullOrEmpty(entry.endingKey)) continue;
+            if (!cutsceneBackgroundMap.TryGetValue(entry.endingKey, out var lineMap))
+            {
+                lineMap = new Dictionary<int, string>();
+                cutsceneBackgroundMap[entry.endingKey] = lineMap;
+            }
+            lineMap[entry.lineIndex] = entry.background;
+        }
     }
 
     private void Update()
@@ -229,6 +269,10 @@ public class EndingScreenUI : MonoBehaviour
     public void Show(string endingKey, System.Action onConfirm)
     {
         onConfirmCallback = onConfirm;
+        currentEndingKey = endingKey;
+
+        if (speakerNameText != null) // ★ 추가 — 독백이라 플레이어 본인 이름을 화자로 표시
+            speakerNameText.text = PlayerData.Instance?.PlayerName ?? "";
 
         if (!EndingNews.TryGetValue(endingKey, out var news))
         {
@@ -252,6 +296,9 @@ public class EndingScreenUI : MonoBehaviour
     // ─── 컷씬 ────────────────────────────────────────────────────────────────
     private void ShowCutscenePanel()
     {
+        if (cutsceneBackgroundImage != null)
+            cutsceneBackgroundImage.sprite = null; // ★ 추가 — 이전 엔딩의 잔상 방지
+
         cutscenePanelCG.gameObject.SetActive(true);
         cutscenePanelCG.alpha = 0f;
         cutscenePanelCG.interactable = false;
@@ -267,6 +314,18 @@ public class EndingScreenUI : MonoBehaviour
     private void ShowCutsceneLine(int index)
     {
         if (cutsceneText == null) return;
+
+        // ★ 추가 — JSON에 이 줄의 배경이 지정돼 있으면 교체, 없으면 이전 배경 유지
+        if (cutsceneBackgroundImage != null &&
+            cutsceneBackgroundMap.TryGetValue(currentEndingKey, out var lineMap) &&
+            lineMap.TryGetValue(index, out var bgKey) &&
+            !string.IsNullOrEmpty(bgKey))
+        {
+            var sprite = Resources.Load<Sprite>($"CutsceneBackgrounds/{bgKey}");
+            if (sprite != null) cutsceneBackgroundImage.sprite = sprite;
+            else Debug.LogWarning($"[EndingScreenUI] 배경 스프라이트 없음: {bgKey}");
+        }
+
         if (typingCoroutine != null) StopCoroutine(typingCoroutine);
         typingCoroutine = StartCoroutine(TypeLine(currentCutsceneLines[index]));
     }

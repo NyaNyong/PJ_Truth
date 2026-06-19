@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using TMPro;
 using DG.Tweening;
 using System.Collections;
@@ -8,27 +8,38 @@ public class StageTimerUI : MonoBehaviour
 {
     public static StageTimerUI Instance { get; private set; }
 
-    [Header("ÆĞ³Î")]
+    [Header("íŒ¨ë„")]
     [SerializeField] private CanvasGroup panelCG;
 
-    [Header("Å¸ÀÌ¸Ó UI")]
+    [Header("íƒ€ì´ë¨¸ UI")]
     [SerializeField] private TextMeshProUGUI timerText;
     [SerializeField] private TextMeshProUGUI warningMessageText;
 
-    [Header("¼³Á¤")]
+    [Header("ì„¤ì •")]
     [SerializeField] private float warningInterval = 30f;
     [SerializeField] private float urgentThreshold = 60f;
     [SerializeField] private Color urgentColor = new Color(0.9f, 0.2f, 0.2f);
     [SerializeField] private Color normalColor = Color.white;
 
-    [Header("»ó»ç °æ°í ¸Ş½ÃÁö")]
+    [Header("ìƒì‚¬ ê²½ê³  ë©”ì‹œì§€")]
     [SerializeField]
     private List<string> warningMessages = new List<string>
     {
-        "À§Ä¡ È®ÀÎ ÁßÀÔ´Ï´Ù.",
-        "Áö±İ µ¹¾Æ¿À¸é ÀıÂ÷»ó ½Ç¼ö·Î Ã³¸®ÇÒ ¼ö ÀÖ½À´Ï´Ù.",
-        "´õ ÀÌ»ó ¿òÁ÷ÀÌÁö ¸¶½Ê½Ã¿À.",
-        "¸¶Áö¸·À¸·Î °æ°íÇÕ´Ï´Ù."
+        "ìœ„ì¹˜ í™•ì¸ ì¤‘ì…ë‹ˆë‹¤.",
+        "ì§€ê¸ˆ ëŒì•„ì˜¤ë©´ ì ˆì°¨ìƒ ì‹¤ìˆ˜ë¡œ ì²˜ë¦¬í•  ìˆ˜ ìˆìŠµë‹ˆë‹¤.",
+        "ë” ì´ìƒ ì›€ì§ì´ì§€ ë§ˆì‹­ì‹œì˜¤.",
+        "ë§ˆì§€ë§‰ìœ¼ë¡œ ê²½ê³ í•©ë‹ˆë‹¤."
+    };
+
+    // â˜… ì¶”ê°€ â€” ì‹œê°„ëŒ€ë³„ íŒíŠ¸
+    [Header("íŒíŠ¸ ë©”ì‹œì§€ (ë‚¨ì€ ì‹œê°„ ê¸°ì¤€)")]
+    [SerializeField] private TextMeshProUGUI hintText;
+    [SerializeField]
+    private List<HintEntry> hintEntries = new List<HintEntry>
+    {
+        new HintEntry { atSeconds = 180f, message = "ì±…ìƒì„ ë‘˜ëŸ¬ë³´ì" },
+        new HintEntry { atSeconds = 120f, message = "ì–´ë”˜ê°€ì— íŒíŠ¸ê°€ ì í˜€ìˆì„ ê²ƒì´ë‹¤" },
+        new HintEntry { atSeconds = 60f,  message = "ì‚¬ì§„ì´ ìˆ˜ìƒí•˜ë‹¤" },
     };
 
     private float remainingTime;
@@ -36,6 +47,7 @@ public class StageTimerUI : MonoBehaviour
     private System.Action onTimeoutCallback;
     private Coroutine timerCoroutine;
     private Coroutine warningCoroutine;
+    private HashSet<float> shownHints = new HashSet<float>(); // â˜… ì¶”ê°€
 
     private void Awake()
     {
@@ -44,12 +56,13 @@ public class StageTimerUI : MonoBehaviour
         HideImmediate();
     }
 
-    // ¦¡¦¡ ¿ÜºÎ È£Ãâ ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // â”€â”€ ì™¸ë¶€ í˜¸ì¶œ â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     public void StartTimer(float seconds, System.Action onTimeout)
     {
         remainingTime = seconds;
         onTimeoutCallback = onTimeout;
         isRunning = true;
+        shownHints.Clear(); // â˜… ì¶”ê°€ â€” ë§¤ íƒ€ì´ë¨¸ ì‹œì‘ë§ˆë‹¤ íŒíŠ¸ ì¬ì‚¬ìš© ê°€ëŠ¥í•˜ë„ë¡ ì´ˆê¸°í™”
 
         Show();
 
@@ -69,19 +82,20 @@ public class StageTimerUI : MonoBehaviour
         Hide();
     }
 
-    // ¦¡¦¡ ÄÚ·çÆ¾ ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // â”€â”€ ì½”ë£¨í‹´ â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     private IEnumerator TimerRoutine()
     {
         while (remainingTime > 0f && isRunning)
         {
             UpdateDisplay();
+            CheckHints(); // â˜… ì¶”ê°€
             yield return new WaitForSeconds(1f);
             remainingTime = Mathf.Max(0f, remainingTime - 1f);
         }
 
         if (!isRunning) yield break;
 
-        UpdateDisplay(); // 00:00 Ç¥½Ã
+        UpdateDisplay(); // 00:00 í‘œì‹œ
         yield return new WaitForSeconds(0.8f);
         isRunning = false;
         Hide();
@@ -100,13 +114,46 @@ public class StageTimerUI : MonoBehaviour
         }
     }
 
-    // ¦¡¦¡ UI °»½Å ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // â˜… ì¶”ê°€ â€” ë‚¨ì€ ì‹œê°„ì´ ì§€ì • ì‹œì  ì´í•˜ë¡œ ë‚´ë ¤ê°€ë©´ í•œ ë²ˆì”© íŒíŠ¸ í‘œì‹œ
+    private void CheckHints()
+    {
+        if (hintEntries == null) return;
+        foreach (var hint in hintEntries)
+        {
+            if (shownHints.Contains(hint.atSeconds)) continue;
+            if (remainingTime <= hint.atSeconds)
+            {
+                shownHints.Add(hint.atSeconds);
+                ShowHint(hint.message);
+            }
+        }
+    }
+
+    // â˜… ì¶”ê°€
+    private void ShowHint(string msg)
+    {
+        if (hintText == null) return;
+        hintText.DOKill();
+        hintText.transform.DOKill();
+
+        hintText.text = msg;
+        hintText.color = new Color(1f, 1f, 1f, 0f);
+        hintText.transform.localScale = Vector3.one * 0.7f;
+
+        hintText.DOFade(1f, 0.3f)
+            .OnComplete(() => hintText.DOFade(0f, 0.5f).SetDelay(3f));
+
+        hintText.transform.DOScale(1.15f, 0.25f).SetEase(Ease.OutBack)
+            .OnComplete(() => hintText.transform.DOScale(1f, 0.15f));
+    }
+
+    // â”€â”€ UI ê°±ì‹  â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     private void UpdateDisplay()
     {
         if (timerText == null) return;
         int m = Mathf.FloorToInt(remainingTime / 60f);
         int s = Mathf.FloorToInt(remainingTime % 60f);
-        timerText.text = $"Á¦ÇÑ ½Ã°£: {m:00}:{s:00}";
+        timerText.text = $"ì œí•œ ì‹œê°„: {m:00}:{s:00}";
 
         bool urgent = remainingTime <= urgentThreshold;
         timerText.color = urgent ? urgentColor : normalColor;
@@ -124,7 +171,7 @@ public class StageTimerUI : MonoBehaviour
             .OnComplete(() => warningMessageText.DOFade(0f, 0.5f).SetDelay(3f));
     }
 
-    // ¦¡¦¡ ÆĞ³Î ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // â”€â”€ íŒ¨ë„ â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     private void Show()
     {
         panelCG.gameObject.SetActive(true);
@@ -153,4 +200,12 @@ public class StageTimerUI : MonoBehaviour
         panelCG.blocksRaycasts = false;
         panelCG.gameObject.SetActive(false);
     }
+}
+
+[System.Serializable]
+public class HintEntry
+{
+    public float atSeconds;
+    [TextArea(1, 2)]
+    public string message;
 }

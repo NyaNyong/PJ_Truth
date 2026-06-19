@@ -151,4 +151,17 @@ public class AudioManager : MonoBehaviour
 
     public float BGMVolume => bgmVolume;
     public float SFXVolume => sfxVolume;
+
+    // ★ 추가 — 컷씬 재생 중 BGM 일시 묵음
+    public void MuteBGM()
+    {
+        bgmSource.DOKill();
+        bgmSource.DOFade(0f, 0.2f);
+    }
+
+    public void UnmuteBGM()
+    {
+        bgmSource.DOKill();
+        bgmSource.DOFade(bgmVolume, 0.3f);
+    }
 }
