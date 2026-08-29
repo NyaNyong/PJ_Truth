@@ -88,11 +88,16 @@ public class ResultScreenUI : MonoBehaviour
             float delay = cardStagger * 3f + cardPopDuration + 0.1f;
             DOVirtual.DelayedCall(delay, () =>
             {
-                // ★ 블록 순차 애니메이션
                 kpiSegmentedBar?.AnimateTo(kpiBefore, kpiProgressAfter);
 
                 resultPanelCG.interactable = true;
                 resultPanelCG.blocksRaycasts = true;
+
+                // ★ 튜토리얼: 결과창
+                if (score.dayNumber == 3 && TutorialManager.Instance != null)
+                {
+                    TutorialManager.Instance.OnResultScreen();
+                }
             });
         });
     }

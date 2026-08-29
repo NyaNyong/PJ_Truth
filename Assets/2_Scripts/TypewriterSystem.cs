@@ -60,7 +60,7 @@ public class TypewriterSystem : MonoBehaviour
         // ★ 범위 유효성 확인 (maxOffset 음수면 clamp min>max 오작동)
         if (maxOffset <= 0f) return;
 
-        _scrollX = Mathf.Clamp(_scrollX - wheel * scrollSpeed, -maxOffset, 0f);
+        _scrollX = Mathf.Clamp(_scrollX + wheel * scrollSpeed, -maxOffset, 0f);
         wordCardContainer.anchoredPosition = new Vector2(_scrollX, 0f);
     }
 

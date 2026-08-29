@@ -206,7 +206,7 @@ public class PlayerController : MonoBehaviour
         Vector3 start = transform.position;
         Vector2 dir = ((Vector2)target - (Vector2)start).normalized;
         directionalSprite?.UpdateDirection(dir);
-        animator?.SetBool(animParamIsMoving, true);
+        if (animator != null) animator.SetBool(animParamIsMoving, true); // ★ 수정
 
         float t = 0f;
         while (t < duration)
@@ -218,7 +218,7 @@ public class PlayerController : MonoBehaviour
         }
 
         rb.MovePosition(target);
-        animator?.SetBool(animParamIsMoving, false);
+        if (animator != null) animator.SetBool(animParamIsMoving, false); // ★ 수정
         EnableControl(true);
         onComplete?.Invoke();
     }

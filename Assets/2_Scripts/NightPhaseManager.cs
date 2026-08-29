@@ -1,7 +1,9 @@
-using UnityEngine;
-using System.Collections.Generic;
 using DG.Tweening;
 using Obvious.Soap;
+using System.Collections.Generic;
+using System.Linq;
+using TMPro;
+using UnityEngine;
 
 public class NightPhaseManager : MonoBehaviour
 {
@@ -14,6 +16,9 @@ public class NightPhaseManager : MonoBehaviour
     [SerializeField] private GameObject playerCharacter;
     [SerializeField] private PlayerController playerController;
 
+    [Header("플레이어 배려 — 증거 카운터")]
+    [SerializeField] private TextMeshProUGUI evidenceCountText;
+
     [Header("퇴근 버튼")]
     [SerializeField] private GameObject goHomeButton;
 
@@ -24,6 +29,11 @@ public class NightPhaseManager : MonoBehaviour
 
     [Header("장소-맵 매핑")]
     [SerializeField] private List<LocationMapEntry> locationMaps;
+
+    [Header("폭로루트 — 흑막 등장 (loc_expose_control 최초 입장 시)")]
+    [SerializeField] private Transform blackmaskStandPoint;
+    [SerializeField] private NPCInteractable blackmaskNpc;
+    [SerializeField] private float blackmaskMoveDuration = 0f; // 0 = 순간이동
 
     [System.Serializable]
     public class LocationMapEntry
@@ -102,12 +112,14 @@ public class NightPhaseManager : MonoBehaviour
     {
         if (onLocationSelected != null) onLocationSelected.OnRaised += OnLocationSelectedHandler;
         if (onClueCollected != null) onClueCollected.OnRaised += OnClueCollectedHandler;
+        if (onClueCollected != null) onClueCollected.OnRaised += RefreshEvidenceCount; // ★ 추가
     }
 
     private void OnDisable()
     {
         if (onLocationSelected != null) onLocationSelected.OnRaised -= OnLocationSelectedHandler;
         if (onClueCollected != null) onClueCollected.OnRaised -= OnClueCollectedHandler;
+        if (onClueCollected != null) onClueCollected.OnRaised -= RefreshEvidenceCount; // ★ 추가
     }
 
     // ── 버튼 목록 빌드 ───────────────────────
@@ -165,6 +177,15 @@ public class NightPhaseManager : MonoBehaviour
         ShowCompleteBanner();
     }
 
+
+    private void RefreshEvidenceCount()
+    {
+        if (evidenceCountText == null) return;
+        var allIDs = GameTextLoader.Instance?.GetClueIDsForLocations(visitedLocations) ?? new List<string>(); // ★ 수정
+        int remaining = allIDs.Count(id => !(GameFlags.Instance?.HasClue(id) ?? false));
+        evidenceCountText.text = remaining > 0 ? $"남은 증거: {remaining}개" : "모든 증거를 확인했습니다.";
+    }
+
     // ── 탑다운 뷰 활성/비활성 ────────────────
     private void ActivateNightView(string locationName)
     {
@@ -201,27 +222,53 @@ public class NightPhaseManager : MonoBehaviour
             .OnComplete(() =>
             {
                 if (goHomeButton != null) goHomeButton.SetActive(true);
+                if (evidenceCountText != null) evidenceCountText.gameObject.SetActive(true); // ★ 추가
 
-                // ★ 추가 — 상위 기록실 첫 진입 시 이미지+독백, 끝나야 조작 가능
+                // ★ 튜토리얼: 밤 페이즈
+                var gm = FindObjectOfType<GameManager>();
+                if (gm != null && gm.currentDay == 3 && TutorialManager.Instance != null)
+                {
+                    TutorialManager.Instance.OnNightPhaseStarted();
+                }
+                
+                               
                 if (locationName == "loc_upper_archive" &&
                     GameFlags.Instance?.HasFlag("seen_archive_intro") != true)
                 {
                     GameFlags.Instance?.SetFlag("seen_archive_intro");
                     MidCutsceneUI.Instance?.Play("stage7_archive_intro", () => playerController.EnableControl(true));
                 }
+                else if (locationName == "loc_expose_control" && // ★ 추가
+                         GameFlags.Instance?.HasFlag("seen_blackmask_intro") != true)
+                {
+                    GameFlags.Instance?.SetFlag("seen_blackmask_intro");
+                    if (blackmaskStandPoint != null)
+                    {
+                        playerController.ForceMoveTo(blackmaskStandPoint.position, blackmaskMoveDuration, () =>
+                        {
+                            blackmaskNpc?.Interact(playerController);
+                        });
+                    }
+                    else
+                    {
+                        playerController.EnableControl(true);
+                    }
+                }
                 else
                 {
                     playerController.EnableControl(true);
                 }
             });
+
     }
 
     public void DeactivateNightView(System.Action onComplete)
     {
         if (goHomeButton != null) goHomeButton.SetActive(false);
+        if (evidenceCountText != null) evidenceCountText.gameObject.SetActive(false); // ★ 추가
         playerController.EnableControl(false);
         HideBannerImmediate();
-        ClueArrowSystem.Instance?.ForceHideAll(); // ★ 애니메이션 시작 전 즉시 숨김
+        ClueArrowSystem.Instance?.ForceHideAll();
 
         playerCharacter.transform
             .DOScale(Vector3.zero, 0.25f)

@@ -7,15 +7,40 @@ MonoImporter:
   - soapCurrentDay: {instanceID: 0}
   - onApproveClicked: {instanceID: 0}
   - onLocationSelected: {instanceID: 0}
+  - onPhaseTransitionRequest: {instanceID: 0}
+  - morningNewsPanelCG: {instanceID: 0}
+  - officialNewsTitleUI: {instanceID: 0}
+  - officialNewsContentUI: {instanceID: 0}
+  - morningNewsButton: {instanceID: 0}
+  - generalNewsTitleUI: {instanceID: 0}
+  - privatePanelCG: {instanceID: 0}
+  - privateNewsTitleUI: {instanceID: 0}
+  - privateNewsContentUI: {instanceID: 0}
   - documentPanelCG: {instanceID: 0}
   - guidelinePanelCG: {instanceID: 0}
   - guidelineButton: {instanceID: 0}
   - guidelineTextUI: {instanceID: 0}
   - documentViewer: {instanceID: 0}
-  - morningNewsPanelCG: {instanceID: 0}
-  - officialNewsTitleUI: {instanceID: 0}
-  - officialNewsContentUI: {instanceID: 0}
+  - dayPhaseBG: {instanceID: 0}
+  - dayHeaderCG: {instanceID: 0}
+  - dayHeaderDayText: {instanceID: 0}
+  - dayHeaderKPIText: {instanceID: 0}
+  - stampCG: {instanceID: 0}
+  - stampRT: {instanceID: 0}
   - nightMapUI: {instanceID: 0}
+  - nightPhaseManager: {instanceID: 0}
+  - whiteboardManager: {instanceID: 0}
+  - resultScreenUI: {instanceID: 0}
+  - idCardUI: {instanceID: 0}
+  - blackoutCG: {instanceID: 0}
+  - nextStagePanelCG: {instanceID: 0}
+  - nextStageHintText: {instanceID: 0}
+  - endingScreenUI: {instanceID: 0}
+  - stageTimerUI: {instanceID: 0}
+  - interviewRoomBGCG: {instanceID: 0}
+  - interviewPlayerIdleMale: {instanceID: 0}
+  - interviewPlayerIdleFemale: {instanceID: 0}
+  - interviewBossPortrait: {fileID: 21300000, guid: 55622eb874132c143b1b2c82f37e2c1d, type: 3}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

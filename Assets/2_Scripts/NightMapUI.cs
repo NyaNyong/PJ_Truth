@@ -60,6 +60,13 @@ public class NightMapUI : MonoBehaviour
                   {
                       mapPanelCG.interactable = true;
                       mapPanelCG.blocksRaycasts = true;
+
+                      // ★ 튜토리얼: 밤 지도
+                      var gm = FindObjectOfType<GameManager>();
+                      if (gm != null && gm.currentDay == 3 && TutorialManager.Instance != null)
+                      {
+                          TutorialManager.Instance.OnNightMap();
+                      }
                   });
     }
 

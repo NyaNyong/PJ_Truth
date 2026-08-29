@@ -45,6 +45,10 @@ public class DocumentViewer : MonoBehaviour
     [Header("승인 버튼")]
     [SerializeField] private Button approveButton;
 
+    [Header("도구 선택 강조")]
+    [SerializeField] private Outline blackMarkerOutline;
+    [SerializeField] private Outline typewriterOutline;
+
     // ─────────────────────────────────────────────────────────────────────
     private DocumentData currentDocument;
     private bool         isAllMaskedCorrectly = false;
@@ -75,6 +79,12 @@ public class DocumentViewer : MonoBehaviour
     private const int CHILD_FRONT  = 0;
     private const int CHILD_MIDDLE = 1;
     private const int CHILD_END    = 2;
+
+    // ★ 튜토리얼용 버튼/시스템 접근자 노출
+    public Button GetBlackMarkerButton() => blackMarkerButton;
+    public Button GetTypewriterButton() => typewriterButton;
+    public Button GetApproveButton() => approveButton;
+    public TypewriterSystem GetTypewriterSystem() => typewriterSystem;
 
     // ─────────────────────────────────────────────────────────────────────
     private void Awake()
@@ -207,7 +217,9 @@ public class DocumentViewer : MonoBehaviour
     private void RefreshToolButtonUI()
     {
         SetButtonColor(blackMarkerButton, currentTool == ToolMode.BlackMarker);
-        SetButtonColor(typewriterButton,  currentTool == ToolMode.Typewriter);
+        SetButtonColor(typewriterButton, currentTool == ToolMode.Typewriter);
+        if (blackMarkerOutline != null) blackMarkerOutline.enabled = currentTool == ToolMode.BlackMarker; // ★ 추가
+        if (typewriterOutline != null) typewriterOutline.enabled = currentTool == ToolMode.Typewriter;     // ★ 추가
 
         // ★ 뒷면에서 타자기 버튼 비활성
         if (typewriterButton != null)
@@ -274,6 +286,9 @@ public class DocumentViewer : MonoBehaviour
             maskedOccurrences[word].Add(occurrenceIdx);
             AudioManager.Instance?.PlaySfxMarkerDraw();
             Debug.Log($"마커 칠함: '{word}'[{occurrenceIdx}] (페이지{currentPage})");
+
+            // ★ 튜토리얼: 마커 사용 감지
+            if (TutorialManager.Instance != null) TutorialManager.Instance.NotifyMarkerUsed();
         }
 
         RenderDocument();
@@ -302,6 +317,8 @@ public class DocumentViewer : MonoBehaviour
         if (!isDocumentActive || currentDocument == null) return -1;
         if (currentPage != 0) return -1; // ★ 뒷면 드랍 무시
 
+        if (!IsNearContentArea(screenPos, 40f)) return -1; // ★ 수정 — 40px 여유 추가
+
         if (!RectTransformUtility.RectangleContainsScreenPoint(
                 contentText.rectTransform, screenPos, null)) return -1;
 
@@ -328,6 +345,20 @@ public class DocumentViewer : MonoBehaviour
             }
 
         return -1;
+    }
+
+    private bool IsNearContentArea(Vector2 screenPos, float paddingPixels)
+    {
+        if (RectTransformUtility.RectangleContainsScreenPoint(contentText.rectTransform, screenPos, null))
+            return true;
+
+        Vector3[] corners = new Vector3[4];
+        contentText.rectTransform.GetWorldCorners(corners);
+        float minX = corners[0].x - paddingPixels;
+        float maxX = corners[2].x + paddingPixels;
+        float minY = corners[0].y - paddingPixels;
+        float maxY = corners[2].y + paddingPixels;
+        return screenPos.x >= minX && screenPos.x <= maxX && screenPos.y >= minY && screenPos.y <= maxY;
     }
 
     // ─────────────────────────────────────────────────────────────────────
@@ -589,6 +620,9 @@ public class DocumentViewer : MonoBehaviour
         Debug.Log($"[DocumentViewer] 슬롯 {slotIndex} ← '{word}'");
         RenderDocument();
         CheckAnswer();
+
+        // ★ 튜토리얼: 타자기 사용 감지
+        if (TutorialManager.Instance != null) TutorialManager.Instance.NotifyTypewriterUsed();
     }
 
     // ─────────────────────────────────────────────────────────────────────

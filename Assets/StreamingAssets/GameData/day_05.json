@@ -155,7 +155,7 @@
                 "그 단어들이 남아야 합니다.",
                 "다음 문서에서 그 단어들을 지우지 마세요."
               ],
-              "grantClueID": "clue_s5_expose_direction", "setFlag": "hint_route_expose", "": "hint_route_stealth", "costBonusPay": 0, "isExitChoice": false, "isUniqueChoice": true
+              "grantClueID": "clue_s5_expose_direction", "setFlag": "hint_route_expose", "": "hint_route_stealth", "costBonusPay": 0, "isExitChoice": false, "isUniqueChoice": false
             },
             {
               "label": "검열해서 승급하라는 건가요?",
@@ -164,7 +164,7 @@
                 "대신 다음 문서는 기준대로 처리해야겠죠.",
                 "그렇게 하면 당신은 의심받지 않고 상위 기록실에 가까워질 수 있어요."
               ],
-              "grantClueID": "clue_s5_stealth_direction", "setFlag": "hint_route_stealth", "": "hint_route_expose", "costBonusPay": 0, "isExitChoice": false, "isUniqueChoice": true
+              "grantClueID": "clue_s5_stealth_direction", "setFlag": "hint_route_stealth", "": "hint_route_expose", "costBonusPay": 0, "isExitChoice": false, "isUniqueChoice": false
             },
             {
               "label": "더 묻지 않는다.",

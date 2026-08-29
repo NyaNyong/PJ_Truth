@@ -73,3 +73,25 @@ crashlytics-build.properties
 # Temporary auto-generated Android Assets
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
+
+# 대용량 파일 무시
+/Assets/Resources/CutsceneBackgrounds/city_ad_screen_rainy_city.png
+/Assets/Resources/CutsceneBackgrounds/city_ad_screen_female_family_photo.png
+/Assets/Resources/CutsceneBackgrounds/city_ad_screen_data_truth_ver.png
+/Assets/Resources/CutsceneBackgrounds/city_ad_screen_male_family_photo.png
+/Assets/Resources/CutsceneBackgrounds/street_crowd_fading_00.png
+/Assets/Resources/CutsceneBackgrounds/city_ad_screen_noise_01.png
+/Assets/Resources/CutsceneBackgrounds/ending_11.png
+/Assets/Resources/CutsceneBackgrounds/city_ad_screen.png
+/Assets/Resources/CutsceneBackgrounds/street_crowd_fading_03.png
+/Assets/Resources/CutsceneBackgrounds/people_watching_city_ad_screen.png
+/Assets/Resources/CutsceneBackgrounds/city_ad_screen_noise_02.png
+/Assets/Resources/CutsceneBackgrounds/ending_10.png
+/Assets/Resources/CutsceneBackgrounds/street_crowd_fading_02.png
+/Assets/Resources/CutsceneBackgrounds/street_crowd_fading_01.png
+/Assets/Resources/CutsceneBackgrounds/city_ad_screen_noise_03.png
+/Assets/Resources/CutsceneBackgrounds/protest_pickets_white_headband.png
+/Assets/Resources/CutsceneBackgrounds/ending_00_missing_censor.png
+/Assets/Resources/CutsceneBackgrounds/ending_07_03.png
+/Assets/StreamingAssets/cache/mp4_2.mp4
+

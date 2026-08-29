@@ -1,0 +1,11 @@
+{
+  "scenes": [
+    {
+      "key": "stage7_archive_intro",
+      "lines": [
+        { "text": "관리 대상자 분류표가 열려 있다.", "background": "archive_room_01" },
+        { "text": "이름 대신 코드와 상태값이 정리되어 있다.", "background": "" }
+      ]
+    }
+  ]
+}

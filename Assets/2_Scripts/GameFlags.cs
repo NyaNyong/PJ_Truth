@@ -88,5 +88,12 @@ public class GameFlags : MonoBehaviour
         Debug.Log("[GameFlags] 전체 초기화 완료 (단서/플래그/누적치 전부 클리어)");
     }
 
+    // ★ 추가 — 특정 접두사로 시작하는 플래그만 제거 (다른 진행상황은 유지)
+    public void RemoveFlagsStartingWith(string prefix)
+    {
+        triggeredFlags.RemoveWhere(f => f.StartsWith(prefix));
+        Debug.Log($"[GameFlags] '{prefix}'로 시작하는 플래그 전체 제거");
+    }
+
 
 }

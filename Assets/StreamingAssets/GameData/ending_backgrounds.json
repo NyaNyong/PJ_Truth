@@ -1,0 +1,53 @@
+{
+  "entries": [
+    { "endingKey": "ending_early_out", "lineIndex": 0, "background": "ending_00_missing_censor" },
+
+    { "endingKey": "ending_expose_silenced", "lineIndex": 0, "background": "city_ad_screen" },
+    { "endingKey": "ending_expose_silenced", "lineIndex": 1, "background": "city_ad_screen_noise_01" },
+    { "endingKey": "ending_expose_silenced", "lineIndex": 2, "background": "city_ad_screen_noise_02" },
+    { "endingKey": "ending_expose_silenced", "lineIndex": 3, "background": "city_ad_screen_noise_03" },
+    { "endingKey": "ending_expose_silenced", "lineIndex": 4, "backgroundMale": "ending_08_male", "backgroundFemale": "ending_08_female" },
+    { "endingKey": "ending_expose_silenced", "lineIndex": 5, "background": "protest_pickets_white_headband" },
+    { "endingKey": "ending_expose_silenced", "lineIndex": 6, "background": "monitor_signature" },
+
+    { "endingKey": "ending_expose_partial", "lineIndex": 0, "background": "protagonist_hand_usb" },
+    { "endingKey": "ending_expose_partial", "lineIndex": 1, "background": "people_watching_city_ad_screen" },
+    { "endingKey": "ending_expose_partial", "lineIndex": 3, "background": "ending_02_half_truth_01_closed_record" },
+    { "endingKey": "ending_expose_partial", "lineIndex": 4, "background": "ending_02_half_truth_02" },
+    { "endingKey": "ending_expose_partial", "lineIndex": 5, "background": "city_ad_screen" },
+
+    { "endingKey": "ending_expose_full", "lineIndex": 5, "background": "city_ad_screen_data_truth_ver" },
+    { "endingKey": "ending_expose_full", "lineIndex": 6, "background": "families_protest_with_pickets" },
+    { "endingKey": "ending_expose_full", "lineIndex": 7, "backgroundMale": "ending_03_male_red", "backgroundFemale": "ending_03_female_red" },
+
+    { "endingKey": "ending_expose_closed", "lineIndex": 0, "background": "archive_room_01" },
+    { "endingKey": "ending_expose_closed", "lineIndex": 2, "background": "street_crowd_fading_03" },
+    { "endingKey": "ending_expose_closed", "lineIndex": 3, "background": "street_crowd_fading_02" },
+    { "endingKey": "ending_expose_closed", "lineIndex": 4, "background": "street_crowd_fading_01" },
+
+    { "endingKey": "ending_expose_biggest_price", "lineIndex": 0, "background": "archive_room_01" },
+    { "endingKey": "ending_expose_biggest_price", "lineIndex": 1, "background": "archive_room_01" },
+    { "endingKey": "ending_expose_biggest_price", "lineIndex": 2, "backgroundMale": "city_ad_screen_male_family_photo", "backgroundFemale": "city_ad_screen_female_family_photo" },
+    { "endingKey": "ending_expose_biggest_price", "lineIndex": 3, "background": "ending_02_half_truth_01_closed_record" },
+    { "endingKey": "ending_expose_biggest_price", "lineIndex": 5, "background": "archive_room_01" },
+    { "endingKey": "ending_expose_biggest_price", "lineIndex": 6, "background": "people_watching_city_ad_screen" },
+
+    { "endingKey": "ending_late_person_interviewed", "lineIndex": 0, "background": "city_ad_screen_rainy_city" },
+    { "endingKey": "ending_late_person_interviewed", "lineIndex": 1, "background": "ending_07" },
+    { "endingKey": "ending_late_person_interviewed", "lineIndex": 2, "background": "ending_07_02" },
+    { "endingKey": "ending_late_person_interviewed", "lineIndex": 3, "background": "ending_07_01" },
+
+    { "endingKey": "ending_late_person", "lineIndex": 0, "backgroundMale": "ending_03_male_red", "backgroundFemale": "ending_03_female_red" },
+    { "endingKey": "ending_late_person", "lineIndex": 2, "backgroundMale": "ending_08_male", "backgroundFemale": "ending_08_female" },
+    { "endingKey": "ending_late_person", "lineIndex": 3, "background": "protest_pickets_white_headband" },
+
+    { "endingKey": "ending_family_only", "lineIndex": 1, "background": "archive_room_01" },
+    { "endingKey": "ending_family_only", "lineIndex": 3, "background": "ending_10" },
+
+    { "endingKey": "ending_new_manager", "lineIndex": 3, "background": "ending_11" },
+
+    { "endingKey": "ending_stealth_expose", "lineIndex": 1, "background": "archive_room_01" },
+    { "endingKey": "ending_stealth_expose", "lineIndex": 2, "background": "city_ad_screen_data_truth_ver" },
+    { "endingKey": "ending_stealth_expose", "lineIndex": 3, "backgroundMale": "ending_03_male", "backgroundFemale": "ending_03_female" }
+  ]
+}

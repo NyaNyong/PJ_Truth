@@ -128,6 +128,7 @@ public class NPCInteractable : MonoBehaviour, IInteractable
 
         if (!string.IsNullOrEmpty(choice.grantClueID))
             GameFlags.Instance?.AddClue(choice.grantClueID);
+            cachedPlayer?.NotifyClueCollected();
         if (!string.IsNullOrEmpty(choice.setFlag))
         {
             GameFlags.Instance?.SetFlag(choice.setFlag);
@@ -192,6 +193,7 @@ public class NPCInteractable : MonoBehaviour, IInteractable
             string finalClue = !string.IsNullOrEmpty(clueID) ? clueID : grantClueIDOnFinish;
             string finalFlag = !string.IsNullOrEmpty(flagID) ? flagID : setFlagOnFinish;
             if (!string.IsNullOrEmpty(finalClue)) GameFlags.Instance?.AddClue(finalClue);
+                cachedPlayer?.NotifyClueCollected();
             if (!string.IsNullOrEmpty(finalFlag)) GameFlags.Instance?.SetFlag(finalFlag);
         }
 

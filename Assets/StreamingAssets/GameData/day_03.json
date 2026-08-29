@@ -1,0 +1,102 @@
+{
+  "day": 3,
+  "generalNewsTitle": "정보관리 정책 정상 운영 중",
+  "skipWhiteboard": false,
+  "nextStageHint": "[ 새 문서 도착 ]\n본격적인 업무가 시작됩니다.",
+  "conditionalNextStageHints": [],
+  "news": {
+    "officialTitle": "튜토리얼: 공식 뉴스 확인",
+    "officialContent": "밤사이 발생한 사건의 공식적인 발표입니다. 하지만 어딘가 진실이 빠져있는 것 같습니다.",
+    "privateTitle": "튜토리얼: 사설 뉴스 확인",
+    "privateContent": "공식 뉴스에 다뤄지지 않은 이면의 이야기와 시민들의 반응이 담겨 있습니다.",
+    "conditionalOverrides": []
+  },
+  "documents": [
+    {
+      "id": 3,
+      "title": "튜토리얼: 문서 검열 실습",
+      "mainText": "이 문서는 튜토리얼을 위한 연습용 문서입니다.\n가이드라인에 따라 위험 단어를 삭제하고, [SLOT_0] 상태를 적절하게 수정하십시오.",
+      "backText": "",
+      "guidelineText": "※가이드라인※\n• '위험'이라는 단어를 블랙 마커로 삭제하십시오.\n• 슬롯의 단어를 '안전'으로 수정하십시오.",
+      "needsCensorship": true,
+      "needsTypewriter": true,
+      "censorKeywords": ["위험"],
+      "criticalCensorKeywords": ["위험"],
+      "typewriterSlots": [
+        {
+          "slotIndex": 0,
+          "originalWord": "오류",
+          "wordOptions": ["오류", "안전"],
+          "correctWord": "안전"
+        }
+      ]
+    }
+  ],
+  "availableLocations": ["loc_tutorial_street"],
+  "conditionalLocations": [],
+  "requireAllLocations": true,
+  "locations": [
+    {
+      "locationID": "loc_tutorial_street",
+      "description": "튜토리얼을 위한 연습 공간입니다.",
+      "npcs": [
+        {
+          "id": "npc_tutorial",
+          "npcName": "가이드",
+          "requiredFlag": "",
+          "firstLines": [
+            "밤 페이즈에서는 이렇게 인물과 대화하거나 사물을 조사할 수 있습니다.",
+            "이곳의 단서를 모두 모으면 다음 단계로 넘어갈 수 있습니다."
+          ],
+          "repeatLines": [
+            "모든 단서를 모았는지 확인하세요."
+          ],
+          "grantClueID": "clue_tut_01",
+          "setFlag": "",
+          "choices": [],
+          "conditionalFirstLines": [],
+          "conditionalChoiceLines": []
+        }
+      ],
+      "clues": [
+        {
+          "id": "clue_tut_02",
+          "title": "버려진 쪽지",
+          "lines": [
+            "바닥에 쪽지가 떨어져 있다.",
+            "'화이트보드에서 단서들을 연결해보세요.'라고 적혀 있다."
+          ],
+          "isPuzzle": false,
+          "hiddenContent": "",
+          "correctAnswer": "",
+          "flagIDOnSolve": ""
+        }
+      ]
+    }
+  ],
+  "whiteboard": {
+    "cards": [
+      {
+        "cardID": "card_tut_01",
+        "requiredClueID": "clue_tut_01",
+        "title": "가이드의 조언",
+        "content": "밤 페이즈에서는 단서를 수집할 수 있다."
+      },
+      {
+        "cardID": "card_tut_02",
+        "requiredClueID": "clue_tut_02",
+        "title": "버려진 쪽지",
+        "content": "화이트보드에서 수집한 단서들을 연결해야 한다."
+      }
+    ],
+    "correctConnections": [
+      {
+        "fromCardID": "card_tut_01",
+        "toCardID": "card_tut_02",
+        "cardIDs": [],
+        "revealText": "튜토리얼이 완료되었습니다. 진실 조사의 기본을 익혔습니다.",
+        "cutsceneClip": ""
+      }
+    ]
+  }
+}

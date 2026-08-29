@@ -1,5 +1,6 @@
 using DG.Tweening;
 using Obvious.Soap;
+using Sirenix.OdinInspector; // ★ 추가
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
@@ -23,6 +24,15 @@ public class GameManager : MonoBehaviour
     [SerializeField] private ScriptableEventNoParam onApproveClicked;
     [SerializeField] private ScriptableEventNoParam onLocationSelected;
     [SerializeField] private ScriptableEventNoParam onPhaseTransitionRequest;
+
+    [Header("디버그 — 엔딩 바로 확인 (Play 모드 전용)")]
+    [SerializeField] private string debugEndingKey = "ending_early_out";
+
+    [Button("엔딩 바로 보기 (테스트)")]
+    private void DebugShowEnding()
+    {
+        ShowEnding(debugEndingKey);
+    }
 
     [Header("UI - 아침 (공식 뉴스)")]
     [SerializeField] private CanvasGroup morningNewsPanelCG;
@@ -100,6 +110,7 @@ public class GameManager : MonoBehaviour
     [Header("면담실 플레이어 Idle (성별별)")]
     [SerializeField] private GameObject interviewPlayerIdleMale;
     [SerializeField] private GameObject interviewPlayerIdleFemale;
+    [SerializeField] private Sprite interviewBossPortrait; // ★ 추가 — 상사 초상화
 
     private DailyData todaysData;
     private bool privateNewsViewed = false;
@@ -122,6 +133,11 @@ public class GameManager : MonoBehaviour
     // ── 시작 ─────────────────────────────────────────────────────────────
     private void Start()
     {
+        if (TutorialManager.Instance == null)
+        {
+            new GameObject("TutorialManager").AddComponent<TutorialManager>();
+        }
+
         InitializePanels();
         if (idCardUI == null) StartDay(startDay);
     }
@@ -194,6 +210,7 @@ public class GameManager : MonoBehaviour
         HideImmediate(morningNewsPanelCG);
         HideImmediate(privatePanelCG);
         HideImmediate(dayHeaderCG);
+        HideImmediate(blackoutCG);
         if (guidelineButton != null) guidelineButton.SetActive(false);
         if (dayPhaseBG != null) dayPhaseBG.SetActive(false);
         if (morningNewsButton != null)
@@ -264,6 +281,12 @@ public class GameManager : MonoBehaviour
             morningNewsButton.transform.localScale = Vector3.zero;
             morningNewsButton.transform.DOScale(Vector3.one, 0.35f).SetEase(Ease.OutBack);
         }
+
+        // ★ 튜토리얼: 아침 뉴스
+        if (currentDay == 3 && TutorialManager.Instance != null)
+        {
+            TutorialManager.Instance.OnMorningOfficialNews();
+        }
     }
 
     public void OnClickMorningNewsButton()
@@ -281,7 +304,14 @@ public class GameManager : MonoBehaviour
         FadeOutPanel(morningNewsPanelCG, () =>
         {
             if (todaysData != null && todaysData.hasPrivateNews && !privateNewsViewed)
+            {
                 ShowPanel(privatePanelCG);
+                // ★ 튜토리얼: 사설 뉴스
+                if (currentDay == 3 && TutorialManager.Instance != null)
+                {
+                    TutorialManager.Instance.OnMorningPrivateNews();
+                }
+            }
             else
                 GoToNextPhase();
         });
@@ -308,6 +338,12 @@ public class GameManager : MonoBehaviour
         }
         if (dayPhaseBG != null) dayPhaseBG.SetActive(true);
 
+        // ★ Day 3 튜토리얼은 가이드를 생략하고 곧바로 시작
+        if (currentDay == 3)
+        {
+            ShowDayPanels();
+        }
+
         GameTextLoader.Instance?.InjectIntoDocument(todaysData.documentToProcess);
         documentViewer?.ShowDocument(todaysData.documentToProcess);
         if (guidelineTextUI != null) guidelineTextUI.text = todaysData.documentToProcess.guidelineText;
@@ -321,6 +357,32 @@ public class GameManager : MonoBehaviour
             if (dayHeaderDayText != null) dayHeaderDayText.text = $"Day {currentDay}";
             RefreshDayHeaderKPI();
             ShowPanel(dayHeaderCG, 0.2f);
+        }
+
+    }
+
+    // ★ 추가 — 가이드 닫힌 뒤 실제로 보여줄 패널들
+    private void ShowDayPanels()
+    {
+        GameTextLoader.Instance?.InjectIntoDocument(todaysData.documentToProcess);
+        documentViewer?.ShowDocument(todaysData.documentToProcess);
+        if (guidelineTextUI != null) guidelineTextUI.text = todaysData.documentToProcess.guidelineText;
+
+        ShowPanel(documentPanelCG);
+        ShowPanel(guidelinePanelCG);
+        if (guidelineButton != null) guidelineButton.SetActive(true);
+
+        if (dayHeaderCG != null)
+        {
+            if (dayHeaderDayText != null) dayHeaderDayText.text = $"Day {currentDay}";
+            RefreshDayHeaderKPI();
+            ShowPanel(dayHeaderCG, 0.2f);
+        }
+
+        // ★ 튜토리얼: 검열 단계 진입
+        if (currentDay == 3 && TutorialManager.Instance != null)
+        {
+            TutorialManager.Instance.OnDocumentViewerOpened(documentViewer, guidelinePanelCG, documentPanelCG);
         }
     }
 
@@ -415,7 +477,7 @@ public class GameManager : MonoBehaviour
         {
             case GamePhase.Morning:
                 // ★ Day7 폭로루트 특수 흐름
-                if (currentDay == 7 && (GameFlags.Instance?.HasFlag("route_expose") == true))
+                if (currentDay == 7 && (GameFlags.Instance?.HasFlag("censor_weak_day6") == true))
                     ActivateDay7ExposeFlow();
                 else
                     ChangePhase(GamePhase.Day);
@@ -472,7 +534,7 @@ public class GameManager : MonoBehaviour
     {
         var flags = GameFlags.Instance;
 
-        if (flags.HasFlag("route_stealth"))
+        if (flags.HasFlag("censor_heavy_day6"))
         {
             if (flags.HasFlag("choice_stealth_expose")) return "ending_stealth_expose";
             if (flags.HasFlag("choice_family_only")) return "ending_family_only";
@@ -480,7 +542,7 @@ public class GameManager : MonoBehaviour
             return "ending_new_manager";
         }
 
-        if (flags.HasFlag("route_expose"))
+        if (flags.HasFlag("censor_weak_day6"))
         {
             // 면담실로 간다 → 늦은 사람 (면담실 버전)
             if (flags.HasFlag("choice_expose_go_interview"))
@@ -489,10 +551,8 @@ public class GameManager : MonoBehaviour
             if (flags.HasFlag("choice_expose_include_family"))
                 return "ending_expose_biggest_price";
 
-            if (flags.HasFlag("choice_expose_exclude_family"))
-                return "ending_name_left";
-
-            if (flags.HasFlag("choice_expose_send"))
+            // ★ 수정 — 가족기록 요구 후 제외하고 송출 / 처음부터 바로 송출, 둘 다 evidence로 동일하게 판정
+            if (flags.HasFlag("choice_expose_send") || flags.HasFlag("choice_expose_exclude_family"))
             {
                 if (flags.HasFlag("evidence_high")) return "ending_expose_full";
                 if (flags.HasFlag("evidence_mid")) return "ending_expose_partial";
@@ -510,9 +570,20 @@ public class GameManager : MonoBehaviour
         nightPhaseManager?.EnsureHidden();
         Debug.Log($"[GameManager] ShowEnding: {key}");
 
-        // ★ EndingScreen 루트 오브젝트가 평소 비활성 상태이므로 강제 활성화
         if (endingScreenUI != null)
+        {
             endingScreenUI.gameObject.SetActive(true);
+            endingScreenUI.enabled = true;
+        }
+
+        // ★ 조기탈락 → Day5 재시작 / 면담실·타임아웃 → Day7 재시작 / 나머지 → 전체 재시작(메인화면)
+        System.Action onRetry;
+        if (key == "ending_early_out")
+            onRetry = ConfirmRestartFromDay5;
+        else if (key == "ending_late_person_interviewed" || key == "ending_late_person")
+            onRetry = ConfirmRestartFromDay7;
+        else
+            onRetry = ResetGame;
 
         if (blackoutCG != null)
         {
@@ -523,18 +594,67 @@ public class GameManager : MonoBehaviour
             blackoutCG.DOFade(1f, blackoutFadeDuration).OnComplete(() =>
             {
                 if (endingScreenUI != null)
-                    endingScreenUI.Show(key, () => FadeOutBlackout(ResetGame));
+                    endingScreenUI.Show(key, () => FadeOutBlackout(onRetry));
                 else
-                    FadeOutBlackout(ResetGame);
+                    FadeOutBlackout(onRetry);
             });
         }
         else
         {
-            endingScreenUI?.Show(key, ResetGame);
+            endingScreenUI?.Show(key, onRetry);
         }
     }
 
-    private void ResetGame()
+    // ★ 추가
+    public void ConfirmRestartFromDay7()
+    {
+        ConfirmPopupUI.Instance?.Open(
+            "Day7부터 다시 시작하시겠습니까?",
+            "", "",
+            onConfirm: RestartFromDay7,
+            onCancel: ResetGame,
+            confirmText: "예",
+            cancelText: "메인으로"
+        );
+    }
+
+    // ★ 추가 — route/evidence 플래그는 유지, Day7 선택 플래그만 초기화
+    // ★ 면담실/타임아웃 전용 — route/evidence 플래그는 유지, Day7 선택 플래그만 초기화
+    private void RestartFromDay7()
+    {
+        DOTween.KillAll();
+        GameFlags.Instance?.RemoveFlagsStartingWith("choice_expose_");
+        HideAllPanels();
+        nightPhaseManager?.EnsureHidden();
+        StartDay(7);
+    }
+
+    // ★ 조기탈락 전용 — 씬 리로드 없이 Day5부터 재시작 (이름/성별 유지)
+    // ★ 조기탈락 전용 — Day5 재시작 확인 팝업
+    public void ConfirmRestartFromDay5()
+    {
+        ConfirmPopupUI.Instance?.Open(
+            "Day5부터 다시 시작하시겠습니까?",
+            "", "",
+            onConfirm: RestartFromDay5,
+            onCancel: ResetGame,
+            confirmText: "예",
+            cancelText: "메인으로"
+        );
+    }
+
+    // ★ 조기탈락 전용 — 씬 리로드 없이 Day5부터 재시작 (이름/성별 유지, 전체 초기화)
+    private void RestartFromDay5()
+    {
+        DOTween.KillAll();
+        GameFlags.Instance?.ResetAll();
+        ScoringSystem.Instance?.ResetAll();
+        HideAllPanels();
+        nightPhaseManager?.EnsureHidden();
+        StartDay(5);
+    }
+
+    public void ResetGame()
     {
         DOTween.KillAll();
 
@@ -567,13 +687,13 @@ public class GameManager : MonoBehaviour
                            GameFlags.Instance?.HasFlag("censor_heavy_day6") == true;
             if (isHeavy)
             {
-                GameFlags.Instance?.SetFlag("route_stealth");
-                GameFlags.Instance?.RemoveFlag("route_expose");
+                GameFlags.Instance?.SetFlag("censor_heavy_day6");
+                GameFlags.Instance?.RemoveFlag("censor_weak_day6");
             }
             else
             {
-                GameFlags.Instance?.RemoveFlag("route_stealth");
-                GameFlags.Instance?.SetFlag("route_expose");
+                GameFlags.Instance?.RemoveFlag("censor_heavy_day6");
+                GameFlags.Instance?.SetFlag("censor_weak_day6");
             }
         }
 
@@ -631,7 +751,7 @@ public class GameManager : MonoBehaviour
         // ★ 면담실로 간 경우 플래그 세팅 (엔딩 분기용)
         GameFlags.Instance?.SetFlag("choice_expose_go_interview");
 
-        // ★ 추가 — 플레이어가 사원증에서 선택한 성별에 맞는 Idle만 활성화
+        // ★ 플레이어가 사원증에서 선택한 성별에 맞는 Idle만 활성화
         bool isMale = PlayerData.Instance?.IsMale ?? true;
         if (interviewPlayerIdleMale != null) interviewPlayerIdleMale.SetActive(isMale);
         if (interviewPlayerIdleFemale != null) interviewPlayerIdleFemale.SetActive(!isMale);
@@ -642,27 +762,50 @@ public class GameManager : MonoBehaviour
                       ? e.interviewRoomLines
                       : new List<string>
                       {
-                      "지금이라도 정정할 수 있습니다.",
-                      "실수로 처리하면 됩니다.",
-                      "당신이 계속 협조한다면 가족 기록 열람 권한은 유지될 수 있습니다."
+                          "지금이라도 정정할 수 있습니다.",
+                          "실수로 처리하면 됩니다.",
+                          "당신이 계속 협조한다면 가족 기록 열람 권한은 유지될 수 있습니다."
                       };
 
         void RunDialogue()
         {
-            DialogueUI.Instance?.ShowStandaloneLines(speaker, lines, () =>
+            // ★ 핵심 수정: 면담실 배경이 대화창을 가리지 않도록 대화창 캔버스를 강제로 최상단으로 올림
+            var dialogueCanvas = DialogueUI.Instance?.GetComponentInParent<Canvas>();
+            if (dialogueCanvas != null)
             {
-                if (interviewRoomBGCG != null)
-                    interviewRoomBGCG.DOFade(0f, interviewBGFade)
-                        .OnComplete(() =>
-                        {
-                            interviewRoomBGCG.gameObject.SetActive(false);
-                            ShowEnding("ending_late_person_interviewed"); // ★ 수정
-                        });
-                else
-                    ShowEnding("ending_late_person_interviewed"); // ★ 수정
-            });
-        }
+                dialogueCanvas.overrideSorting = true;
+                dialogueCanvas.sortingOrder = 300;
+            }
 
+            DialogueUI.Instance?.StartDialogue(
+                speaker,
+                lines,
+                null,   // choices 없음
+                null,   // onChoiceSelected 없음
+                () =>
+                {
+                    // ★ 대화 종료 시 캔버스 정렬 원상복구
+                    if (dialogueCanvas != null)
+                    {
+                        dialogueCanvas.overrideSorting = false;
+                        dialogueCanvas.sortingOrder = 99;
+                    }
+
+                    if (interviewRoomBGCG != null)
+                        interviewRoomBGCG.DOFade(0f, interviewBGFade)
+                            .OnComplete(() =>
+                            {
+                                interviewRoomBGCG.gameObject.SetActive(false);
+                                ShowEnding("ending_late_person_interviewed");
+                            });
+                    else
+                        ShowEnding("ending_late_person_interviewed");
+                },
+                null,                     // preUsedIndices 없음
+                interviewBossPortrait     // ★ 초상화
+            );
+        }
+        
         if (interviewRoomBGCG != null)
         {
             interviewRoomBGCG.gameObject.SetActive(true);
@@ -786,6 +929,10 @@ public class GameManager : MonoBehaviour
             string kw = (censored == criticals.Count) ? "heavy"
                       : (censored >= 1 || typewriterContributes) ? "mild"
                       : "weak";
+
+            // ★ 수정: Day 6 검열에서 mild가 나오면 무조건 heavy(잠입 루트)로 변경
+            if (day == 6 && kw == "mild") kw = "heavy";
+
             Debug.Log($"[Score] 핵심키워드 {censored}/{criticals.Count} 검열, 타자기 {typewriterScore:F1}pt → censor_{kw}_day{day}");
             return $"censor_{kw}_day{day}";
         }
@@ -793,6 +940,10 @@ public class GameManager : MonoBehaviour
         string intensity = (grade is Grade.S or Grade.A) ? "heavy"
                          : (grade == Grade.B || typewriterScore > 0f) ? "mild"
                          : "weak";
+
+        // ★ 수정: Day 6 검열에서 mild가 나오면 무조건 heavy(잠입 루트)로 변경
+        if (day == 6 && intensity == "mild") intensity = "heavy";
+
         return $"censor_{intensity}_day{day}";
     }
 
@@ -813,5 +964,11 @@ public class GameManager : MonoBehaviour
         cg.interactable = false; cg.blocksRaycasts = false;
         cg.DOFade(0f, panelFadeDuration).SetEase(Ease.OutQuad)
             .OnComplete(() => { onComplete?.Invoke(); });
+    }
+
+    public void BlackoutX()
+    {
+        blackoutCG.gameObject.SetActive(false);
+
     }
 }

@@ -144,16 +144,13 @@ public class ClueObject : MonoBehaviour, IInteractable
         if (isCollected) return;
         Collect();
 
-        // ★ 추가 — 강제 이동 + 도착 후 NPC 활성화 및 자동 대화 시작
         if (forcedMoveTarget != null && cachedPlayer != null)
         {
             cachedPlayer.ForceMoveTo(forcedMoveTarget.position, forcedMoveDuration, () =>
             {
+                // ★ 수정 — NPC 활성화만 하고, 자동 대화 시작은 제거 (위치 이동만)
                 if (forcedMoveTargetNpc != null)
-                {
                     forcedMoveTargetNpc.gameObject.SetActive(true);
-                    forcedMoveTargetNpc.Interact(cachedPlayer);
-                }
             });
         }
     }

@@ -5,16 +5,13 @@ using DG.Tweening;
 using System.Collections.Generic;
 using System.IO;
 
-// ★ 컷씬 배경 매칭용 JSON 데이터 클래스
-
-
 public class EndingScreenUI : MonoBehaviour
 {
-    [Header("컷씬 패널")]
+    [Header("컷씬 패널 (Dialogue Panel 복제본)")]
     [SerializeField] private CanvasGroup cutscenePanelCG;
-    [SerializeField] private TextMeshProUGUI speakerNameText; // ★ 추가 — 복제한 Dialogue Panel의 화자 이름 텍스트
+    [SerializeField] private TextMeshProUGUI speakerNameText;
     [SerializeField] private TextMeshProUGUI cutsceneText;
-    [SerializeField] private Image cutsceneBackgroundImage; // ★ 추가 — 컷씬 패널 안, 텍스트보다 아래 레이어에 배치
+    [SerializeField] private Image cutsceneBackgroundImage;
 
     [Header("공식뉴스 패널")]
     [SerializeField] private CanvasGroup panelCG;
@@ -28,19 +25,16 @@ public class EndingScreenUI : MonoBehaviour
     [SerializeField] private float fadeDuration = 0.4f;
     [SerializeField] private float typeSpeed = 0.03f;
 
-
-
     private System.Action onConfirmCallback;
     private List<string> currentCutsceneLines = new List<string>();
     private int cutsceneIndex = 0;
     private bool isTyping = false;
     private string currentNewsTitle;
     private string currentNewsContent;
-    private string currentEndingKey; // ★ 추가
+    private string currentEndingKey;
 
-    // ★ 추가 — 엔딩키 → (줄 인덱스 → 배경 파일명)
-    private Dictionary<string, Dictionary<int, string>> cutsceneBackgroundMap
-        = new Dictionary<string, Dictionary<int, string>>();
+    private Dictionary<string, Dictionary<int, CutsceneBackgroundEntry>> cutsceneBackgroundMap
+        = new Dictionary<string, Dictionary<int, CutsceneBackgroundEntry>>();
 
     // ─── 컷씬 라인 ──────────────────────────────────────────────────────────
     private static readonly Dictionary<string, List<string>> CutsceneLines
@@ -48,93 +42,104 @@ public class EndingScreenUI : MonoBehaviour
         {
             ["ending_early_out"] = new List<string>
         {
-            "낮 페이즈 종료 후 업무 평가 화면이 뜬다.",
             "기준 이탈 누적 감지.\n민감 표현 잔류율 초과.\n승급 심사 대상 제외.",
-            "상사의 메시지가 도착한다.\n'더 이상의 상위 기록 접근은 허가되지 않습니다.'",
-            "화면이 어두워지고, 플레이어의 사원 정보가 열린다.",
-            "기준 이탈자."
+            "상사의 메시지가 도착한다.\n\"최근 문서 처리에서 기준 이탈이 반복되었습니다.\"\n\"더 이상의 상위 기록 접근은 허가되지 않습니다.\"",
+            "화면이 어두워지고, {playerName}의 사원 정보가 열린다.\n검열관 상태: 감시 대상 / 승급도: 동결 / 접근 권한: 회수",
+            "내부 공지.\n기준 이탈 검열관 1명 재배치. 관련 문서 재검토 완료. 외부 확산 위험 없음."
         },
             ["ending_expose_silenced"] = new List<string>
         {
-            "송출 화면에 실종자 명단과 몇 개의 문장이 떠오른다.",
-            "하지만 문장 사이가 비어 있고, 일부 기록은 노이즈처럼 깨져 있다.",
-            "경고음이 울리고 도시 화면에 잠깐 떠올랐던 자료들이 검은 박스로 덮인다.",
+            "송출 화면에 실종자 명단과 몇 개의 문장이 떠오르지만, 문장 사이가 비어 있고 일부 기록은 노이즈처럼 깨져 있다.",
+            "경고음이 울린다.",
+            "도시 화면에 잠깐 떠올랐던 자료들이",
+            "검은 박스로 덮인다.",
             "경비 인력이 들이닥치고 주인공은 제압된다.",
-            "시위대는 혼란 속에서 강제 해산되고, 최종 흑막은 삭제 명령서에 서명한다."
+            "시위대는 혼란 속에서 강제 해산되고,",
+            "최종 흑막은 삭제 명령서에 서명한다."
         },
             ["ending_expose_partial"] = new List<string>
         {
-            "실종 기록과 가족 기록 일부가 외부로 공개된다.",
-            "거리의 사람들이 멈춰 서고, 유가족들은 화면 앞에 모인다.",
+            "{playerName}의 손에 USB 하나가 쥐어져 있다.",
+            "실종 기록과 가족 기록 일부가 외부로 공개된다.\n거리의 사람들이 멈춰 서고, 유가족들은 화면 앞에 모인다.",
             "하지만 상위기록실 이관 정황과 여론 통제 구조는 흐릿하게 남는다.",
-            "기관의 정정 방송이 같은 화면 위로 겹쳐진다."
+            "시위대가 다시 움직이지만,",
+            "기관의 정정 방송이 같은 화면 위로 겹쳐진다.",
+            "치직— 잠시 혼란을 드려 죄송합니다."
         },
             ["ending_expose_full"] = new List<string>
-        {
-            "송출 화면에 실종자 명단, 이동 처리 기록, 기록 훼손 단계,\n상위기록실 이관 정황, 여론 안정 보고서가 순서대로 출력된다.",
-            "도시 곳곳의 전광판과 휴대폰 화면이 같은 내용을 띄운다.",
-            "유가족들은 피켓을 들고 거리로 나오고, 진실보관소 내부에는 경보음이 울린다.",
-            "플레이어가 있던 복도의 문들이 하나씩 잠기고,\n내부 위치 추적 표시가 켜진다."
-        },
+{
+    "실종자 명단 데이터 이송중..",
+    "이동 처리 기록 공개중..",
+    "기록 훼손 단계 유출중..",
+    "상위 기록실 이관 정황 공개중..",
+    "여론 안정 보고서 보여지는 중..",
+    "도시 곳곳의 전광판과 휴대폰 화면이 같은 내용을 띄운다.\n유가족들은 피켓을 들고 거리로 나온다.",
+    "진실보관소 내부에는 경보음이 울린다.",
+    "플레이어가 있던 복도의 문들이 하나씩 잠긴다.",
+    "안내방송: {playerName} 위치 추적 시작."
+},
             ["ending_expose_closed"] = new List<string>
-        {
-            "플레이어의 손이 송출 버튼 위에서 멈춘다.",
-            "화면에 떠 있던 자료들이 전송되지 못한 채 하나씩 접힌다.",
-            "흑막은 약속처럼 가족 기록 일부를 열어주지만,\n중요한 줄들은 여전히 검은 칸으로 가려져 있다.",
-            "바깥의 유가족 집회 화면은 점점 작아지고,\n공식 뉴스 화면이 그 위를 덮는다."
-        },
+{
+    "{playerName}의 손이 송출 버튼 위에서 멈춘다.\n화면에 떠 있던 자료들이 전송되지 못한 채 하나씩 접힌다.",
+    "여깄다.\n흑막은 약속처럼 가족 기록 일부를 열어주지만, 중요한 줄들은 여전히 검은 칸으로 가려져 있다.", // Show()에서 경로별로 교체됨
+    "바깥의 유가족 집회 화면이 점점 작아진다.",
+    "화면이 더 작아진다.",
+    "이내 보이지 않게 된다.",
+    "공식 뉴스 화면이 그 위를 덮는다."
+},
+
             ["ending_expose_biggest_price"] = new List<string>
-        {
-            "송출 자료 마지막에 가족 기록 원본이 열린다.",
-            "복원된 이름과 사진 일부가 화면에 떠오르고,\n그 옆으로 관리 대상자 분류와 이송 기록이 연결된다.",
-            "자료는 강하게 퍼져나가지만,\n가족의 개인 기록까지 도시 화면에 함께 노출된다.",
-            "플레이어는 화면을 바라보다가 손을 내리지 못한다."
-        },
-            ["ending_name_left"] = new List<string>
-        {
-            "송출 직전, 가족 기록 원본 카드가 화면 중앙에 떠오른다.",
-            "플레이어는 그 카드를 송출 목록에서 제외한다.",
-            "실종자 이송 기록과 기록 훼손 자료는 밖으로 나가지만,\n가족 기록 원본은 조용히 닫힌다.",
-            "플레이어의 화면 한쪽에는 끝내 열리지 않은 가족 기록이 남아 있다."
-        },
+{
+    "송출 자료 마지막에 가족 기록 원본이 열린다.",
+    "복원된 이름과 사진 일부가 화면에 떠오르고,\n그 옆으로 관리 대상자 분류와 이송 기록이 연결된다.",
+    "자료는 강하게 퍼져나간다.",
+    "가족의 개인 기록까지 도시 화면에 함께 노출된다.",
+    "거리의 사람들이 웅성거린다.",
+    "{playerName은는} 화면을 바라보다가 손을 내리지 못한다.",
+    "여전히 송출 버튼을 쥐고 있다."
+},
+
             ["ending_late_person_interviewed"] = new List<string>
-        {
-            "플레이어는 상사의 호출에 응해 면담실로 향한다.",
-            "복도 뒤편에서 들리던 유가족과 시위대의 소리는 점점 멀어진다.",
-            "'지금이라도 정정할 수 있습니다.\n실수로 처리하면 됩니다.'",
-            "뉴스 제목 위에 정정 안내 표시가 붙는다.",
-            "면담실 문이 천천히 닫힌다."
-        },
+{
+    "바깥 화면에 떠 있던 뉴스가 다시 로딩된다.\n뉴스 제목 위에 정정 안내 표시가 붙는다.",
+    "시위대가 들고 있던 자료는 펼쳐지지 못한 채 접힌다.",
+    "유가족의 피켓은 사람들 사이로 가려진다.",
+    "승인 문서 재검토 처리\n민감 표현 송출 오류 분류\n담당 검열관 감시 등록\n1급 검열관 후보 자격 유지",
+    "면담실 문이 천천히 닫힌다."
+},
+
             ["ending_late_person"] = new List<string>
-        {
-            "제한 시간이 0이 되는 순간, 송출 장치의 불이 꺼진다.",
-            "문이 잠기고, 복도 끝에서 발소리가 가까워진다.",
-            "화면에 떠 있던 단서 카드들이 하나씩 회색으로 변한다.",
-            "유가족의 피켓 문구는 완성되지 못한 채 바닥에 떨어진다."
-        },
-            ["ending_stealth_expose"] = new List<string>
-        {
-            "상위 기록실 원본 기록의 외부 반출은 차단된다.",
-            "하지만 플레이어의 승급 심사 로그와 임시 접근 권한이 화면에 떠오른다.",
-            "플레이어는 기록 재분류 절차를 역이용한다.",
-            "닫혀 있던 원본 기록 일부가 외부 공개 자료에 첨부된다.",
-            "상위 기록실 문은 잠기지만, 이미 일부 기록은 밖으로 새어나간 뒤다."
-        },
+{
+    "제한 시간이 0이 되는 순간, 송출 장치의 불이 꺼진다.",
+    "문이 잠기고, 복도 끝에서 발소리가 가까워진다.",
+    "상사: \"위험 대상자 처리 시작.\"",
+    "유가족의 피켓 문구는 완성되지 못한 채 바닥에 떨어진다."
+},
+
             ["ending_family_only"] = new List<string>
-        {
-            "가족 기록 원본만 선명하게 남고,\n다른 기록들은 하나씩 흐려진다.",
-            "플레이어는 가족 기록을 저장한다.",
-            "밖으로 나가는 길은 조용하고,\n시설은 아무 일도 없었다는 듯 계속 작동한다.",
-            "거리 한편에는 아직도 실종자 전단이 붙어 있다."
-        },
+{
+    "가족 기록 원본만 선명하게 남고, 다른 기록들은 하나씩 흐려진다.",
+    "{playerName}_가족의_기록_파일 저장하겠습니까?",
+    "밖으로 나가는 길은 조용하고, 시설은 아무 일도 없었다는 듯 계속 작동한다.",
+    "거리 한편에는 아직도 실종자 전단이 붙어 있다."
+},
+
             ["ending_new_manager"] = new List<string>
-        {
-            "가족 기록 열람 권한이 부여된다.",
-            "플레이어가 기록을 끝까지 읽는 동안,\n상위 기록실의 조명이 차분하게 밝아진다.",
-            "잠시 후 새 업무 화면이 열린다.\n새 관리 대상자 분류 검토 요청이 도착한다.",
-            "플레이어는 새 책상 앞에 앉는다.\n화면에는 첫 번째 사건일지가 펼쳐진다."
-        },
+{
+    "가족 기록 열람 권한이 부여된다.",
+    "{playerName이가} 기록을 끝까지 읽는 동안, 상위 기록실의 조명이 차분하게 밝아진다.",
+    "잠시 후 새 업무 화면이 열린다.\n새 관리 대상자 분류 검토 요청이 도착하고,\n블랙 마커와 타자기 도구가 다시 활성화된다.",
+    "{playerName은는} 새 책상 앞에 앉고, 화면에는 첫 번째 사건일지가 펼쳐진다."
+},
+            ["ending_stealth_expose"] = new List<string>
+{
+    "상위 기록실 원본 기록의 외부 반출은 차단된다.",
+    "하지만 플레이어의 승급 심사 로그와 임시 접근 권한이 화면에 떠오른다.",
+    "플레이어는 기록 재분류 절차를 역이용하고,\n닫혀 있던 원본 기록 일부가 외부 공개 자료에 첨부된다.",
+    "상위 기록실 문은 잠기지만, 이미 일부 기록은 밖으로 새어나간 뒤다."
+},
         };
+            
 
     // ─── 엔딩별 공식뉴스 ────────────────────────────────────────────────────
     private static readonly Dictionary<string, (string title, string content)> EndingNews
@@ -214,12 +219,11 @@ public class EndingScreenUI : MonoBehaviour
     private void Awake()
     {
         HideAllImmediate();
-        LoadCutsceneBackgroundData(); // ★ 추가
+        LoadCutsceneBackgroundData();
         if (confirmButton != null)
             confirmButton.onClick.AddListener(OnClickConfirm);
     }
 
-    // ★ 추가 — StreamingAssets/GameData/ending_backgrounds.json 로드
     private void LoadCutsceneBackgroundData()
     {
         string path = Path.Combine(Application.streamingAssetsPath, "GameData/ending_backgrounds.json");
@@ -238,10 +242,10 @@ public class EndingScreenUI : MonoBehaviour
             if (string.IsNullOrEmpty(entry.endingKey)) continue;
             if (!cutsceneBackgroundMap.TryGetValue(entry.endingKey, out var lineMap))
             {
-                lineMap = new Dictionary<int, string>();
+                lineMap = new Dictionary<int, CutsceneBackgroundEntry>();
                 cutsceneBackgroundMap[entry.endingKey] = lineMap;
             }
-            lineMap[entry.lineIndex] = entry.background;
+            lineMap[entry.lineIndex] = entry;
         }
     }
 
@@ -249,7 +253,12 @@ public class EndingScreenUI : MonoBehaviour
     {
         if (cutscenePanelCG == null ||
             !cutscenePanelCG.gameObject.activeSelf ||
-            cutscenePanelCG.alpha < 0.5f) return;
+            cutscenePanelCG.alpha < 0.5f)
+        {
+            
+            return;
+        }
+        
 
         bool advance = Input.GetKeyDown(KeyCode.Space) ||
                        Input.GetKeyDown(KeyCode.Return) ||
@@ -271,7 +280,7 @@ public class EndingScreenUI : MonoBehaviour
         onConfirmCallback = onConfirm;
         currentEndingKey = endingKey;
 
-        if (speakerNameText != null) // ★ 추가 — 독백이라 플레이어 본인 이름을 화자로 표시
+        if (speakerNameText != null)
             speakerNameText.text = PlayerData.Instance?.PlayerName ?? "";
 
         if (!EndingNews.TryGetValue(endingKey, out var news))
@@ -284,7 +293,17 @@ public class EndingScreenUI : MonoBehaviour
         currentNewsContent = news.content;
 
         CutsceneLines.TryGetValue(endingKey, out var lines);
-        currentCutsceneLines = lines ?? new List<string>();
+        currentCutsceneLines = new List<string>(lines ?? new List<string>()); // ★ 수정 — 복사본
+
+        // ★ 추가 — 닫힌 기록: 가족기록 요구 경로 여부에 따라 1번 줄 내용만 교체 (인덱스 유지)
+        if (endingKey == "ending_expose_closed" && currentCutsceneLines.Count > 1)
+        {
+            bool tookFamilyPath = GameFlags.Instance?.HasFlag("choice_expose_family_request") == true;
+            currentCutsceneLines[1] = tookFamilyPath
+                ? "여깄다.\n흑막은 약속처럼 가족 기록 일부를 열어주지만, 중요한 줄들은 여전히 검은 칸으로 가려져 있다."
+                : "송출 장치의 화면이 조용히 꺼진다.";
+        }
+
         cutsceneIndex = 0;
 
         if (currentCutsceneLines.Count > 0)
@@ -297,7 +316,9 @@ public class EndingScreenUI : MonoBehaviour
     private void ShowCutscenePanel()
     {
         if (cutsceneBackgroundImage != null)
-            cutsceneBackgroundImage.sprite = null; // ★ 추가 — 이전 엔딩의 잔상 방지
+            cutsceneBackgroundImage.sprite = null;
+        if (cutsceneText != null)
+            cutsceneText.text = ""; // ★ 추가 — 페이드인 동안 더미 텍스트 안 보이게
 
         cutscenePanelCG.gameObject.SetActive(true);
         cutscenePanelCG.alpha = 0f;
@@ -315,19 +336,25 @@ public class EndingScreenUI : MonoBehaviour
     {
         if (cutsceneText == null) return;
 
-        // ★ 추가 — JSON에 이 줄의 배경이 지정돼 있으면 교체, 없으면 이전 배경 유지
         if (cutsceneBackgroundImage != null &&
             cutsceneBackgroundMap.TryGetValue(currentEndingKey, out var lineMap) &&
-            lineMap.TryGetValue(index, out var bgKey) &&
-            !string.IsNullOrEmpty(bgKey))
+            lineMap.TryGetValue(index, out var entry))
         {
-            var sprite = Resources.Load<Sprite>($"CutsceneBackgrounds/{bgKey}");
-            if (sprite != null) cutsceneBackgroundImage.sprite = sprite;
-            else Debug.LogWarning($"[EndingScreenUI] 배경 스프라이트 없음: {bgKey}");
+            bool isMale = PlayerData.Instance?.IsMale ?? true;
+            string bgKey = isMale && !string.IsNullOrEmpty(entry.backgroundMale) ? entry.backgroundMale
+                         : !isMale && !string.IsNullOrEmpty(entry.backgroundFemale) ? entry.backgroundFemale
+                         : entry.background;
+
+            if (!string.IsNullOrEmpty(bgKey))
+            {
+                var sprite = Resources.Load<Sprite>($"CutsceneBackgrounds/{bgKey}");
+                if (sprite != null) cutsceneBackgroundImage.sprite = sprite;
+                else Debug.LogWarning($"[EndingScreenUI] 배경 스프라이트 없음: {bgKey}");
+            }
         }
 
         if (typingCoroutine != null) StopCoroutine(typingCoroutine);
-        typingCoroutine = StartCoroutine(TypeLine(currentCutsceneLines[index]));
+        typingCoroutine = StartCoroutine(TypeLine(ResolveLine(currentCutsceneLines[index])));
     }
 
     private System.Collections.IEnumerator TypeLine(string line)
@@ -342,11 +369,31 @@ public class EndingScreenUI : MonoBehaviour
         isTyping = false;
     }
 
+    // ★ 추가 — {playerName} 치환
+    private string ResolveLine(string raw)
+    {
+        if (string.IsNullOrEmpty(raw)) return raw;
+        string name = PlayerData.Instance?.PlayerName ?? "";
+        raw = raw.Replace("{playerName}", name);
+        raw = raw.Replace("{playerName은는}", name + AttachParticle(name, "은", "는"));
+        raw = raw.Replace("{playerName이가}", name + AttachParticle(name, "이", "가"));
+        return raw;
+    }
+
+    private string AttachParticle(string name, string withBatchim, string noBatchim)
+    {
+        if (string.IsNullOrEmpty(name)) return noBatchim;
+        char last = name[name.Length - 1];
+        if (last < 0xAC00 || last > 0xD7A3) return noBatchim;
+        int finalIndex = (last - 0xAC00) % 28;
+        return finalIndex != 0 ? withBatchim : noBatchim;
+    }
+
     private void SkipTyping()
     {
         if (cutsceneText == null) return;
         if (typingCoroutine != null) StopCoroutine(typingCoroutine);
-        cutsceneText.text = currentCutsceneLines[cutsceneIndex];
+        cutsceneText.text = ResolveLine(currentCutsceneLines[cutsceneIndex]); // ★ 수정
         isTyping = false;
     }
 
@@ -359,7 +406,6 @@ public class EndingScreenUI : MonoBehaviour
         }
         else
         {
-            // 컷씬 종료 → 뉴스 패널로 전환
             cutscenePanelCG.interactable = false;
             cutscenePanelCG.blocksRaycasts = false;
             cutscenePanelCG.DOFade(0f, fadeDuration).OnComplete(() =>
@@ -394,7 +440,41 @@ public class EndingScreenUI : MonoBehaviour
         panelCG.DOFade(0f, fadeDuration).OnComplete(() =>
         {
             HideAllImmediate();
-            onConfirmCallback?.Invoke();
+
+            Debug.Log($"[크레딧디버그] currentEndingKey={currentEndingKey}, " +
+                      $"CutsceneManager.Instance={CutsceneManager.Instance != null}");
+
+            if (CutsceneManager.Instance != null)
+            {
+                // "엔딩크레딧영상키"는 실제 사용하는 영상 키로 변경 유지
+                CutsceneManager.Instance.Play("mp4_3", () =>
+                {
+                    // ★ 엔딩 분기 처리: 엔딩 키값에 따라 재시작 지점을 다르게 설정
+                    if (currentEndingKey == "ending_early_out")
+                    {
+                        // 1. 조기 퇴근 엔딩: Day 5부터 재시작
+                        // (실제 GameManager에 구현된 Day 5 재시작 메서드 이름으로 변경해주세요)
+                        FindObjectOfType<GameManager>()?.ConfirmRestartFromDay5();
+                    }
+                    else if (currentEndingKey == "ending_late_person_interviewed" ||
+                             currentEndingKey == "ending_late_person")
+                    {
+                        // 2. 야근 관련 배드 엔딩 2종: Day 7부터 재시작
+                        // (실제 GameManager에 구현된 Day 7 재시작 메서드 이름으로 변경해주세요)
+                        FindObjectOfType<GameManager>()?.ConfirmRestartFromDay7();
+                    }
+                    else
+                    {
+                        // 3. 그 외의 엔딩(트루/노멀 등): 완전히 처음부터 초기화
+                        FindObjectOfType<GameManager>()?.ResetGame();
+                    }
+                });
+            }
+            else
+            {
+                // CutsceneManager가 씬에 없을 경우의 예비 동작
+                onConfirmCallback?.Invoke();
+            }
         });
     }
 

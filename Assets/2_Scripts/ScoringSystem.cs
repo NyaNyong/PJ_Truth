@@ -60,6 +60,7 @@ public class ScoringSystem : MonoBehaviour
         Instance = this;
         transform.SetParent(null);        // ★ 추가
         DontDestroyOnLoad(gameObject);
+        TotalKPI = kpiMax * 0.5f; // ★ 추가 — Stage4 시작 승급도 50%
     }
 
     public int TotalProcessedDocuments { get; private set; } = 0;
@@ -81,9 +82,13 @@ public class ScoringSystem : MonoBehaviour
             grade = grade
         };
 
-        TotalKPI = Mathf.Clamp(TotalKPI + total, 0f, kpiMax);
+        // ★ 튜토리얼 페이즈(Day 3)에서는 KPI 수치를 변경하지 않음
+        if (day != 3)
+        {
+            TotalKPI = Mathf.Clamp(TotalKPI + total, 0f, kpiMax);
+        }
 
-        // ★ 등급별 성과금 지급
+        // 등급별 성과금 할당
         int earned = grade switch
         {
             Grade.S => bonusPayS,
@@ -92,8 +97,15 @@ public class ScoringSystem : MonoBehaviour
             Grade.C => bonusPayC,
             _ => bonusPayF
         };
-        TodayEarned = earned; // ★
-        if (earned > 0) EarnBonusPay(earned);
+
+        // ★ UI 결과창 표기를 위해 획득량(TodayEarned)은 할당
+        TodayEarned = earned;
+
+        // ★ 실제 성과금 잔고 증가는 튜토리얼(Day 3)이 아닐 때만 적용
+        if (earned > 0 && day != 3)
+        {
+            EarnBonusPay(earned);
+        }
 
         Debug.Log($"[Score] Day{day} — {total:F1}점 / {grade} / KPI: {TotalKPI:F0}/{kpiMax}");
         return lastScore;
@@ -121,12 +133,12 @@ public class ScoringSystem : MonoBehaviour
     // ★ 전체 초기화 (재시도 시 "게임을 켠 상태"로 복원)
     public void ResetAll()
     {
-        TotalKPI = 0f;
+        TotalKPI = kpiMax * 0.5f;
         BonusPay = 0;
         TodayEarned = 0;
         TotalProcessedDocuments = 0;
         lastScore = null;
-        Debug.Log("[ScoringSystem] 전체 초기화 완료 (KPI/성과금/점수기록 전부 클리어)");
+        Debug.Log("[ScoringSystem] 전체 초기화 완료 (승급도 50%로 시작)");
     }
 
     private Grade GetGrade(float score)

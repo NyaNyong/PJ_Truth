@@ -36,7 +36,7 @@
       "censorKeywords": [
         "실종자", "공개", "유가족", "시민들이", "이름", "사진", "이동", "집회", "분리", "상위기록실"
       ],
-      "criticalCensorKeywords": ["실종자", "공개", "상위기록실"],
+      "criticalCensorKeywords": [],
       "typewriterSlots": [
         {
           "slotIndex": 0,
@@ -58,11 +58,11 @@
   "conditionalLocations": [
     {
       "locationName": "loc_s6_promotion_area",
-      "condition": { "type": "hasFlag", "value": "route_stealth" }
+      "condition": { "type": "hasFlag", "value": "censor_heavy_day6" }
     },
     {
       "locationName": "loc_s6_protest_area",
-      "condition": { "type": "hasFlag", "value": "route_expose" }
+      "condition": { "type": "hasFlag", "value": "censor_weak_day6" }
     }
   ],
   "locations": [
@@ -228,7 +228,7 @@
                 "완벽하지 않아도 돼요.",
                 "이름이 완전히 지워지기 전에, 누군가는 말해야 하니까요."
               ],
-              "grantClueID": "clue_s6_immediate_support", "setFlag": "", "costBonusPay": 0, "isExitChoice": false, "isUniqueChoice": true
+              "grantClueID": "clue_s6_immediate_support", "setFlag": "", "costBonusPay": 0, "isExitChoice": false, "isUniqueChoice": false
             },
             {
               "label": "이걸로 충분할까요?",
@@ -236,7 +236,7 @@
                 "충분한지 아닌지는 모르겠어요.",
                 "하지만 한 문장이라도 남는다면, 그걸 붙잡을 거예요."
               ],
-              "grantClueID": "clue_s6_one_sentence", "setFlag": "", "costBonusPay": 0, "isExitChoice": false, "isUniqueChoice": true
+              "grantClueID": "clue_s6_one_sentence", "setFlag": "", "costBonusPay": 0, "isExitChoice": false, "isUniqueChoice": false
             },
             {
               "label": "더 묻지 않는다.",
@@ -273,7 +273,7 @@
                 "공식 문장 하나가 균열을 만들 수는 있습니다.",
                 "하지만 그 균열을 증거로 넓히는 건 우리가 해야 할 일입니다."
               ],
-              "grantClueID": "clue_s6_incomplete_expose", "setFlag": "", "costBonusPay": 0, "isExitChoice": false, "isUniqueChoice": true
+              "grantClueID": "clue_s6_incomplete_expose", "setFlag": "", "costBonusPay": 0, "isExitChoice": false, "isUniqueChoice": false
             },
             {
               "label": "공개 행동 비용을 지원한다.",
@@ -281,7 +281,7 @@
                 "자료 인쇄와 연락망 확보에 쓰겠습니다.",
                 "공식 뉴스가 나오면 바로 움직일 수 있게요."
               ],
-              "grantClueID": "clue_s6_action_support", "setFlag": "", "costBonusPay": 2, "isExitChoice": false, "isUniqueChoice": true
+              "grantClueID": "clue_s6_action_support", "setFlag": "", "costBonusPay": 2, "isExitChoice": false, "isUniqueChoice": false
             },
             {
               "label": "더 묻지 않는다.",

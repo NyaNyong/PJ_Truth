@@ -239,4 +239,29 @@ public class GameTextLoader : MonoBehaviour
             }
         }
     }
+    // ★ 추가 — 오늘 데이터의 모든 장소에 걸친 단서 ID 전체 목록
+    public List<string> GetAllClueIDs()
+    {
+        var ids = new List<string>();
+        if (currentData?.locations == null) return ids;
+        foreach (var loc in currentData.locations)
+            if (loc.clues != null)
+                foreach (var c in loc.clues)
+                    if (!string.IsNullOrEmpty(c.id)) ids.Add(c.id);
+        return ids;
+    }
+    public List<string> GetClueIDsForLocations(IEnumerable<string> locationNames)
+    {
+        var ids = new List<string>();
+        if (currentData?.locations == null) return ids;
+        var nameSet = new HashSet<string>(locationNames);
+        foreach (var loc in currentData.locations)
+        {
+            if (!nameSet.Contains(loc.locationID)) continue;
+            if (loc.clues == null) continue;
+            foreach (var c in loc.clues)
+                if (!string.IsNullOrEmpty(c.id)) ids.Add(c.id);
+        }
+        return ids;
+    }
 }

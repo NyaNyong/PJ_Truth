@@ -58,6 +58,9 @@ public class WhiteboardManager : MonoBehaviour
     [SerializeField] private float fadeDuration = 0.35f;
     [SerializeField] private float cardStagger = 0.07f;
 
+    [Header("플레이어 배려 — 연결 카운터")]
+    [SerializeField] private TextMeshProUGUI connectionCountText;
+
     private List<ClueCardData> pendingCards = new List<ClueCardData>();
     private List<CorrectConnection> correctConnections = new List<CorrectConnection>();
     private List<ClueCard> spawnedCards = new List<ClueCard>();
@@ -155,18 +158,62 @@ public class WhiteboardManager : MonoBehaviour
         isCurtainDown = false;
         ResetCurtain();
         ShowPanel();
-        StartCoroutine(SpawnCardsNextFrame());
-    }
 
+        // ★ 인스펙터 할당이 누락되었을 경우를 대비해 직접 찾기
+        GameManager gm = gameManager != null ? gameManager : FindObjectOfType<GameManager>();
+
+        if (gm != null && gm.currentDay == 3 && TutorialManager.Instance != null)
+        {
+            TutorialManager.Instance.OnWhiteboardStarted(() => StartCoroutine(SpawnCardsNextFrame()));
+        }
+        else
+        {
+            StartCoroutine(SpawnCardsNextFrame());
+        }
+
+    }
     public void CloseBoard()
     {
+        if (TutorialManager.Instance != null)
+        {
+            TutorialManager.Instance.ForceCloseTutorial();
+        }
+
         if (!isCurtainDown)
         {
+            string title = "진실 조사를 종료하시겠습니까?";
+            string warning = "⚠ 종료 후에는 다시 되돌릴 수 없습니다";
+
+            GameManager gm = gameManager != null ? gameManager : FindObjectOfType<GameManager>();
+            if (gm != null && gm.currentDay == 3)
+            {
+                title = "행운을 빕니다";
+                warning = "";
+            }
+
             ConfirmPopupUI.Instance?.Open(
-                "진실 조사를 종료하시겠습니까?",
+                title,
                 "",
-                "⚠ 종료 후에는 다시 되돌릴 수 없습니다",
-                onConfirm: () => { isCurtainDown = true; ShowCurtain(); },
+                warning,
+                onConfirm: () =>
+                {
+                    isCurtainDown = true;
+                    ShowCurtain();
+
+                    
+
+                    // ★ 핵심 수정 2: 만약 ShowCurtain() 연출 종료 후 자동으로 다음 날로 넘어가는 로직이 없다면,
+                    // 이곳에서 다음 날 혹은 다음 페이즈로 전환하는 GameManager의 메서드를 직접 호출해야 합니다.
+                    // (아래 예시 메서드 중 실제 프로젝트에 구현된 메서드의 주석을 해제하거나 추가하세요)
+                    // gm?.NextDay(); 
+                    // gm?.EndNightPhase();
+
+                    // ★ 핵심 추가: 화이트보드(Day 3의 마지막) 종료 시 튜토리얼 캔버스를 완전히 파괴합니다.
+                    if (TutorialManager.Instance != null)
+                    {
+                        TutorialManager.Instance.DestroyTutorialUI();
+                    }
+                },
                 confirmText: "예", cancelText: "아니요"
             );
         }
@@ -313,6 +360,8 @@ public class WhiteboardManager : MonoBehaviour
                 // ★ 특정 연결 완성 시 짧은 컷씬 재생 (배경+대사 방식 — MidCutsceneUI)
                 if (!string.IsNullOrEmpty(conn.cutsceneClip))
                     MidCutsceneUI.Instance?.Play(conn.cutsceneClip, null);
+
+                RefreshConnectionCount();
             }
         }
     }
@@ -336,15 +385,34 @@ public class WhiteboardManager : MonoBehaviour
         GameFlags.Instance?.AddTruth(message);
         if (truthBadge != null) truthBadge.SetActive(true);
 
+        // ★ 튜토리얼 호출용 내부 함수
+        System.Action onTruthRevealed = () => {
+            GameManager gm = gameManager != null ? gameManager : FindObjectOfType<GameManager>();
+            if (gm != null && gm.currentDay == 3 && TutorialManager.Instance != null && !TutorialManager.Instance._truthNoteGuided)
+            {
+                Debug.Log("[Tutorial] 진실 노트 버튼 가이드 실행");
+                TutorialManager.Instance.OnTruthNoteGuide(truthNoteButton);
+            }
+        };
+
         if (revealPanelCG != null && revealText != null)
         {
-            revealPanelCG.DOKill(); // ★ 추가 — 이전 페이드 충돌 방지
+            revealPanelCG.DOKill();
             revealText.text = message;
             revealPanelCG.gameObject.SetActive(true);
             revealPanelCG.alpha = 0f;
             revealPanelCG.DOFade(1f, 0.5f).OnComplete(() =>
-                revealPanelCG.DOFade(0f, 0.5f).SetDelay(2f) // ★ 추가 — 2초 보여준 뒤 자동으로 사라짐
-                    .OnComplete(() => revealPanelCG.gameObject.SetActive(false)));
+                revealPanelCG.DOFade(0f, 0.5f).SetDelay(2f)
+                    .OnComplete(() =>
+                    {
+                        revealPanelCG.gameObject.SetActive(false);
+                        onTruthRevealed.Invoke(); // ★ 팝업이 닫힌 후 화살표/대화창 호출
+                    }));
+        }
+        else
+        {
+            // UI가 없을 경우 시간차로 실행
+            DOVirtual.DelayedCall(2.5f, () => onTruthRevealed.Invoke());
         }
 
         if (spawnedStrings.Count > 0)
@@ -358,6 +426,7 @@ public class WhiteboardManager : MonoBehaviour
         else ShowTruthNote();
     }
 
+    // ── 진실 노트 열기 ────────────────────────────
     private void ShowTruthNote()
     {
         if (truthNotePanelCG == null || truthNoteContainer == null) return;
@@ -386,6 +455,17 @@ public class WhiteboardManager : MonoBehaviour
         {
             truthNotePanelCG.interactable = true;
             truthNotePanelCG.blocksRaycasts = true;
+
+            // ★ 튜토리얼 2단계: 유저가 진실 노트를 열람하면 '종료(커튼콜) 버튼' 가이드
+            GameManager gm = gameManager != null ? gameManager : FindObjectOfType<GameManager>();
+            if (gm != null && gm.currentDay == 3 &&
+                TutorialManager.Instance != null &&
+                TutorialManager.Instance._truthNoteGuided &&
+                !TutorialManager.Instance._whiteboardCloseGuided)
+            {
+                Debug.Log("[Tutorial] 화이트보드 커튼콜(종료) 버튼 가이드 실행");
+                TutorialManager.Instance.OnWhiteboardCloseGuide(closeButton);
+            }
         });
     }
 
@@ -413,6 +493,7 @@ public class WhiteboardManager : MonoBehaviour
                     if (!isOpen) return;
                     isOpen = false;
                     HidePanel();
+
                 });
             });
     }
@@ -429,6 +510,16 @@ public class WhiteboardManager : MonoBehaviour
             whiteboardPanelCG.interactable = true;
             whiteboardPanelCG.blocksRaycasts = true;
         });
+    }
+
+    private void RefreshConnectionCount()
+    {
+        if (connectionCountText == null) return;
+        var achievable = correctConnections.Where(conn =>
+            conn.cardIDs != null &&
+            conn.cardIDs.All(id => spawnedCards.Exists(c => c.CardID == id)));
+        int remaining = achievable.Count(c => !c.isRevealed);
+        connectionCountText.text = remaining > 0 ? $"남은 연결: {remaining}개" : "모든 연결을 완료했습니다.";
     }
 
     private void HidePanel()
@@ -538,6 +629,7 @@ public class WhiteboardManager : MonoBehaviour
                .SetDelay(i * cardStagger)
                .SetEase(Ease.OutBack);
         }
+        RefreshConnectionCount(); // ★ 추가 — 카드 스폰 끝난 뒤 호출
     }
 
     private List<Vector2> GeneratePositions(int count)
